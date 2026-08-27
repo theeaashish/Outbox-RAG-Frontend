@@ -10,6 +10,13 @@ export * from "./components/ui/separator";
 export * from "./components/ui/sheet";
 export * from "./components/ui/sonner";
 
+// Shared Primitives & Blocks
+export * from "./components/logo";
+export * from "./components/portal";
+
+// Hooks
+export * from "./hooks/use-scroll";
+
 // Theme Provider
 export * from "./components/theme-provider";
 

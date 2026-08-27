@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider, Toaster } from "@repo/ui";
+import { Header } from "@/components/layout";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -20,14 +21,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={inter.variable}>
-      <body className="font-sans antialiased">
+      <body className="font-sans antialiased min-h-screen bg-background text-foreground flex flex-col">
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
           enableSystem={false}
           disableTransitionOnChange
         >
-          {children}
+          <Header />
+          <div className="flex-1 flex flex-col">{children}</div>
           <Toaster />
         </ThemeProvider>
       </body>

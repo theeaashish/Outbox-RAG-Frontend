@@ -19,6 +19,8 @@
       "name": "web",
       "version": "0.1.0",
       "dependencies": {
+        "@hugeicons/core-free-icons": "^4.3.0",
+        "@hugeicons/react": "^1.1.10",
         "@repo/database": "workspace:*",
         "@repo/env": "workspace:*",
         "@repo/ui": "workspace:*",
@@ -102,6 +104,7 @@
         "@repo/eslint-config": "workspace:*",
         "@repo/typescript-config": "workspace:*",
         "@types/node": "^25.9.2",
+        "@types/react-dom": "^19.2.5",
         "eslint": "^9.39.1",
         "prettier": "^3.8.4",
         "typescript": "^5.9.3",

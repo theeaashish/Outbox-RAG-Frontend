@@ -13,7 +13,7 @@ import {
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-6 bg-background text-foreground">
+    <main className="flex flex-1 flex-col items-center justify-center p-6">
       <Card className="w-full max-w-md shadow-lg border-border">
         <CardHeader>
           <div className="flex items-center justify-between">
