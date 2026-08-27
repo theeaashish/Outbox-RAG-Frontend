@@ -8,7 +8,7 @@ This starter kit includes a powerful combination of tools and configurations:
 
 ### 🏗️ Apps & Packages
 
-- **`apps/web`**: A [Next.js 16](https://nextjs.org/) application (App Router) with Tailwind CSS v4 and Biome.
+- **`apps/web`**: A [Next.js 16](https://nextjs.org/) application (App Router) with Tailwind CSS v4.
 - **`packages/ui`**: A shared React component library using **Shadcn UI** primitives and Tailwind CSS.
 - **`packages/database`**: A type-safe database client using **Prisma 7** and PostgreSQL.
 - **`tooling/typescript`**: Shared `tsconfig.json` configurations.
@@ -22,7 +22,7 @@ This starter kit includes a powerful combination of tools and configurations:
 - **Framework**: [Next.js](https://nextjs.org/)
 - **Database ORM**: [Prisma](https://www.prisma.io/) (v7)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/) (v4)
-- **Linting & Formatting**: [Biome](https://biomejs.dev/) & [ESLint](https://eslint.org/)
+- **Linting & Formatting**: [ESLint](https://eslint.org/) & [Prettier](https://prettier.io/)
 
 ---
 
@@ -31,7 +31,7 @@ This starter kit includes a powerful combination of tools and configurations:
 ### Prerequisites
 
 - **Node.js**: >= 20.x
-- **Bun**: >= 1.x
+- **Bun**: >= 1.4.x
 - **PostgreSQL**: Running locally or via a provider (e.g., Neon, Supabase).
 
 ### 1️⃣ Installation
@@ -75,15 +75,15 @@ The web app will be available at `http://localhost:3000`.
 
 ## 📜 Scripts & Commands
 
-| Command            | Description                                                              |
-| :----------------- | :----------------------------------------------------------------------- |
-| `bun run dev`      | Start the development server for all apps.                               |
-| `bun run build`    | Build all apps and packages.                                             |
-| `bun run lint`     | Run linting across the monorepo.                                         |
-| `bun run format`   | Format code using Prettier/Biome.                                        |
-| `bun run check-types` | Run TypeScript type checking.                                         |
+| Command               | Description                                                              |
+| :-------------------- | :----------------------------------------------------------------------- |
+| `bun run dev`         | Start the development server for all apps.                               |
+| `bun run build`       | Build all apps and packages.                                             |
+| `bun run lint`        | Run linting across the monorepo.                                         |
+| `bun run format`      | Format code using Prettier.                                              |
+| `bun run typecheck`   | Run TypeScript type checking.                                            |
 | `bun run db:generate` | Generate Prisma client (run in `packages/database` or root with filter). |
-| `bun run clean`    | Clean `node_modules` and `.turbo` caches.                                |
+| `bun run clean`       | Clean `node_modules` and `.turbo` caches.                                |
 
 ---
 

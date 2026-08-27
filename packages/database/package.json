@@ -19,7 +19,7 @@
     "lint:fix": "eslint src --config eslint.config.mjs --fix",
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
-    "typecheck": "prisma generate && tsc --noEmit"
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",

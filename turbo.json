@@ -7,17 +7,17 @@
       "dependsOn": ["^build", "^db:generate"],
       "inputs": ["$TURBO_DEFAULT$"],
       "env": ["DATABASE_URL", "NEXT_PUBLIC_API_URL"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**", "src/generated/**"]
     },
     "lint": {
-      "dependsOn": ["^lint"],
       "inputs": ["$TURBO_DEFAULT$"]
     },
     "format": {
       "inputs": ["$TURBO_DEFAULT$"]
     },
     "typecheck": {
-      "dependsOn": ["^typecheck"],
+      "dependsOn": ["^db:generate"],
+      "env": ["DATABASE_URL"],
       "inputs": ["$TURBO_DEFAULT$"]
     },
     "dev": {
@@ -26,8 +26,12 @@
     },
     "db:generate": {
       "cache": true,
-      "inputs": ["prisma/schema.prisma"],
+      "inputs": ["prisma/schema.prisma", "prisma.config.ts"],
+      "env": ["DATABASE_URL"],
       "outputs": ["src/generated/**"]
+    },
+    "db:migrate": {
+      "cache": false
     },
     "db:push": {
       "cache": false
@@ -37,7 +41,8 @@
     },
     "test": {
       "dependsOn": ["^db:generate"],
-      "inputs": ["$TURBO_DEFAULT$", "**/*.test.*", "**/*.spec.*"]
+      "inputs": ["$TURBO_DEFAULT$", "**/*.test.*", "**/*.spec.*"],
+      "outputs": ["coverage/**"]
     },
     "clean": {
       "cache": false
