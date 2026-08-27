@@ -1,0 +1,52 @@
+{
+  "name": "turborepo-setup",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "tooling/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "clean": "git clean -xdf node_modules",
+    "clean:workspaces": "turbo run clean",
+    "db:generate": "turbo -F @repo/database db:generate",
+    "db:migrate": "turbo -F @repo/database db:migrate",
+    "db:push": "turbo -F @repo/database db:push",
+    "db:studio": "turbo -F @repo/database db:studio",
+    "dev": "turbo watch dev --continue",
+    "dev:next": "turbo watch dev -F web...",
+    "format": "turbo run format --continue",
+    "format:fix": "turbo run format --continue -- --write",
+    "lint": "turbo run lint --continue",
+    "lint:fix": "turbo run lint --continue -- --fix",
+    "lint:ws": "bunx sherif@latest",
+    "setup": "bun install && bun run db:generate",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "postinstall": "bun run db:generate && bun run lint:ws",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.8",
+    "@repo/prettier-config": "workspace:*",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.7",
+    "prettier": "^3.8.4",
+    "turbo": "^2.10.12",
+    "typescript": "^5.9.3"
+  },
+  "prettier": "@repo/prettier-config",
+  "packageManager": "bun@1.4.0",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "node tooling/eslint-config/lint-staged.js"
+    ],
+    "*.{json,md,yaml,yml}": [
+      "prettier --write"
+    ]
+  }
+}

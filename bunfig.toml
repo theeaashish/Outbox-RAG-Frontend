@@ -1,0 +1,11 @@
+# Bun configuration file
+# https://bun.sh/docs/runtime/bunfig
+
+[install]
+# Default to standard semver ranges (^x.y.z)
+exact = false
+
+# Enable installation of dev, peer, and optional dependencies
+dev = true
+peer = true
+optional = true
