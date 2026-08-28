@@ -27,10 +27,17 @@ export function Header({
 
   const defaultActions = (
     <>
-      <Button size="sm" className="py-3" variant="outline">
+      <Button
+        size="sm"
+        variant="outline"
+        className="h-8 rounded-lg border-zinc-200 bg-white px-3.5 text-xs font-medium text-zinc-900 shadow-xs hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+      >
         Sign In
       </Button>
-      <Button size="sm" className="py-3">
+      <Button
+        size="sm"
+        className="h-8 rounded-lg bg-zinc-900 px-3.5 text-xs font-medium text-white shadow-xs hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
+      >
         Get Started
       </Button>
     </>

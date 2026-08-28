@@ -36,10 +36,15 @@ export function MobileNav({
 
   const defaultActions = (
     <>
-      <Button className="w-full" variant="outline">
+      <Button
+        className="w-full rounded-lg border-zinc-200 bg-white text-xs font-medium text-zinc-900 shadow-xs hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+        variant="outline"
+      >
         Sign In
       </Button>
-      <Button className="w-full">Get Started</Button>
+      <Button className="w-full rounded-lg bg-zinc-900 text-xs font-medium text-white shadow-xs hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200">
+        Get Started
+      </Button>
     </>
   );
 

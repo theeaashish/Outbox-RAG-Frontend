@@ -21,5 +21,21 @@ export * from "./hooks/use-scroll";
 // Theme Provider
 export * from "./components/theme-provider";
 
+// Base Components - BoardUI
+export {
+  Button as BoardButton,
+  ButtonLink as BoardButtonLink,
+  type ButtonProps as BoardButtonProps,
+  type ButtonLinkProps as BoardButtonLinkProps,
+} from "./components/base/buttons/button";
+
+// Application - Dashboard & Sidebar
+export * from "./components/application/dashboard/dashboard-sidebar";
+export * from "./components/application/dashboard/dashboard-team-menu";
+export * from "./components/application/dashboard/dashboard-user-menu";
+export * from "./components/application/settings/settings-modal";
+export * from "./components/application/theme/theme-toggle";
+
 // Utilities
 export { cn } from "./lib/utils";
+export { cx } from "./utils/cx";
