@@ -1,48 +1,62 @@
+"use client";
+
+import * as React from "react";
+import { Hero } from "@/app/(marketing)/_components/hero";
 import {
-  Button,
-  Badge,
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-  Input,
-  Separator,
-} from "@repo/ui";
+  AiChatComposer,
+  DEFAULT_MODEL,
+  DEFAULT_EFFORT,
+  type Model,
+  type ComposerMode,
+  type ComposerStatus,
+  type ComposerAttachment,
+  type ComposerSubmitData,
+} from "@/components/ai-chat";
 
 export default function Home() {
+  const [draft, setDraft] = React.useState("");
+  const [model, setModel] = React.useState<Model>(DEFAULT_MODEL);
+  const [effort, setEffort] = React.useState(DEFAULT_EFFORT);
+  const [mode, setMode] = React.useState<ComposerMode>("agent");
+  const [status, setStatus] = React.useState<ComposerStatus>("idle");
+  const [attachments] = React.useState<ComposerAttachment[]>([]);
+
+  const handleSubmit = (data: ComposerSubmitData) => {
+    console.log("Submitted prompt:", data);
+    setDraft("");
+    setStatus("streaming");
+  };
+
+  const handleCancel = () => {
+    console.log("Cancelled generation");
+    setStatus("idle");
+  };
+
   return (
-    <main className="flex flex-1 flex-col items-center justify-center p-6">
-      <Card className="w-full max-w-md shadow-lg border-border">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-xl font-semibold">Basic RAG</CardTitle>
-            <Badge variant="outline">Base UI</Badge>
-          </div>
-          <CardDescription>
-            Frontend workspace initialized with Inter font & Base UI components.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-muted-foreground">
-              Query Python Backend
-            </label>
-            <Input placeholder="Ask a question about your documents..." />
-          </div>
-          <Separator />
-          <div className="flex gap-2">
-            <Button variant="default" className="flex-1">
-              Ask Question
-            </Button>
-            <Button variant="outline">Upload Doc</Button>
-          </div>
-        </CardContent>
-        <CardFooter className="text-xs text-muted-foreground justify-center">
-          Connected to Python RAG Pipeline
-        </CardFooter>
-      </Card>
+    <main>
+      <Hero>
+        <AiChatComposer
+          value={draft}
+          onChange={setDraft}
+          model={model}
+          effort={effort}
+          onModelChange={setModel}
+          onEffortChange={setEffort}
+          mode={mode}
+          onModeChange={setMode}
+          attachments={attachments}
+          status={status}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          branch={{ id: "main", name: "Main" }}
+          project={{ id: "project-sea", name: "project-sea" }}
+          contextUsage={57}
+          onFilesClick={() => console.log("Files clicked")}
+          onGoalClick={() => console.log("Goal clicked")}
+          onPlanClick={() => console.log("Plan clicked")}
+        />
+      </Hero>
     </main>
   );
 }
+

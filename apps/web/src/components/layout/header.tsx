@@ -41,7 +41,7 @@ export function Header({
       className={cn(
         "sticky top-0 z-50 w-full border-b border-transparent transition-colors",
         scrolled &&
-          "border-border bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/50",
+          "border-border bg-zinc-50/90 backdrop-blur-sm supports-backdrop-filter:bg-zinc-50/75",
         className
       )}
       {...props}
@@ -50,11 +50,11 @@ export function Header({
         {/* Left: Brand Logo */}
         <div className="flex flex-1 items-center justify-start">
           <Link
-            className="rounded-md p-2 hover:bg-muted dark:hover:bg-muted/50 transition-colors"
+            className="inline-flex items-center rounded-lg p-1.5 hover:bg-muted dark:hover:bg-muted/50 transition-colors"
             href={logoHref}
             aria-label="Home"
           >
-            {logo ?? <Logo className="h-4" />}
+            {logo ?? <Logo />}
           </Link>
         </div>
 
