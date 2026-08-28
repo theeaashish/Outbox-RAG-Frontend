@@ -12,8 +12,18 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 
-import { Button, cn, Popover, PopoverContent, PopoverTrigger } from "@repo/ui";
-import { MenuRow, PluginIcon } from "./menu-items";
+import {
+  BoardButton,
+  cn,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@repo/ui";
+import { MenuDivider, MenuRow, PluginIcon } from "./menu-items";
+import {
+  menuHeadingClassName,
+  popoverSurfaceClassName,
+} from "./popover-surface";
 
 export interface AddMenuProps {
   disabled?: boolean;
@@ -49,12 +59,13 @@ export function AddMenu({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         render={
-          <Button
-            type="button"
-            variant="ghost"
+          <BoardButton
+            variant="secondary"
+            size="small"
+            iconOnly
             disabled={disabled}
             aria-label={open ? "Close add menu" : "Open add menu"}
-            className="size-9 shrink-0 rounded-full bg-zinc-100/90 dark:bg-zinc-700/60 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-200/80 dark:hover:bg-zinc-700"
+            className="rounded-full border-0 bg-zinc-100/90 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200/70 dark:hover:bg-zinc-700 hover:text-zinc-800 dark:hover:text-zinc-200 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
           />
         }
       >
@@ -70,11 +81,10 @@ export function AddMenu({
         side="top"
         align="start"
         sideOffset={12}
-        className="w-80 max-w-[calc(100vw-2rem)] gap-0 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-2 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.12)] dark:shadow-[0_4px_24px_-4px_rgba(0,0,0,0.5)]"
+        className={cn(popoverSurfaceClassName, "w-80 max-w-[calc(100vw-2rem)]")}
       >
-        <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
-          Add
-        </p>
+        <p className={cn(menuHeadingClassName, "pt-2")}>Add</p>
+
         <MenuRow
           icon={<Paperclip className="size-4 shrink-0" />}
           title="Files and folders"
@@ -96,11 +106,10 @@ export function AddMenu({
           disabled={disabled}
         />
 
-        <div className="mx-1 my-1.5 h-px bg-zinc-200 dark:bg-zinc-800" />
+        <MenuDivider />
 
-        <p className="px-3 pb-1 pt-1.5 text-xs font-semibold uppercase tracking-wider text-zinc-400">
-          Plugins
-        </p>
+        <p className={cn(menuHeadingClassName, "pt-1.5")}>Plugins</p>
+
         <MenuRow
           icon={
             <PluginIcon className="bg-zinc-500">

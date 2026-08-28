@@ -13,6 +13,7 @@ export interface EffortSliderProps {
 }
 
 const MAX_INDEX = EFFORT_LEVELS.length - 1;
+const KNOB_WIDTH_PX = 36;
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
@@ -151,7 +152,8 @@ export function EffortSlider({
       onPointerUp={endDragging}
       onPointerCancel={endDragging}
       className={cn(
-        "relative h-8 cursor-pointer select-none touch-none",
+        "relative h-8 cursor-pointer select-none touch-none rounded-lg outline-none",
+        "focus-visible:ring-2 focus-visible:ring-[#2B7CF6]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-zinc-900",
         isDragging && "cursor-grabbing",
         className
       )}
@@ -196,11 +198,11 @@ export function EffortSlider({
       <div
         aria-hidden="true"
         className={cn(
-          "pointer-events-none absolute top-1/2 h-6 w-8 -translate-y-1/2 rounded-lg bg-white dark:bg-zinc-200 shadow-[0_1px_3px_rgba(0,0,0,0.12),0_1px_2px_rgba(0,0,0,0.08)] ring-1 ring-black/10 dark:ring-black/20",
+          "pointer-events-none absolute top-1/2 h-6 w-8 -translate-y-1/2 rounded-lg bg-white shadow-[0_1px_3px_rgba(0,0,0,0.12),0_1px_2px_rgba(0,0,0,0.08)] ring-1 ring-black/10 dark:bg-zinc-200 dark:ring-black/20",
           !isDragging && "transition-[left] duration-150"
         )}
         style={{
-          left: `calc(2px + (${percentage} / 100) * (100% - 36px))`,
+          left: `calc(2px + (${percentage} / 100) * (100% - ${KNOB_WIDTH_PX}px))`,
         }}
       />
     </div>

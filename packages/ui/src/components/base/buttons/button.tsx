@@ -168,12 +168,18 @@ export function Button({
       {...props}
     >
       {Leading ? <Leading className={styles.icon[size]} aria-hidden /> : null}
-      {!iconOnly && children !== undefined && children !== null && (
-        <span className={styles.label[size]}>{children}</span>
+      {iconOnly ? (
+        children
+      ) : (
+        <>
+          {children !== undefined && children !== null && (
+            <span className={styles.label[size]}>{children}</span>
+          )}
+          {Trailing ? (
+            <Trailing className={styles.icon[size]} aria-hidden />
+          ) : null}
+        </>
       )}
-      {!iconOnly && Trailing ? (
-        <Trailing className={styles.icon[size]} aria-hidden />
-      ) : null}
     </button>
   );
 }
@@ -203,12 +209,18 @@ export function ButtonLink({
       {...props}
     >
       {Leading ? <Leading className={styles.icon[size]} aria-hidden /> : null}
-      {!iconOnly && children !== undefined && children !== null && (
-        <span className={styles.label[size]}>{children}</span>
+      {iconOnly ? (
+        children
+      ) : (
+        <>
+          {children !== undefined && children !== null && (
+            <span className={styles.label[size]}>{children}</span>
+          )}
+          {Trailing ? (
+            <Trailing className={styles.icon[size]} aria-hidden />
+          ) : null}
+        </>
       )}
-      {!iconOnly && Trailing ? (
-        <Trailing className={styles.icon[size]} aria-hidden />
-      ) : null}
     </a>
   );
 }
