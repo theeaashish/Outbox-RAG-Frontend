@@ -1,13 +1,21 @@
 "use client";
 
 import * as React from "react";
-import { projectsReducer, type ProjectItem } from "./sidebar-data";
+import {
+  projectsReducer,
+  type KnowledgeBaseFile,
+  type ProjectItem,
+} from "./sidebar-data";
 
 interface DashboardProjectsContextValue {
   projects: ProjectItem[];
   activeSessionId: string | null;
   toggleProject: (projectId: string) => void;
-  createProject: () => void;
+  createProject: (payload: {
+    name: string;
+    description?: string;
+    knowledgeBase?: KnowledgeBaseFile[];
+  }) => void;
   createChat: (projectId: string) => void;
   deleteChat: (projectId: string, sessionId: string) => void;
   selectSession: (sessionId: string | null) => void;
@@ -42,19 +50,30 @@ export function DashboardProjectsProvider({
     [onSelectSession]
   );
 
+  const createProject = React.useCallback(
+    (payload: {
+      name: string;
+      description?: string;
+      knowledgeBase?: KnowledgeBaseFile[];
+    }) => {
+      dispatch({ type: "create-project", ...payload });
+    },
+    []
+  );
+
   const value = React.useMemo<DashboardProjectsContextValue>(
     () => ({
       projects: state.projects,
       activeSessionId: state.activeSessionId,
       toggleProject: (projectId) =>
         dispatch({ type: "toggle-project", projectId }),
-      createProject: () => dispatch({ type: "create-project" }),
+      createProject,
       createChat: (projectId) => dispatch({ type: "create-chat", projectId }),
       deleteChat: (projectId, sessionId) =>
         dispatch({ type: "delete-chat", projectId, sessionId }),
       selectSession,
     }),
-    [state, selectSession]
+    [state, selectSession, createProject]
   );
 
   return (

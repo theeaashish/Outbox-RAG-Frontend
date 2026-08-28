@@ -25,6 +25,7 @@ import { SidebarNavItem, type NavAction } from "./sidebar-nav-item";
 import { ProjectNode } from "./project-node";
 import { QuickSearch } from "./quick-search";
 import { useHotkey } from "@/app/(dashboard)/_hooks/use-hotkey";
+import { NewProjectDialog } from "@/app/(dashboard)/_components/new-project/new-project-dialog";
 
 export interface DashboardSidebarProps {
   mobile?: boolean;
@@ -41,7 +42,6 @@ export function DashboardSidebar({
     projects,
     activeSessionId,
     toggleProject,
-    createProject,
     createChat,
     deleteChat,
     selectSession,
@@ -49,6 +49,7 @@ export function DashboardSidebar({
 
   const [collapsedState, setCollapsedState] = React.useState(false);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
+  const [newProjectOpen, setNewProjectOpen] = React.useState(false);
   const [searchActive, setSearchActive] = React.useState(false);
   const [query, setQuery] = React.useState("");
   const searchInputRef = React.useRef<HTMLInputElement>(null);
@@ -97,7 +98,11 @@ export function DashboardSidebar({
   );
 
   const primaryActions: NavAction[] = [
-    { label: "New Project", icon: RiAddLine, onClick: createProject },
+    {
+      label: "New Project",
+      icon: RiAddLine,
+      onClick: () => setNewProjectOpen(true),
+    },
     { label: "Automations", icon: RiRobot2Line },
     { label: "Customize", icon: RiMagicLine },
   ];
@@ -235,6 +240,11 @@ export function DashboardSidebar({
       <SettingsModal
         isOpen={settingsOpen}
         onClose={() => setSettingsOpen(false)}
+      />
+
+      <NewProjectDialog
+        open={newProjectOpen}
+        onOpenChange={setNewProjectOpen}
       />
     </aside>
   );

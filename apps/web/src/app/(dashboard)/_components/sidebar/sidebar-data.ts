@@ -5,9 +5,17 @@ export interface ChatSession {
   href?: string;
 }
 
+export interface KnowledgeBaseFile {
+  id: string;
+  name: string;
+  sizeBytes: number;
+}
+
 export interface ProjectItem {
   id: string;
   name: string;
+  description?: string;
+  knowledgeBase?: KnowledgeBaseFile[];
   expanded?: boolean;
   sessions?: ChatSession[];
 }
@@ -19,14 +27,19 @@ export interface ProjectsState {
 
 export type ProjectsAction =
   | { type: "toggle-project"; projectId: string }
-  | { type: "create-project" }
+  | {
+      type: "create-project";
+      name: string;
+      description?: string;
+      knowledgeBase?: KnowledgeBaseFile[];
+    }
   | { type: "create-chat"; projectId: string }
   | { type: "delete-chat"; projectId: string; sessionId: string }
   | { type: "select-session"; sessionId: string | null };
 
-export function createId(prefix: string): string {
-  return `${prefix}-${globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2, 10)}`;
-}
+import { createId } from "@/utils/id";
+
+export { createId };
 
 export function projectsReducer(
   state: ProjectsState,
@@ -45,7 +58,13 @@ export function projectsReducer(
       const sessionId = createId("chat");
       const project: ProjectItem = {
         id: createId("project"),
-        name: `new project ${state.projects.length + 1}`,
+        name: action.name.trim(),
+        ...(action.description?.trim()
+          ? { description: action.description.trim() }
+          : {}),
+        ...(action.knowledgeBase && action.knowledgeBase.length > 0
+          ? { knowledgeBase: action.knowledgeBase }
+          : {}),
         expanded: true,
         sessions: [{ id: sessionId, title: "New chat", time: "now" }],
       };
