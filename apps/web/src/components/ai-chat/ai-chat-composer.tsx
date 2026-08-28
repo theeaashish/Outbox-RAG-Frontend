@@ -24,6 +24,7 @@ import type {
   ComposerStatus,
   ComposerSubmitData,
 } from "./types";
+import { useComposerAutosize } from "@/hooks/ai-chat/use-composer-autosize";
 
 export interface BranchInfo {
   id: string;
@@ -76,18 +77,6 @@ const MODES: { value: ComposerMode; label: string }[] = [
   { value: "agent", label: "Agent" },
 ];
 
-/** Max textarea height before it stops growing and scrolls internally. */
-const TEXTAREA_MAX_HEIGHT_PX = 180;
-/** A single-row textarea is ~36px tall; anything taller means it wrapped. */
-const SINGLE_LINE_HEIGHT_PX = 36;
-
-/**
- * Layout effects warn during SSR; the DOM measurement this performs only
- * exists on the client, so fall back to a plain effect on the server.
- */
-const useIsomorphicLayoutEffect =
-  typeof window !== "undefined" ? React.useLayoutEffect : React.useEffect;
-
 export function AiChatComposer({
   value,
   onChange,
@@ -118,24 +107,17 @@ export function AiChatComposer({
   disabled = false,
   className,
 }: AiChatComposerProps) {
-  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const {
+    isMultiline,
+    containerRef,
+    textareaRef,
+    ghostRef,
+    addMenuRef,
+    actionsRef,
+    ghostWidth,
+  } = useComposerAutosize(value);
+
   const [modeMenuOpen, setModeMenuOpen] = React.useState(false);
-  const [isMultiline, setIsMultiline] = React.useState(false);
-
-  // Auto-grow textarea & detect multiline state like ChatGPT / Claude
-  useIsomorphicLayoutEffect(() => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-
-    textarea.style.height = "auto";
-    const scrollHeight = textarea.scrollHeight;
-    const multiline =
-      value.includes("\n") || scrollHeight > SINGLE_LINE_HEIGHT_PX;
-    setIsMultiline(multiline);
-    textarea.style.height = multiline
-      ? `${Math.min(scrollHeight, TEXTAREA_MAX_HEIGHT_PX)}px`
-      : "auto";
-  }, [value]);
 
   const isGenerating = status === "submitting" || status === "streaming";
   const controlsDisabled = disabled || isGenerating;
@@ -149,7 +131,6 @@ export function AiChatComposer({
   const isSendDisabled = isGenerating ? false : !canSubmit;
   const currentModeLabel = MODES.find((m) => m.value === mode)?.label ?? "Chat";
 
-  // One AddMenu prop bundle — both layouts render the same menu.
   const addMenuProps: AddMenuProps = {
     disabled: controlsDisabled,
     onFilesClick,
@@ -206,8 +187,6 @@ export function AiChatComposer({
     handleSubmit();
   };
 
-  // NOTE: gate on the *capability* (onModeChange), not the value — `mode`
-  // always has a default, so checking it made this condition always true.
   const hasFooterItems =
     Boolean(branch) ||
     Boolean(project) ||
@@ -216,29 +195,50 @@ export function AiChatComposer({
 
   return (
     <div className={cn("w-full", className)}>
+      {/* Offscreen ghost: measures text against the pill-mode width so multiline
+          detection never feeds back through the wider multiline layout. */}
+      <div
+        ref={ghostRef}
+        aria-hidden="true"
+        className="pointer-events-none fixed top-0 -left-2499.75 invisible select-none whitespace-pre-wrap wrap-break-word text-sm leading-snug"
+        style={{ width: `${ghostWidth}px` }}
+      />
+
       <form
         onSubmit={handleFormSubmit}
         aria-busy={isGenerating}
         className="relative"
       >
-        {/* Compact pill when single-line, morphs to 2-tier card when multiline */}
+        {/* Morphing container: single-line pill when short, 2-tier card when multiline.
+            NOTE: pill radius is 28px, NOT rounded-full. rounded-full = 9999px, and a
+            radius that large only stops looking capsule-shaped once it drops below
+            half the box height — so on a big paste (instant tall container) the
+            border renders as a giant blob for the whole transition. 28px renders
+            identically at pill heights (radius clamps to half-height) but actually
+            interpolates during the morph. */}
         <div
+          ref={containerRef}
           className={cn(
-            "relative transition-[border-color,box-shadow,border-radius,padding] duration-200 ease-out outline-none focus:outline-none",
+            "relative transition-[border-color,box-shadow,border-radius,padding] duration-150 ease-out outline-none focus:outline-none",
             "bg-white/95 dark:bg-zinc-900/95 border border-zinc-200/80 dark:border-zinc-800",
             "shadow-[0_2px_8px_rgba(0,0,0,0.04),0_12px_24px_-8px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)]",
+            "focus-within:border-zinc-300 dark:focus-within:border-zinc-700",
             isMultiline
-              ? "flex flex-col justify-between rounded-2xl p-2"
-              : "flex items-center gap-1.5 rounded-full p-1.5"
+              ? "flex flex-col justify-between rounded-2xl p-2 sm:p-2.5"
+              : "flex items-center gap-1.5 rounded-[28px] p-1.5"
           )}
         >
-          {!isMultiline && <AddMenu {...addMenuProps} />}
+          {!isMultiline && (
+            <div ref={addMenuRef} className="shrink-0">
+              <AddMenu {...addMenuProps} />
+            </div>
+          )}
 
-          {/* Single continuous textarea for zero focus/cursor loss */}
+          {/* Single continuous textarea */}
           <div
             className={cn(
-              "min-w-0 flex-1",
-              isMultiline && "w-full px-2 pb-1 pt-1"
+              "min-w-0",
+              isMultiline ? "w-full px-2 pt-1 pb-1" : "flex-1 px-1"
             )}
           >
             <textarea
@@ -252,14 +252,33 @@ export function AiChatComposer({
               disabled={controlsDisabled}
               className={cn(
                 "block w-full resize-none bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:outline-none focus:ring-0 scrollbar-none dark:text-zinc-100 dark:placeholder:text-zinc-500 [&::-webkit-scrollbar]:hidden",
-                isMultiline ? "leading-relaxed" : "px-2 py-1 leading-snug"
+                isMultiline
+                  ? "leading-relaxed"
+                  : "py-1 leading-snug overflow-hidden"
               )}
             />
           </div>
 
           {isMultiline ? (
             <div className="flex items-center justify-between pt-1">
-              <AddMenu {...addMenuProps} />
+              <div ref={addMenuRef}>
+                <AddMenu {...addMenuProps} />
+              </div>
+              <div ref={actionsRef}>
+                <ComposerActions
+                  model={model}
+                  effort={effort}
+                  onModelChange={onModelChange}
+                  onEffortChange={onEffortChange}
+                  disabled={controlsDisabled}
+                  isGenerating={isGenerating}
+                  sendDisabled={isSendDisabled}
+                  onVoiceClick={onVoiceClick}
+                />
+              </div>
+            </div>
+          ) : (
+            <div ref={actionsRef} className="shrink-0">
               <ComposerActions
                 model={model}
                 effort={effort}
@@ -271,17 +290,6 @@ export function AiChatComposer({
                 onVoiceClick={onVoiceClick}
               />
             </div>
-          ) : (
-            <ComposerActions
-              model={model}
-              effort={effort}
-              onModelChange={onModelChange}
-              onEffortChange={onEffortChange}
-              disabled={controlsDisabled}
-              isGenerating={isGenerating}
-              sendDisabled={isSendDisabled}
-              onVoiceClick={onVoiceClick}
-            />
           )}
         </div>
 
