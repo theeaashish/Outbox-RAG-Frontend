@@ -39,12 +39,20 @@ const USERS: UserRow[] = [
 ];
 
 /** Label slot on the trigger: blurs + fades away as the rail collapses. */
-function Collapsible({ collapsed, children }: { collapsed: boolean; children: ReactNode }) {
+function Collapsible({
+  collapsed,
+  children,
+}: {
+  collapsed: boolean;
+  children: ReactNode;
+}) {
   return (
     <span
       className={cx(
         "flex min-w-0 items-center overflow-hidden transition-[max-width,opacity,filter] duration-300 ease-in-out",
-        collapsed ? "max-w-0 opacity-0 blur-[3px]" : "max-w-40 opacity-100 blur-0",
+        collapsed
+          ? "max-w-0 opacity-0 blur-[3px]"
+          : "max-w-40 opacity-100 blur-0"
       )}
     >
       {children}
@@ -52,7 +60,13 @@ function Collapsible({ collapsed, children }: { collapsed: boolean; children: Re
   );
 }
 
-function UserMenuItem({ initials, color, name, isSelected, onSelect }: UserRow & { onSelect: () => void }) {
+function UserMenuItem({
+  initials,
+  color,
+  name,
+  isSelected,
+  onSelect,
+}: UserRow & { onSelect: () => void }) {
   return (
     <a
       href="#"
@@ -62,11 +76,13 @@ function UserMenuItem({ initials, color, name, isSelected, onSelect }: UserRow &
         "flex w-full items-center gap-2 rounded-2lg px-2 py-1.5 outline-none transition-colors",
         isSelected
           ? "bg-background-primary-hover"
-          : "hover:bg-background-primary-hover focus-visible:bg-background-primary-hover",
+          : "hover:bg-background-primary-hover focus-visible:bg-background-primary-hover"
       )}
     >
       <Avatar size="xs" color={color} initials={initials} />
-      <span className="truncate text-body-medium text-text-primary">{name}</span>
+      <span className="truncate text-body-medium text-text-primary">
+        {name}
+      </span>
     </a>
   );
 }
@@ -79,7 +95,9 @@ export function AccountMenuContent({ onSelect }: { onSelect: () => void }) {
     <>
       {/* Users with access */}
       <div className="flex w-full flex-col gap-1.5 pt-[5px]">
-        <span className="px-2 text-body-medium text-text-secondary">Users with access</span>
+        <span className="px-2 text-body-medium text-text-secondary">
+          Users with access
+        </span>
         <div className="flex w-full flex-col gap-1">
           {USERS.map((user) => (
             <UserMenuItem key={user.name} {...user} onSelect={onSelect} />
@@ -93,7 +111,13 @@ export function AccountMenuContent({ onSelect }: { onSelect: () => void }) {
       {/* Actions — pb-2 makes the space below the buttons match their
           left/right inset (panel p-2.5 + row px-2 = 18px on every side). */}
       <div className="flex w-full items-center gap-3 px-2 pb-2">
-        <Button variant="secondary" size="small" leadingIcon={RiAddFill} className="flex-1" onClick={onSelect}>
+        <Button
+          variant="secondary"
+          size="small"
+          leadingIcon={RiAddFill}
+          className="flex-1"
+          onClick={onSelect}
+        >
           Add user
         </Button>
         <Button
@@ -160,13 +184,20 @@ export function DashboardUserMenu({
           // The pill's insets go square too: 36×32 plus the expanded 6/5 reach
           // is a 48×42 stadium, not the circle the avatar wants. 3/5 lands it
           // on 42×42.
-          collapsed && "w-9 justify-center gap-0 before:-inset-x-[3px]",
+          collapsed && "w-9 justify-center gap-0 before:-inset-x-[3px]"
         )}
       >
-        <Avatar size="md" color="neutral" initials="M" className={avatarClassName} />
+        <Avatar
+          size="md"
+          color="neutral"
+          initials="M"
+          className={avatarClassName}
+        />
         <Collapsible collapsed={collapsed}>
           <span className="flex items-center gap-0.5">
-            <span className="text-body-medium whitespace-nowrap text-text-primary">Mertcan Esmergul</span>
+            <span className="text-body-medium whitespace-nowrap text-text-primary">
+              Mertcan Esmergul
+            </span>
             <ChevronUpDownSmall className="size-4 shrink-0 text-foreground-icon-tertiary" />
           </span>
         </Collapsible>
@@ -180,10 +211,13 @@ export function DashboardUserMenu({
           "rounded-2xl border border-border-button-default bg-background-primary-default p-2.5 shadow-dropdown",
           "transition duration-150 ease-out",
           "data-[entering]:opacity-0 data-[entering]:scale-95 data-[entering]:blur-[2px]",
-          "data-[exiting]:opacity-0 data-[exiting]:scale-95 data-[exiting]:blur-[2px]",
+          "data-[exiting]:opacity-0 data-[exiting]:scale-95 data-[exiting]:blur-[2px]"
         )}
       >
-        <AriaDialog aria-label="Account menu" className="flex flex-col outline-none">
+        <AriaDialog
+          aria-label="Account menu"
+          className="flex flex-col outline-none"
+        >
           <AccountMenuContent onSelect={() => setIsOpen(false)} />
         </AriaDialog>
       </AriaPopover>

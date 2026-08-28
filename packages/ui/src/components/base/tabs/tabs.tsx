@@ -16,7 +16,8 @@ import type {
 } from "react-aria-components";
 import { cx } from "../../../utils/cx";
 
-const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 /**
  * Figma source: Board UI → Tab (node 3793:2942).
@@ -53,7 +54,7 @@ export function Tabs({ className, ref, ...props }: TabsProps) {
         cx(
           "flex w-full flex-col gap-4",
           state.orientation === "vertical" && "flex-row",
-          typeof className === "function" ? className(state) : className,
+          typeof className === "function" ? className(state) : className
         )
       }
     />
@@ -66,7 +67,11 @@ export interface TabListProps<T extends object> extends AriaTabListProps<T> {
 
 type Underline = { left: number; width: number };
 
-export function TabList<T extends object>({ className, ref, ...props }: TabListProps<T>) {
+export function TabList<T extends object>({
+  className,
+  ref,
+  ...props
+}: TabListProps<T>) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [underline, setUnderline] = useState<Underline | null>(null);
 
@@ -74,15 +79,24 @@ export function TabList<T extends object>({ className, ref, ...props }: TabListP
     const el = wrapperRef.current;
     if (!el) return;
     const measure = () => {
-      const selected = el.querySelector<HTMLElement>("[role='tab'][data-selected]");
+      const selected = el.querySelector<HTMLElement>(
+        "[role='tab'][data-selected]"
+      );
       if (selected) {
-        setUnderline({ left: selected.offsetLeft, width: selected.offsetWidth });
+        setUnderline({
+          left: selected.offsetLeft,
+          width: selected.offsetWidth,
+        });
       }
     };
     measure();
     // Re-measure when selection flips (data-selected toggles) or size changes.
     const mo = new MutationObserver(measure);
-    mo.observe(el, { attributes: true, subtree: true, attributeFilter: ["data-selected"] });
+    mo.observe(el, {
+      attributes: true,
+      subtree: true,
+      attributeFilter: ["data-selected"],
+    });
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => {
@@ -99,7 +113,7 @@ export function TabList<T extends object>({ className, ref, ...props }: TabListP
         className={(state) =>
           cx(
             "flex w-full items-center gap-1 border-b border-separator-border",
-            typeof className === "function" ? className(state) : className,
+            typeof className === "function" ? className(state) : className
           )
         }
       />
@@ -126,7 +140,14 @@ export interface TabProps extends Omit<AriaTabProps, "children"> {
   ref?: Ref<HTMLDivElement>;
 }
 
-export function Tab({ className, children, icon: Icon, count, ref, ...props }: TabProps) {
+export function Tab({
+  className,
+  children,
+  icon: Icon,
+  count,
+  ref,
+  ...props
+}: TabProps) {
   return (
     <AriaTab
       ref={ref}
@@ -137,7 +158,7 @@ export function Tab({ className, children, icon: Icon, count, ref, ...props }: T
           "outline-none transition-colors duration-150 ease",
           "focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-border-focus-ring",
           state.isDisabled && "cursor-not-allowed opacity-50",
-          typeof className === "function" ? className(state) : className,
+          typeof className === "function" ? className(state) : className
         )
       }
     >
@@ -148,7 +169,7 @@ export function Tab({ className, children, icon: Icon, count, ref, ...props }: T
               "inline-flex items-center gap-1.5",
               isSelected
                 ? "text-body-medium text-accent-600"
-                : "text-body-regular text-text-primary",
+                : "text-body-regular text-text-primary"
             )}
           >
             {Icon && <Icon className="size-4 shrink-0" aria-hidden />}
@@ -160,7 +181,7 @@ export function Tab({ className, children, icon: Icon, count, ref, ...props }: T
                 "inline-flex items-center justify-center rounded-sm px-1 py-px text-caption-1-medium whitespace-nowrap",
                 isSelected
                   ? "bg-tab-count-selected-background text-accent-600"
-                  : "bg-black/10 text-text-primary opacity-50",
+                  : "bg-black/10 text-text-primary opacity-50"
               )}
             >
               {count}
@@ -184,7 +205,7 @@ export function TabPanel({ className, ref, ...props }: TabPanelProps) {
       className={(state) =>
         cx(
           "outline-none focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-border-focus-ring",
-          typeof className === "function" ? className(state) : className,
+          typeof className === "function" ? className(state) : className
         )
       }
     />

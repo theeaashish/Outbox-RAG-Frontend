@@ -14,7 +14,7 @@ import type { RefObject } from "react";
 export function useDismissOnOutsidePress(
   isOpen: boolean,
   onDismiss: () => void,
-  refs: RefObject<HTMLElement | null>[],
+  refs: RefObject<HTMLElement | null>[]
 ) {
   useEffect(() => {
     if (!isOpen) return;
@@ -26,7 +26,8 @@ export function useDismissOnOutsidePress(
     };
 
     document.addEventListener("pointerdown", handlePointerDown, true);
-    return () => document.removeEventListener("pointerdown", handlePointerDown, true);
+    return () =>
+      document.removeEventListener("pointerdown", handlePointerDown, true);
   }, [isOpen, onDismiss, refs]);
 }
 
@@ -45,7 +46,7 @@ export function useDismissOnOutsidePress(
  */
 export function useTriggerToggle(
   isOpen: boolean,
-  triggerRef: RefObject<HTMLElement | null>,
+  triggerRef: RefObject<HTMLElement | null>
 ) {
   const suppressReopenRef = useRef(false);
 
@@ -63,7 +64,8 @@ export function useTriggerToggle(
     };
 
     document.addEventListener("pointerdown", handlePointerDown, true);
-    return () => document.removeEventListener("pointerdown", handlePointerDown, true);
+    return () =>
+      document.removeEventListener("pointerdown", handlePointerDown, true);
   }, [isOpen, triggerRef]);
 
   return (next: boolean) => {

@@ -21,12 +21,18 @@ type IconComponent = ComponentType<{
 }>;
 
 /** Grouped card — rows divide themselves with borders that respect pl-12. */
-export function SettingsCard({ className, children }: { className?: string; children: ReactNode }) {
+export function SettingsCard({
+  className,
+  children,
+}: {
+  className?: string;
+  children: ReactNode;
+}) {
   return (
     <div
       className={cx(
         "flex w-full flex-col rounded-2xl bg-background-secondary-default pl-3",
-        className,
+        className
       )}
     >
       {children}
@@ -35,9 +41,22 @@ export function SettingsCard({ className, children }: { className?: string; chil
 }
 
 /** Muted 13px section heading above a card ("Pull Requests", "Notifications"). */
-export function SettingsSectionLabel({ className, children }: { className?: string; children: ReactNode }) {
+export function SettingsSectionLabel({
+  className,
+  children,
+}: {
+  className?: string;
+  children: ReactNode;
+}) {
   return (
-    <p className={cx("w-full px-3 text-body-2-medium text-text-secondary", className)}>{children}</p>
+    <p
+      className={cx(
+        "w-full px-3 text-body-2-medium text-text-secondary",
+        className
+      )}
+    >
+      {children}
+    </p>
   );
 }
 
@@ -55,13 +74,15 @@ export function SettingsRow({
     <div
       className={cx(
         "flex min-h-[52px] w-full items-center justify-between gap-4 py-2.5 pr-2.5",
-        "border-b border-separator-border last:border-b-0",
+        "border-b border-separator-border last:border-b-0"
       )}
     >
       <div className="flex min-w-0 flex-col">
         <p className="text-body-regular text-text-primary">{label}</p>
         {description && (
-          <p className="text-body-2-regular text-text-secondary">{description}</p>
+          <p className="text-body-2-regular text-text-secondary">
+            {description}
+          </p>
         )}
       </div>
       {children}
@@ -90,14 +111,19 @@ export function SettingsValueField({
     <div
       className={cx(
         "flex h-8 w-[202px] shrink-0 items-center gap-0.5 rounded-2lg bg-background-tertiary-default px-1.5",
-        className,
+        className
       )}
     >
-      {Icon && <Icon className="size-5 shrink-0 text-foreground-icon-secondary" aria-hidden />}
+      {Icon && (
+        <Icon
+          className="size-5 shrink-0 text-foreground-icon-secondary"
+          aria-hidden
+        />
+      )}
       <span
         className={cx(
           "truncate pl-1 text-body-regular",
-          muted ? "text-text-secondary" : "text-text-primary",
+          muted ? "text-text-secondary" : "text-text-primary"
         )}
       >
         {children}

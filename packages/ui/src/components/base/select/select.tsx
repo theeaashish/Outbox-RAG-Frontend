@@ -24,7 +24,10 @@ import {
 } from "../dropdown/menu-styles";
 import { ChevronDownSmall } from "../../foundations/icons/chevrons";
 import { cx } from "../../../utils/cx";
-import { useDismissOnOutsidePress, useTriggerToggle } from "../../../utils/use-dismiss-on-outside-press";
+import {
+  useDismissOnOutsidePress,
+  useTriggerToggle,
+} from "../../../utils/use-dismiss-on-outside-press";
 
 /**
  * Figma source: Board UI → dashboard 1 dropdown triggers ("All prices" filter
@@ -47,8 +50,10 @@ export type SelectSize = "sm" | "md";
 
 const SelectSizeContext = createContext<SelectSize>("md");
 
-export interface SelectProps<T extends object>
-  extends Omit<AriaSelectProps<T>, "children"> {
+export interface SelectProps<T extends object> extends Omit<
+  AriaSelectProps<T>,
+  "children"
+> {
   /** Trigger width. Defaults to hug content; the menu uses the shared 266px width. */
   className?: string;
   triggerClassName?: string;
@@ -60,7 +65,9 @@ export interface SelectProps<T extends object>
   items?: Iterable<T>;
   /** Customise the trigger's rendered value (e.g. a compact flag + dial code).
    *  Falls back to the selected item's own content when omitted. */
-  renderValue?: ReactNode | ((values: AriaSelectValueRenderProps<T>) => ReactNode);
+  renderValue?:
+    | ReactNode
+    | ((values: AriaSelectValueRenderProps<T>) => ReactNode);
   ref?: Ref<HTMLDivElement>;
 }
 
@@ -86,7 +93,10 @@ export function Select<T extends object>({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLElement>(null);
   const [isOpen, setIsOpen] = useState(false);
-  useDismissOnOutsidePress(isOpen, () => setIsOpen(false), [triggerRef, popoverRef]);
+  useDismissOnOutsidePress(isOpen, () => setIsOpen(false), [
+    triggerRef,
+    popoverRef,
+  ]);
   // Pressing the trigger while open closes the popover instead of reopening
   const allowOpenChange = useTriggerToggle(isOpen, triggerRef);
 
@@ -113,13 +123,13 @@ export function Select<T extends object>({
               size === "sm"
                 ? "gap-1 px-[7px] py-1 text-body-2-medium"
                 : "gap-1.5 px-2.5 py-2 text-body-medium",
-              triggerClassName,
+              triggerClassName
             )}
           >
             <AriaSelectValue
               className={cx(
                 "flex min-w-0 items-center truncate",
-                size === "sm" ? "gap-1" : "gap-[5px]",
+                size === "sm" ? "gap-1" : "gap-[5px]"
               )}
             >
               {renderValue as never /* RAC accepts node or render-prop */}
@@ -128,7 +138,7 @@ export function Select<T extends object>({
               className={cx(
                 "shrink-0 text-text-secondary transition-transform duration-200 ease",
                 size === "sm" ? "size-3.5" : "size-4",
-                isOpen && "rotate-180",
+                isOpen && "rotate-180"
               )}
             />
           </AriaButton>
@@ -142,14 +152,19 @@ export function Select<T extends object>({
               // Listbox rows already space themselves 4px apart, so the
               // surface sits a touch tighter than the action-menu Dropdown.
               "p-2",
-              popoverClassName,
+              popoverClassName
             )}
           >
             <AriaListBox
               items={items}
-              className={cx(MENU_ITEMS_CONTAINER, "max-h-[240px] overflow-auto")}
+              className={cx(
+                MENU_ITEMS_CONTAINER,
+                "max-h-[240px] overflow-auto"
+              )}
             >
-              <SelectSizeContext.Provider value={size}>{children}</SelectSizeContext.Provider>
+              <SelectSizeContext.Provider value={size}>
+                {children}
+              </SelectSizeContext.Provider>
             </AriaListBox>
           </AriaPopover>
         </>
@@ -158,7 +173,10 @@ export function Select<T extends object>({
   );
 }
 
-export interface SelectItemProps extends Omit<AriaListBoxItemProps, "children"> {
+export interface SelectItemProps extends Omit<
+  AriaListBoxItemProps,
+  "children"
+> {
   children?: ReactNode;
 }
 
@@ -173,7 +191,7 @@ export function SelectItem({ className, children, ...props }: SelectItemProps) {
           size === "sm" ? "px-2 py-1.5 text-body-2-medium" : "text-body-medium",
           (state.isFocused || state.isSelected) && MENU_ITEM_ACTIVE,
           state.isDisabled && "cursor-not-allowed text-text-disabled",
-          typeof className === "function" ? className(state) : className,
+          typeof className === "function" ? className(state) : className
         )
       }
     >

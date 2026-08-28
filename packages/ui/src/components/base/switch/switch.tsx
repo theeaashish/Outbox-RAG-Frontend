@@ -40,7 +40,8 @@ export const switchSizes = sortCx({
   sm: {
     track: "h-4 w-7",
     trackRadius: { pill: "rounded-full", rectangle: "rounded-[3px]" },
-    onShadow: "shadow-[inset_0_1px_0_0_rgb(255_255_255/0.25),inset_0_0_0_0.5px_var(--color-accent-500)]",
+    onShadow:
+      "shadow-[inset_0_1px_0_0_rgb(255_255_255/0.25),inset_0_0_0_0.5px_var(--color-accent-500)]",
     thumb: "size-3",
     thumbRadius: { pill: "rounded-full", rectangle: "rounded-[1px]" },
     offset: "left-0.5 top-0.5",
@@ -51,7 +52,8 @@ export const switchSizes = sortCx({
   md: {
     track: "h-6 w-[42px]",
     trackRadius: { pill: "rounded-full", rectangle: "rounded-[4.5px]" },
-    onShadow: "shadow-[inset_0_1.5px_0_0_rgb(255_255_255/0.25),inset_0_0_0_0.75px_var(--color-accent-500)]",
+    onShadow:
+      "shadow-[inset_0_1.5px_0_0_rgb(255_255_255/0.25),inset_0_0_0_0.75px_var(--color-accent-500)]",
     thumb: "size-[18px]",
     thumbRadius: { pill: "rounded-full", rectangle: "rounded-[1.5px]" },
     offset: "left-[3px] top-[3px]",
@@ -104,7 +106,7 @@ export function SwitchTrack({
           ? cx("bg-linear-to-b from-accent-500 to-accent-600", s.onShadow)
           : "bg-background-tertiary-default",
         state.isDisabled && "opacity-50",
-        state.isFocusVisible && "ring-2 ring-border-focus-ring ring-offset-2",
+        state.isFocusVisible && "ring-2 ring-border-focus-ring ring-offset-2"
       )}
     >
       {/* Thumb */}
@@ -117,7 +119,7 @@ export function SwitchTrack({
           s.thumb,
           s.thumbRadius[shape],
           s.offset,
-          state.isSelected && s.travel,
+          state.isSelected && s.travel
         )}
       >
         {/* Embossed inner chip. Gradient runs bottom→top (`to-t`) — equivalent
@@ -131,7 +133,7 @@ export function SwitchTrack({
             s.chipRadius[shape],
             state.isSelected
               ? "border-accent-600 from-switch-on-chip-start to-switch-on-chip-end"
-              : "border-border-button-default/50 from-switch-off-chip-start to-switch-off-chip-end",
+              : "border-border-button-default/50 from-switch-off-chip-start to-switch-off-chip-end"
           )}
         />
       </span>
@@ -146,7 +148,14 @@ export interface SwitchProps extends Omit<AriaSwitchProps, "children"> {
   ref?: Ref<HTMLLabelElement>;
 }
 
-export function Switch({ className, children, size = "md", shape = "pill", ref, ...props }: SwitchProps) {
+export function Switch({
+  className,
+  children,
+  size = "md",
+  shape = "pill",
+  ref,
+  ...props
+}: SwitchProps) {
   return (
     <AriaSwitch
       ref={ref}
@@ -155,7 +164,7 @@ export function Switch({ className, children, size = "md", shape = "pill", ref, 
         cx(
           "group inline-flex items-center gap-2 select-none",
           state.isDisabled ? "cursor-not-allowed" : "cursor-pointer",
-          typeof className === "function" ? className(state) : className,
+          typeof className === "function" ? className(state) : className
         )
       }
     >
@@ -163,7 +172,9 @@ export function Switch({ className, children, size = "md", shape = "pill", ref, 
         <>
           <SwitchTrack state={state} size={size} shape={shape} />
           {children != null && children !== false && (
-            <span className="text-body-medium text-text-primary">{children}</span>
+            <span className="text-body-medium text-text-primary">
+              {children}
+            </span>
           )}
         </>
       )}

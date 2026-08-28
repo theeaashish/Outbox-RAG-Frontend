@@ -46,11 +46,11 @@ export function SettingsGeneral({ planArtSrc }: { planArtSrc?: string }) {
         {/* Artwork bleeding off the right edge, fading into the card bg.
             Rendered through a WebGL shader: waving like a wind-torn flag with
             a continuous burning-edge effect (see plan-art-flame.tsx). */}
-        <div aria-hidden className="absolute -top-[11px] left-[328px] size-[277px]">
-          <PlanArtFlame
-            src={planArtSrc}
-            className="size-full object-cover"
-          />
+        <div
+          aria-hidden
+          className="absolute -top-[11px] left-[328px] size-[277px]"
+        >
+          <PlanArtFlame src={planArtSrc} className="size-full object-cover" />
           {/* Fades into the card, whatever colour that is: the stops mix the
               card's own token rather than a hardcoded #f7f7f7, which stayed
               white and haloed the artwork in dark mode. Mixing toward 0% of
@@ -74,7 +74,9 @@ export function SettingsGeneral({ planArtSrc }: { planArtSrc?: string }) {
               Current plan
             </span>
             <div className="flex flex-col gap-0.5">
-              <p className="text-headline-medium text-text-primary">Ultra $149/mo</p>
+              <p className="text-headline-medium text-text-primary">
+                Ultra $149/mo
+              </p>
               <p className="text-body-2-regular text-text-secondary">
                 You are on 7x more usage than Regular.
               </p>
@@ -88,7 +90,10 @@ export function SettingsGeneral({ planArtSrc }: { planArtSrc?: string }) {
 
       {/* Limits */}
       <SettingsCard>
-        <SettingsRow label="Limits" description="You are on 7x more usage than Premium">
+        <SettingsRow
+          label="Limits"
+          description="You are on 7x more usage than Premium"
+        >
           <Button variant="secondary" size="small">
             Manage limits
           </Button>

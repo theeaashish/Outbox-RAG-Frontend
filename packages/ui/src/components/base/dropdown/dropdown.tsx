@@ -1,6 +1,14 @@
 "use client";
 
-import { createContext, useContext, useRef, useState, type ComponentProps, type ReactNode, type RefObject } from "react";
+import {
+  createContext,
+  useContext,
+  useRef,
+  useState,
+  type ComponentProps,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import {
   Button as AriaButton,
   Dialog as AriaDialog,
@@ -15,7 +23,10 @@ import {
   MENU_POPOVER_WIDTH,
 } from "./menu-styles";
 import { cx } from "../../../utils/cx";
-import { useDismissOnOutsidePress, useTriggerToggle } from "../../../utils/use-dismiss-on-outside-press";
+import {
+  useDismissOnOutsidePress,
+  useTriggerToggle,
+} from "../../../utils/use-dismiss-on-outside-press";
 
 /**
  * Dropdown — the BoardUI popover-menu recipe as composable primitives, built
@@ -76,7 +87,11 @@ export interface DropdownProps {
  * props) and dismissal is restored via useDismissOnOutsidePress, the same
  * fix as Select and the date-picker family.
  */
-export function Dropdown({ isOpen: controlledOpen, onOpenChange, children }: DropdownProps) {
+export function Dropdown({
+  isOpen: controlledOpen,
+  onOpenChange,
+  children,
+}: DropdownProps) {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLElement>(null);
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
@@ -87,13 +102,19 @@ export function Dropdown({ isOpen: controlledOpen, onOpenChange, children }: Dro
     onOpenChange?.(next);
   };
 
-  useDismissOnOutsidePress(isOpen, () => setOpen(false), [triggerRef, popoverRef]);
+  useDismissOnOutsidePress(isOpen, () => setOpen(false), [
+    triggerRef,
+    popoverRef,
+  ]);
   // Pressing the trigger while open closes the menu instead of reopening
   const allowOpenChange = useTriggerToggle(isOpen, triggerRef);
 
   return (
     <DropdownContext.Provider value={{ triggerRef, popoverRef }}>
-      <AriaDialogTrigger isOpen={isOpen} onOpenChange={(o) => allowOpenChange(o) && setOpen(o)}>
+      <AriaDialogTrigger
+        isOpen={isOpen}
+        onOpenChange={(o) => allowOpenChange(o) && setOpen(o)}
+      >
         {children}
       </AriaDialogTrigger>
     </DropdownContext.Provider>
@@ -101,7 +122,10 @@ export function Dropdown({ isOpen: controlledOpen, onOpenChange, children }: Dro
 }
 
 /** The element that opens the menu. Style it entirely via className. */
-export function DropdownTrigger({ className, ...props }: ComponentProps<typeof AriaButton>) {
+export function DropdownTrigger({
+  className,
+  ...props
+}: ComponentProps<typeof AriaButton>) {
   const context = useContext(DropdownContext);
   return (
     <AriaButton
@@ -109,7 +133,7 @@ export function DropdownTrigger({ className, ...props }: ComponentProps<typeof A
       {...props}
       className={cx(
         "cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring",
-        className as string,
+        className as string
       )}
     />
   );
@@ -117,8 +141,10 @@ export function DropdownTrigger({ className, ...props }: ComponentProps<typeof A
 
 /* ------------------------------------------------------------------- panel */
 
-export interface DropdownPopoverProps
-  extends Pick<ComponentProps<typeof AriaPopover>, "placement" | "offset" | "crossOffset"> {
+export interface DropdownPopoverProps extends Pick<
+  ComponentProps<typeof AriaPopover>,
+  "placement" | "offset" | "crossOffset"
+> {
   "aria-label": string;
   /** Extra classes on the panel — e.g. a width override (default w-[266px]). */
   className?: string;
@@ -144,15 +170,14 @@ export function DropdownPopover({
       placement={placement}
       offset={offset}
       crossOffset={crossOffset}
-      className={cx(
-        MENU_POPOVER_WIDTH,
-        MENU_POPOVER_SURFACE,
-        className,
-      )}
+      className={cx(MENU_POPOVER_WIDTH, MENU_POPOVER_SURFACE, className)}
     >
       {/* gap-1 keeps bare DropdownItems 4px apart, the same rhythm as the
           Select listbox; DropdownDivider's margins are sized to absorb it. */}
-      <AriaDialog aria-label={ariaLabel} className={cx("flex flex-col gap-1 outline-none", dialogClassName)}>
+      <AriaDialog
+        aria-label={ariaLabel}
+        className={cx("flex flex-col gap-1 outline-none", dialogClassName)}
+      >
         {children}
       </AriaDialog>
     </AriaPopover>
@@ -168,13 +193,23 @@ export interface DropdownGroupProps {
   children: ReactNode;
 }
 
-export function DropdownGroup({ label, className, children }: DropdownGroupProps) {
+export function DropdownGroup({
+  label,
+  className,
+  children,
+}: DropdownGroupProps) {
   return (
     // pt-1 is spacing for the group LABEL — a label-less group must not
     // carry it, or its first row floats 4px lower than the panel padding
     // implies (visible as extra space above the first item's hover pill).
-    <div className={cx("flex w-full flex-col gap-1.5", label && "pt-1", className)}>
-      {label && <span className="pl-2 text-body-medium text-text-secondary">{label}</span>}
+    <div
+      className={cx("flex w-full flex-col gap-1.5", label && "pt-1", className)}
+    >
+      {label && (
+        <span className="pl-2 text-body-medium text-text-secondary">
+          {label}
+        </span>
+      )}
       <div className="flex w-full flex-col gap-1">{children}</div>
     </div>
   );
@@ -193,7 +228,12 @@ export interface DropdownItemProps {
  * A menu row. Content is free-form — icon + label, avatar + name, label +
  * trailing badge — laid out in a gap-2 flex row.
  */
-export function DropdownItem({ selected, onSelect, className, children }: DropdownItemProps) {
+export function DropdownItem({
+  selected,
+  onSelect,
+  className,
+  children,
+}: DropdownItemProps) {
   return (
     <button
       type="button"
@@ -202,7 +242,7 @@ export function DropdownItem({ selected, onSelect, className, children }: Dropdo
       className={cx(
         MENU_ITEM,
         selected ? MENU_ITEM_ACTIVE : MENU_ITEM_INTERACTIVE,
-        className,
+        className
       )}
     >
       {children}
@@ -213,5 +253,12 @@ export function DropdownItem({ selected, onSelect, className, children }: Dropdo
 /** Full-bleed 1px divider between groups (bleeds through the panel's p-2.5).
  *  my-1.5 + the dialog's gap-1 on both sides = the original 10px breathing room. */
 export function DropdownDivider({ className }: { className?: string }) {
-  return <div className={cx("-mx-2.5 my-1.5 h-px shrink-0 bg-border-button-default", className)} />;
+  return (
+    <div
+      className={cx(
+        "-mx-2.5 my-1.5 h-px shrink-0 bg-border-button-default",
+        className
+      )}
+    />
+  );
 }

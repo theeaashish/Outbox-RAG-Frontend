@@ -59,13 +59,23 @@ type IconComponent = ComponentType<{
  * closes, and blurs back in on expand. The icons/rows themselves stay pinned in
  * place — only these label/badge slots animate — so nothing jumps to center.
  */
-function Collapsible({ collapsed, children, className }: { collapsed: boolean; children: ReactNode; className?: string }) {
+function Collapsible({
+  collapsed,
+  children,
+  className,
+}: {
+  collapsed: boolean;
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <span
       className={cx(
         "flex min-w-0 items-center overflow-hidden transition-[max-width,opacity,filter] duration-300 ease-in-out",
-        collapsed ? "max-w-0 opacity-0 blur-[3px]" : "max-w-40 opacity-100 blur-0",
-        className,
+        collapsed
+          ? "max-w-0 opacity-0 blur-[3px]"
+          : "max-w-40 opacity-100 blur-0",
+        className
       )}
     >
       {children}
@@ -111,19 +121,22 @@ function NavItem({
         collapsed ? "w-9" : "w-full",
         isSelected
           ? "bg-linear-to-b from-accent-500 to-accent-600 shadow-nav-selected"
-          : "hover:bg-background-secondary-hover",
+          : "hover:bg-background-secondary-hover"
       )}
     >
       <span className="flex min-w-0 items-center gap-2">
         <Icon
-          className={cx("size-5 shrink-0", isSelected ? "text-white" : "text-foreground-icon-secondary")}
+          className={cx(
+            "size-5 shrink-0",
+            isSelected ? "text-white" : "text-foreground-icon-secondary"
+          )}
           aria-hidden
         />
         <Collapsible collapsed={collapsed}>
           <span
             className={cx(
               "text-body-medium whitespace-nowrap",
-              isSelected ? "text-white" : "text-text-secondary",
+              isSelected ? "text-white" : "text-text-secondary"
             )}
           >
             {label}
@@ -182,7 +195,8 @@ export function DashboardSidebar({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const collapsed = mobile ? false : collapsedState;
   const normalizedQuery = query.trim().toLocaleLowerCase();
-  const matches = (label: string) => label.toLocaleLowerCase().includes(normalizedQuery);
+  const matches = (label: string) =>
+    label.toLocaleLowerCase().includes(normalizedQuery);
   const primaryLabels = [
     "Home",
     "Marketing",
@@ -212,7 +226,9 @@ export function DashboardSidebar({
 
   useEffect(() => {
     if (!searchActive) return;
-    const frame = window.requestAnimationFrame(() => searchInputRef.current?.focus());
+    const frame = window.requestAnimationFrame(() =>
+      searchInputRef.current?.focus()
+    );
     return () => window.cancelAnimationFrame(frame);
   }, [searchActive]);
 
@@ -221,7 +237,8 @@ export function DashboardSidebar({
 
     const onOutsideClick = (event: MouseEvent) => {
       const target = event.target;
-      if (target instanceof Node && searchFieldRef.current?.contains(target)) return;
+      if (target instanceof Node && searchFieldRef.current?.contains(target))
+        return;
       deactivateSearch(false);
     };
 
@@ -231,7 +248,10 @@ export function DashboardSidebar({
 
   useEffect(() => {
     const onShortcut = (event: KeyboardEvent) => {
-      if (event.key.toLocaleLowerCase() === "l" && (event.metaKey || event.ctrlKey)) {
+      if (
+        event.key.toLocaleLowerCase() === "l" &&
+        (event.metaKey || event.ctrlKey)
+      ) {
         event.preventDefault();
         activateSearch();
       }
@@ -256,7 +276,7 @@ export function DashboardSidebar({
           : fluid
             ? "w-full p-3 lg:w-[260px]"
             : "w-[260px] p-3",
-        className,
+        className
       )}
     >
       {/* `overflow-y: auto` forces the x axis to clip too, and this box hugs
@@ -265,16 +285,14 @@ export function DashboardSidebar({
           outside it. Padding moves the clip edge out; the matching negative
           margin borrows that space back from the rail's own padding, leaving
           every child exactly where it was. */}
-      <div
-        className="-m-2 flex min-h-0 w-[calc(100%+16px)] flex-col gap-3 overflow-y-auto p-2 [scrollbar-width:none]"
-      >
+      <div className="-m-2 flex min-h-0 w-[calc(100%+16px)] flex-col gap-3 overflow-y-auto p-2 [scrollbar-width:none]">
         {/* Workspace switcher / collapse control */}
         <div
           className={cx(
             "flex w-full transition-[gap] duration-300 ease-in-out",
             collapsed
               ? "flex-col-reverse items-start justify-center gap-2.5"
-              : "flex-row items-center justify-between",
+              : "flex-row items-center justify-between"
           )}
         >
           {/* The clip is here to hide the label as `max-width` animates shut,
@@ -287,7 +305,7 @@ export function DashboardSidebar({
               "-m-2 min-w-0 overflow-hidden p-2 transition-[max-width,opacity,transform] duration-300 ease-in-out",
               mobile && flat && searchActive
                 ? "max-w-0 scale-95 opacity-0"
-                : "max-w-[206px] scale-100 opacity-100",
+                : "max-w-[206px] scale-100 opacity-100"
             )}
           >
             <DashboardUserMenu
@@ -308,7 +326,7 @@ export function DashboardSidebar({
                 "flex h-9 items-center overflow-hidden rounded-full bg-background-tertiary-default transition-[width,box-shadow] duration-300 ease-in-out",
                 searchActive
                   ? "w-full gap-2 pr-2.5 pl-2 ring-2 ring-inset ring-border-button-active"
-                  : "w-9 gap-0 px-2",
+                  : "w-9 gap-0 px-2"
               )}
             >
               <button
@@ -339,7 +357,7 @@ export function DashboardSidebar({
                   "transition-[width,opacity] duration-200 ease-in-out",
                   searchActive
                     ? "w-full flex-1 opacity-100 delay-100"
-                    : "pointer-events-none w-0 flex-none opacity-0 delay-0",
+                    : "pointer-events-none w-0 flex-none opacity-0 delay-0"
                 )}
               />
               <CloseButton
@@ -348,7 +366,9 @@ export function DashboardSidebar({
                 onClick={() => deactivateSearch(true)}
                 className={cx(
                   "shrink-0 bg-background-tertiary-hover transition-opacity duration-150",
-                  searchActive ? "opacity-100 delay-150" : "pointer-events-none opacity-0 delay-0",
+                  searchActive
+                    ? "opacity-100 delay-150"
+                    : "pointer-events-none opacity-0 delay-0"
                 )}
               />
             </div>
@@ -374,11 +394,14 @@ export function DashboardSidebar({
               }}
               className={cx(
                 "cursor-pointer text-foreground-icon-secondary transition-transform duration-300 ease-in-out",
-                collapsed && "flex w-9 items-center justify-center",
+                collapsed && "flex w-9 items-center justify-center"
               )}
             >
               <RiSideBarFill
-                className={cx("size-5 transition-transform duration-300 ease-in-out", !collapsed && "-scale-x-100")}
+                className={cx(
+                  "size-5 transition-transform duration-300 ease-in-out",
+                  !collapsed && "-scale-x-100"
+                )}
                 aria-hidden
               />
             </button>
@@ -387,68 +410,82 @@ export function DashboardSidebar({
 
         <div className="flex w-full flex-col gap-3">
           {/* Quick search */}
-          {!flat && (searchActive && !collapsed ? (
-            <div
-              ref={searchFieldRef}
-              className="flex w-full items-center gap-2 rounded-full bg-background-tertiary-default py-2 pr-2.5 pl-2 ring-2 ring-inset ring-border-button-active transition-[background-color,box-shadow] duration-[var(--input-transition-ms)] ease"
-            >
-              <RiSearchLine className="size-5 shrink-0 text-foreground-icon-secondary" aria-hidden />
-              <input
-                ref={searchInputRef}
-                type="search"
-                aria-label="Filter template navigation"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Escape") {
-                    event.preventDefault();
-                    deactivateSearch(true);
-                  }
-                }}
-                placeholder="Search navigation…"
-                className="min-w-0 flex-1 bg-transparent text-body-medium text-text-primary outline-none placeholder:text-text-tertiary"
-              />
-              <CloseButton
-                size="2xs"
-                aria-label="Clear navigation search"
-                onClick={() => deactivateSearch(true)}
-                className="bg-background-tertiary-hover"
-              />
-            </div>
-          ) : (
-            <button
-              ref={searchTriggerRef}
-              type="button"
-              aria-label="Quick Search"
-              title={collapsed ? "Quick Search" : undefined}
-              onClick={activateSearch}
-              className={cx(
-                "flex cursor-pointer items-center gap-2 p-2 hover:bg-background-tertiary-hover/55",
-                "transition-[width,border-radius,background-color] duration-300 ease-in-out",
-                collapsed
-                  ? "w-9 rounded-full bg-background-tertiary-default"
-                  : "w-full rounded-full bg-background-tertiary-default",
-              )}
-            >
-              <span className={cx("flex min-w-0 items-center gap-2", !collapsed && "flex-1")}>
-                <RiSearchLine className="size-5 shrink-0 text-foreground-icon-secondary" aria-hidden />
+          {!flat &&
+            (searchActive && !collapsed ? (
+              <div
+                ref={searchFieldRef}
+                className="flex w-full items-center gap-2 rounded-full bg-background-tertiary-default py-2 pr-2.5 pl-2 ring-2 ring-inset ring-border-button-active transition-[background-color,box-shadow] duration-[var(--input-transition-ms)] ease"
+              >
+                <RiSearchLine
+                  className="size-5 shrink-0 text-foreground-icon-secondary"
+                  aria-hidden
+                />
+                <input
+                  ref={searchInputRef}
+                  type="search"
+                  aria-label="Filter template navigation"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Escape") {
+                      event.preventDefault();
+                      deactivateSearch(true);
+                    }
+                  }}
+                  placeholder="Search navigation…"
+                  className="min-w-0 flex-1 bg-transparent text-body-medium text-text-primary outline-none placeholder:text-text-tertiary"
+                />
+                <CloseButton
+                  size="2xs"
+                  aria-label="Clear navigation search"
+                  onClick={() => deactivateSearch(true)}
+                  className="bg-background-tertiary-hover"
+                />
+              </div>
+            ) : (
+              <button
+                ref={searchTriggerRef}
+                type="button"
+                aria-label="Quick Search"
+                title={collapsed ? "Quick Search" : undefined}
+                onClick={activateSearch}
+                className={cx(
+                  "flex cursor-pointer items-center gap-2 p-2 hover:bg-background-tertiary-hover/55",
+                  "transition-[width,border-radius,background-color] duration-300 ease-in-out",
+                  collapsed
+                    ? "w-9 rounded-full bg-background-tertiary-default"
+                    : "w-full rounded-full bg-background-tertiary-default"
+                )}
+              >
+                <span
+                  className={cx(
+                    "flex min-w-0 items-center gap-2",
+                    !collapsed && "flex-1"
+                  )}
+                >
+                  <RiSearchLine
+                    className="size-5 shrink-0 text-foreground-icon-secondary"
+                    aria-hidden
+                  />
+                  <Collapsible collapsed={collapsed}>
+                    <span className="text-body-medium whitespace-nowrap text-text-secondary">
+                      Quick Search
+                    </span>
+                  </Collapsible>
+                </span>
                 <Collapsible collapsed={collapsed}>
-                  <span className="text-body-medium whitespace-nowrap text-text-secondary">
-                    Quick Search
-                  </span>
+                  <Kbd>⌘L</Kbd>
                 </Collapsible>
-              </span>
-              <Collapsible collapsed={collapsed}>
-                <Kbd>⌘L</Kbd>
-              </Collapsible>
-            </button>
-          ))}
+              </button>
+            ))}
 
           {/* Primary nav. The 2px inset is for the expanded rail only: the
               collapsed column is exactly as wide as a 36px item, so padding
               here pushes every item 2px right and the rail's own clip shaves
               that much off its selected fill and hover state. */}
-          <nav className={cx("flex w-full flex-col gap-1", !collapsed && "px-0.5")}>
+          <nav
+            className={cx("flex w-full flex-col gap-1", !collapsed && "px-0.5")}
+          >
             {matches("Home") && (
               <NavItem
                 icon={RiHomeLine}
@@ -456,7 +493,11 @@ export function DashboardSidebar({
                 href="/templates/dashboard"
                 isSelected={selected === "home"}
                 collapsed={collapsed}
-                badge={<Badge color={selected === "home" ? "primary" : "neutral"}>152</Badge>}
+                badge={
+                  <Badge color={selected === "home" ? "primary" : "neutral"}>
+                    152
+                  </Badge>
+                }
               />
             )}
             {matches("Marketing") && (
@@ -527,11 +568,17 @@ export function DashboardSidebar({
                 label="Inbox"
                 isSelected={selected === "inbox"}
                 collapsed={collapsed}
-                badge={<Badge color={selected === "inbox" ? "primary" : "neutral"}>91</Badge>}
+                badge={
+                  <Badge color={selected === "inbox" ? "primary" : "neutral"}>
+                    91
+                  </Badge>
+                }
               />
             )}
             {!hasAnyMatch && !collapsed && (
-              <p className="px-2 py-3 text-body-regular text-text-tertiary">No results</p>
+              <p className="px-2 py-3 text-body-regular text-text-tertiary">
+                No results
+              </p>
             )}
           </nav>
         </div>
@@ -550,7 +597,11 @@ export function DashboardSidebar({
         {/* Secondary nav */}
         <nav className="flex w-full flex-col gap-1">
           {matches("Support") && (
-            <NavItem icon={RiCustomerServiceLine} label="Support" collapsed={collapsed} />
+            <NavItem
+              icon={RiCustomerServiceLine}
+              label="Support"
+              collapsed={collapsed}
+            />
           )}
           {matches("Settings") && (
             <NavItem

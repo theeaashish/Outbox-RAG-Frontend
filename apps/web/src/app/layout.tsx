@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider, Toaster } from "@repo/ui";
-import { Header } from "@/components/layout";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -28,8 +27,7 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <Header />
-          <div className="flex-1 flex flex-col">{children}</div>
+          {children}
           <Toaster />
         </ThemeProvider>
       </body>

@@ -162,13 +162,13 @@ export function EffortSlider({
           "absolute inset-x-0 top-1/2 h-7 -translate-y-1/2 overflow-hidden rounded-lg transition-colors duration-200",
           isMax
             ? "bg-linear-to-r from-[#2B7CF6] via-[#52A3FE] to-[#CBE6FF] shadow-xs"
-            : "bg-zinc-200/70 ring-1 ring-black/4"
+            : "bg-zinc-200/70 dark:bg-zinc-800 ring-1 ring-black/4 dark:ring-white/10"
         )}
       >
         {!isMax && (
           <div
             className={cn(
-              "absolute inset-y-0 left-0 bg-zinc-300/80",
+              "absolute inset-y-0 left-0 bg-zinc-300/80 dark:bg-zinc-700/80",
               !isDragging && "transition-[width] duration-150"
             )}
             style={{ width: `${percentage}%` }}
@@ -187,7 +187,7 @@ export function EffortSlider({
         {EFFORT_LEVELS.map((level) => (
           <span
             key={level}
-            className="h-3.5 w-px rounded-full bg-zinc-400/60"
+            className="h-3.5 w-px rounded-full bg-zinc-400/60 dark:bg-zinc-600"
           />
         ))}
       </div>
@@ -196,7 +196,7 @@ export function EffortSlider({
       <div
         aria-hidden="true"
         className={cn(
-          "pointer-events-none absolute top-1/2 h-6 w-8 -translate-y-1/2 rounded-lg bg-white shadow-[0_1px_3px_rgba(0,0,0,0.12),0_1px_2px_rgba(0,0,0,0.08)] ring-1 ring-black/10",
+          "pointer-events-none absolute top-1/2 h-6 w-8 -translate-y-1/2 rounded-lg bg-white dark:bg-zinc-200 shadow-[0_1px_3px_rgba(0,0,0,0.12),0_1px_2px_rgba(0,0,0,0.08)] ring-1 ring-black/10 dark:ring-black/20",
           !isDragging && "transition-[left] duration-150"
         )}
         style={{

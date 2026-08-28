@@ -181,22 +181,46 @@ function paintFallbackArt(size: number): HTMLCanvasElement | null {
   ctx.fillStyle = token("--color-background-tertiary-default", "#ebebeb");
   ctx.fillRect(0, 0, size, size);
   ctx.globalAlpha = 0.7;
-  blob(size * 0.125, size * 0.125, size * 0.42, token("--color-blue-400", "#3392ff"));
-  blob(size * 0.83, size * 0.58, size * 0.38, token("--color-lime-400", "#9ae600"));
-  blob(size * 0.5, size * 0.95, size * 0.42, token("--color-orange-400", "#ff8904"));
+  blob(
+    size * 0.125,
+    size * 0.125,
+    size * 0.42,
+    token("--color-blue-400", "#3392ff")
+  );
+  blob(
+    size * 0.83,
+    size * 0.58,
+    size * 0.38,
+    token("--color-lime-400", "#9ae600")
+  );
+  blob(
+    size * 0.5,
+    size * 0.95,
+    size * 0.42,
+    token("--color-orange-400", "#ff8904")
+  );
   ctx.globalAlpha = 1;
 
   return canvas;
 }
 
-export function PlanArtFlame({ src, className }: { src?: string; className?: string }) {
+export function PlanArtFlame({
+  src,
+  className,
+}: {
+  src?: string;
+  className?: string;
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const gl = canvas.getContext("webgl", { alpha: true, premultipliedAlpha: false });
+    const gl = canvas.getContext("webgl", {
+      alpha: true,
+      premultipliedAlpha: false,
+    });
     if (!gl) {
       setFailed(true);
       return;
@@ -226,7 +250,11 @@ export function PlanArtFlame({ src, className }: { src?: string; className?: str
 
     const buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
+      gl.STATIC_DRAW
+    );
     const aPos = gl.getAttribLocation(program, "a_pos");
     gl.enableVertexAttribArray(aPos);
     gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
@@ -284,7 +312,14 @@ export function PlanArtFlame({ src, className }: { src?: string; className?: str
 
     const upload = (source: TexImageSource) => {
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        source
+      );
       raf = requestAnimationFrame(draw);
     };
 
@@ -322,7 +357,7 @@ export function PlanArtFlame({ src, className }: { src?: string; className?: str
         aria-hidden
         className={cx(
           "relative overflow-hidden bg-background-tertiary-default",
-          className,
+          className
         )}
       >
         <span className="absolute -top-1/4 -left-1/4 size-3/4 rounded-full bg-blue-400/70 blur-2xl" />

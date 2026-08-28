@@ -34,7 +34,13 @@ export interface CheckboxProps extends Omit<AriaCheckboxProps, "children"> {
   ref?: Ref<HTMLLabelElement>;
 }
 
-export function Checkbox({ className, children, size = "md", ref, ...props }: CheckboxProps) {
+export function Checkbox({
+  className,
+  children,
+  size = "md",
+  ref,
+  ...props
+}: CheckboxProps) {
   const s = checkboxSizes[size];
 
   return (
@@ -46,7 +52,7 @@ export function Checkbox({ className, children, size = "md", ref, ...props }: Ch
           "group inline-flex items-center select-none",
           s.gap,
           state.isDisabled ? "cursor-not-allowed" : "cursor-pointer",
-          typeof className === "function" ? className(state) : className,
+          typeof className === "function" ? className(state) : className
         )
       }
     >

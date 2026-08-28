@@ -11,13 +11,7 @@ import {
   Square,
 } from "lucide-react";
 
-import {
-  Button,
-  cn,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@repo/ui";
+import { Button, cn, Popover, PopoverContent, PopoverTrigger } from "@repo/ui";
 import { AddMenu, type AddMenuProps } from "./add-menu";
 import { ContextMeter } from "./context-meter";
 import { ModelMenu } from "./model-menu";
@@ -197,8 +191,7 @@ export function AiChatComposer({
   };
 
   const isSendDisabled = isGenerating ? false : !canSubmit;
-  const currentModeLabel =
-    MODES.find((m) => m.value === mode)?.label ?? "Chat";
+  const currentModeLabel = MODES.find((m) => m.value === mode)?.label ?? "Chat";
 
   const hasStatusItems =
     Boolean(branch) ||
@@ -213,7 +206,7 @@ export function AiChatComposer({
         aria-busy={isGenerating}
         className="relative"
       >
-        <div className="relative flex items-center gap-1.5 rounded-full bg-[#fafafb] p-1.5 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_-8px_rgba(16,24,40,0.08)] ring-1 ring-black/4">
+        <div className="relative flex items-center gap-1.5 rounded-full bg-white dark:bg-zinc-900/90 p-1.5 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_8px_24px_-8px_rgba(0,0,0,0.08)] dark:shadow-[0_2px_16px_rgba(0,0,0,0.5)] border border-zinc-200/80 dark:border-zinc-800 ring-1 ring-black/3 dark:ring-white/5">
           <AddMenu
             disabled={disabled || isGenerating}
             onFilesClick={onFilesClick}
@@ -234,7 +227,7 @@ export function AiChatComposer({
             aria-label="Message"
             rows={1}
             disabled={disabled || isGenerating}
-            className="min-h-9 max-h-36 min-w-0 flex-1 resize-none overflow-y-auto bg-transparent px-2 py-1.5 text-[15px] leading-snug text-zinc-800 caret-orange-500 outline-none placeholder:text-zinc-400"
+            className="min-h-9 max-h-36 min-w-0 flex-1 resize-none overflow-y-auto bg-transparent px-2.5 py-1.5 text-sm leading-snug text-zinc-900 dark:text-zinc-100 caret-zinc-900 dark:caret-zinc-100 outline-none placeholder:text-zinc-400 dark:placeholder:text-zinc-500"
           />
 
           <ModelMenu
@@ -251,9 +244,9 @@ export function AiChatComposer({
             disabled={disabled || isGenerating}
             aria-label="Voice input"
             onClick={onVoiceClick}
-            className="size-9 shrink-0 rounded-full bg-white text-zinc-900 shadow-[0_1px_2px_rgba(16,24,40,0.08),0_0_0_1px_rgba(16,24,40,0.04)] hover:bg-zinc-50 disabled:opacity-50"
+            className="size-9 shrink-0 rounded-full bg-zinc-100/90 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-200/80 dark:hover:bg-zinc-700 disabled:opacity-50"
           >
-            <Mic className="size-4 text-zinc-600" />
+            <Mic className="size-4" />
           </Button>
 
           <Button
@@ -268,7 +261,7 @@ export function AiChatComposer({
             }}
             aria-label={isGenerating ? "Stop generation" : "Send message"}
             disabled={isSendDisabled}
-            className="relative z-20 size-9 shrink-0 rounded-full bg-linear-to-b from-amber-500 to-orange-600 text-white shadow-[0_4px_12px_-2px_rgba(234,88,12,0.4)] hover:from-amber-400 hover:to-orange-500 disabled:opacity-50"
+            className="relative z-20 size-9 shrink-0 rounded-full bg-zinc-900 text-white dark:bg-zinc-50 dark:text-zinc-900 shadow-xs hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-30 disabled:cursor-not-allowed"
           >
             {isGenerating ? (
               <Square className="size-3 fill-current" />
@@ -279,14 +272,14 @@ export function AiChatComposer({
         </div>
 
         {hasStatusItems && (
-          <div className="mt-2 flex items-center justify-between px-3 text-[13px] font-medium text-zinc-500">
+          <div className="mt-2 flex items-center justify-between px-3 text-xs font-medium text-zinc-500 dark:text-zinc-400">
             <div className="flex items-center gap-4">
               {branch ? (
                 <button
                   type="button"
                   onClick={onBranchClick}
                   disabled={disabled}
-                  className="flex items-center gap-1.5 transition-colors hover:text-zinc-900 disabled:opacity-50"
+                  className="flex items-center gap-1.5 transition-colors hover:text-zinc-900 dark:hover:text-zinc-100 disabled:opacity-50"
                 >
                   <GitBranch className="size-3.5 text-zinc-400" />
                   <span>{branch.name}</span>
@@ -298,7 +291,7 @@ export function AiChatComposer({
                   type="button"
                   onClick={onProjectClick}
                   disabled={disabled}
-                  className="flex items-center gap-1.5 transition-colors hover:text-zinc-900 disabled:opacity-50"
+                  className="flex items-center gap-1.5 transition-colors hover:text-zinc-900 dark:hover:text-zinc-100 disabled:opacity-50"
                 >
                   <Folder className="size-3.5 text-zinc-400" />
                   <span>{project.name}</span>
@@ -315,7 +308,7 @@ export function AiChatComposer({
                       <button
                         type="button"
                         disabled={disabled || isGenerating}
-                        className="flex items-center gap-1.5 transition-colors hover:text-zinc-900 disabled:opacity-50"
+                        className="flex items-center gap-1.5 transition-colors hover:text-zinc-900 dark:hover:text-zinc-100 disabled:opacity-50"
                       />
                     }
                   >
@@ -333,10 +326,16 @@ export function AiChatComposer({
                     side="top"
                     align="end"
                     sideOffset={12}
-                    className="w-48 gap-0 rounded-2xl bg-white p-2 shadow-[0_0_0_1px_rgba(16,24,40,0.05),0_12px_32px_-12px_rgba(16,24,40,0.25)]"
+                    className="w-48 gap-0 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-2 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.12)] dark:shadow-[0_4px_24px_-4px_rgba(0,0,0,0.5)]"
                   >
-                    <p className="px-3 pb-1 pt-2 text-sm text-zinc-500">Mode</p>
-                    <div role="radiogroup" aria-label="Mode">
+                    <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                      Mode
+                    </p>
+                    <div
+                      role="radiogroup"
+                      aria-label="Mode"
+                      className="flex flex-col gap-0.5"
+                    >
                       {MODES.map((option) => (
                         <button
                           key={option.value}
@@ -348,8 +347,9 @@ export function AiChatComposer({
                             setModeMenuOpen(false);
                           }}
                           className={cn(
-                            "flex w-full items-center justify-between rounded-xl px-3 py-2 text-[15px] text-zinc-900 transition-colors hover:bg-zinc-100",
-                            option.value === mode && "bg-zinc-100"
+                            "flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800/70",
+                            option.value === mode &&
+                              "bg-zinc-100 dark:bg-zinc-800/80 font-medium"
                           )}
                         >
                           <span>{option.label}</span>
@@ -360,7 +360,7 @@ export function AiChatComposer({
                   </PopoverContent>
                 </Popover>
               ) : (
-                <div className="flex items-center gap-1.5 text-zinc-500">
+                <div className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400">
                   <InfinityIcon className="size-3.5 text-zinc-400" />
                   <span>{currentModeLabel}</span>
                 </div>
@@ -376,4 +376,3 @@ export function AiChatComposer({
     </div>
   );
 }
-

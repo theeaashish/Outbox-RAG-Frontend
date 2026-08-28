@@ -40,7 +40,7 @@ function range(start: number, end: number): number[] {
 function paginationRange(
   current: number,
   total: number,
-  sibling: number,
+  sibling: number
 ): (number | typeof DOTS)[] {
   // first + last + current + 2*sibling + 2 dots
   const totalPageNumbers = sibling * 2 + 5;
@@ -62,7 +62,8 @@ function paginationRange(
 
 // No transition on the cells: animating background/shadow/color makes the
 // previously-active number visibly fade out ("flicker") on every page change.
-const cell = "flex size-8 shrink-0 items-center justify-center rounded-lg text-body-medium";
+const cell =
+  "flex size-8 shrink-0 items-center justify-center rounded-lg text-body-medium";
 
 /** Below this nav width, Previous/Next drop their labels and siblingCount
  *  clamps to 0 — the full-label, full-sibling layout starts clipping
@@ -102,7 +103,10 @@ export function Pagination({
     <nav
       ref={navRef}
       aria-label="Pagination"
-      className={cx("flex w-full items-center justify-between gap-2", className)}
+      className={cx(
+        "flex w-full items-center justify-between gap-2",
+        className
+      )}
     >
       <Button
         variant="secondary"
@@ -138,13 +142,13 @@ export function Pagination({
                   "cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-border-focus-ring",
                   item === page
                     ? "border border-border-button-default bg-background-primary-default text-text-primary shadow-xs"
-                    : "text-text-secondary hover:bg-background-secondary-hover hover:text-text-primary",
+                    : "text-text-secondary hover:bg-background-secondary-hover hover:text-text-primary"
                 )}
               >
                 {item}
               </button>
             </li>
-          ),
+          )
         )}
       </ul>
 

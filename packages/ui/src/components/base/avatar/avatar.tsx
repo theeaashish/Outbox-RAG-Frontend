@@ -62,7 +62,12 @@ export function Avatar({
   return (
     <span
       ref={ref}
-      className={cx(styles.base, styles.size[size], styles.color[color], className)}
+      className={cx(
+        styles.base,
+        styles.size[size],
+        styles.color[color],
+        className
+      )}
       {...props}
     >
       {src ? (

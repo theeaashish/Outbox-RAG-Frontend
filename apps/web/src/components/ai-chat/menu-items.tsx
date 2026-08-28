@@ -22,14 +22,14 @@ export function MenuRow({
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-zinc-100 disabled:opacity-50 disabled:pointer-events-none"
+      className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800/70 disabled:opacity-50 disabled:pointer-events-none"
     >
-      {icon}
-      <span className="shrink-0 text-[15px] font-medium text-zinc-900">
+      <span className="text-zinc-600 dark:text-zinc-300">{icon}</span>
+      <span className="shrink-0 text-sm font-medium text-zinc-900 dark:text-zinc-100">
         {title}
       </span>
       {desc ? (
-        <span className="truncate text-[15px] font-normal text-zinc-500">
+        <span className="truncate text-xs font-normal text-zinc-500 dark:text-zinc-400">
           {desc}
         </span>
       ) : null}
@@ -57,10 +57,10 @@ export function PluginIcon({ className, children }: PluginIconProps) {
 
 export function Radio({ checked }: { checked: boolean }) {
   return checked ? (
-    <span className="flex size-4.5 shrink-0 items-center justify-center rounded-full border-2 border-orange-500 bg-white">
+    <span className="flex size-4.5 shrink-0 items-center justify-center rounded-full border-2 border-orange-500 bg-white dark:bg-zinc-900">
       <span className="size-1.5 rounded-full bg-orange-500" />
     </span>
   ) : (
-    <span className="size-4.5 shrink-0 rounded-full border-[1.5px] border-zinc-300 bg-white" />
+    <span className="size-4.5 shrink-0 rounded-full border-[1.5px] border-zinc-300 bg-white dark:border-zinc-700 dark:bg-zinc-900" />
   );
 }

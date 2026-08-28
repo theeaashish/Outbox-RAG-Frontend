@@ -28,7 +28,14 @@ import { cx } from "../../../utils/cx";
  *  16×16 glyph, 2px round-capped stroke, mirrored around x=8. */
 export function ChevronLeft16({ className }: { className?: string }) {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className={className} aria-hidden>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      className={className}
+      aria-hidden
+    >
       <path
         d="M9 4L5.70711 7.29289C5.31658 7.68342 5.31658 8.31658 5.70711 8.70711L9 12"
         stroke="currentColor"
@@ -41,7 +48,14 @@ export function ChevronLeft16({ className }: { className?: string }) {
 
 export function ChevronRight16({ className }: { className?: string }) {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className={className} aria-hidden>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      className={className}
+      aria-hidden
+    >
       <path
         d="M7 4L10.2929 7.29289C10.6834 7.68342 10.6834 8.31658 10.2929 8.70711L7 12"
         stroke="currentColor"
@@ -53,9 +67,11 @@ export function ChevronRight16({ className }: { className?: string }) {
 }
 
 export function formatTriggerDate(date: CalendarDate) {
-  return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", year: "numeric" }).format(
-    date.toDate(getLocalTimeZone()),
-  );
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date.toDate(getLocalTimeZone()));
 }
 
 export function formatChipDate(date: CalendarDate) {
@@ -77,7 +93,18 @@ export function parseChipDate(text: string): CalendarDate | null {
 }
 
 export function DayCell(props: CalendarCellRenderProps & { isRange: boolean }) {
-  const { date, formattedDate, isSelected, isSelectionStart, isSelectionEnd, isHovered, isFocusVisible, isDisabled, isOutsideMonth, isRange } = props;
+  const {
+    date,
+    formattedDate,
+    isSelected,
+    isSelectionStart,
+    isSelectionEnd,
+    isHovered,
+    isFocusVisible,
+    isDisabled,
+    isOutsideMonth,
+    isRange,
+  } = props;
 
   if (isOutsideMonth) {
     return <div className="size-8" />;
@@ -97,8 +124,10 @@ export function DayCell(props: CalendarCellRenderProps & { isRange: boolean }) {
   // extending half of it (6px) toward each selected neighbor — never past
   // the first/last column of a row, where there's no neighbor to bridge to.
   // Only meaningful for a RangeCalendar; a plain Calendar never bridges.
-  const extendLeft = isRange && isSelected && !isSelectionStart && dayOfWeek !== 0;
-  const extendRight = isRange && isSelected && !isSelectionEnd && dayOfWeek !== 6;
+  const extendLeft =
+    isRange && isSelected && !isSelectionStart && dayOfWeek !== 0;
+  const extendRight =
+    isRange && isSelected && !isSelectionEnd && dayOfWeek !== 6;
 
   // The blue backgrounds fade in/out on opacity instead of popping instantly.
   // Both layers always render (geometry computed regardless of selection) so
@@ -119,7 +148,7 @@ export function DayCell(props: CalendarCellRenderProps & { isRange: boolean }) {
           isSelectionEnd ? "right-1/2" : extendRight ? "-right-1.5" : "right-0",
           !isSelectionStart && dayOfWeek === 0 && "rounded-l-lg",
           !isSelectionEnd && dayOfWeek === 6 && "rounded-r-lg",
-          isSelected && !isSingleDay ? "opacity-100" : "opacity-0",
+          isSelected && !isSingleDay ? "opacity-100" : "opacity-0"
         )}
       />
       <div
@@ -127,7 +156,7 @@ export function DayCell(props: CalendarCellRenderProps & { isRange: boolean }) {
           "relative flex size-8 items-center justify-center rounded-lg outline-none",
           !isSelected && isHovered && "bg-background-secondary-hover",
           "transition-colors duration-100 ease-out",
-          isFocusVisible && "ring-2 ring-inset ring-border-focus-ring",
+          isFocusVisible && "ring-2 ring-inset ring-border-focus-ring"
         )}
       >
         <span
@@ -137,10 +166,15 @@ export function DayCell(props: CalendarCellRenderProps & { isRange: boolean }) {
             isSingleDay && "rounded-lg",
             isSelectionStart && !isSingleDay && "rounded-l-lg",
             isSelectionEnd && !isSingleDay && "rounded-r-lg",
-            isEdge ? "opacity-100" : "opacity-0",
+            isEdge ? "opacity-100" : "opacity-0"
           )}
         />
-        <span className={cx("relative text-body-medium text-text-primary", isDisabled && "text-text-tertiary")}>
+        <span
+          className={cx(
+            "relative text-body-medium text-text-primary",
+            isDisabled && "text-text-tertiary"
+          )}
+        >
           {formattedDate}
         </span>
       </div>
@@ -175,13 +209,24 @@ export function MonthPanel({
   const singleState = useContext(CalendarStateContext);
   const state = rangeState ?? singleState;
   const isRange = rangeState != null;
-  const panelDate = state ? state.visibleRange.start.add({ months: offset }) : null;
+  const panelDate = state
+    ? state.visibleRange.start.add({ months: offset })
+    : null;
   const title = panelDate
-    ? new Intl.DateTimeFormat(undefined, { month: "long", year: "numeric" }).format(panelDate.toDate(getLocalTimeZone()))
+    ? new Intl.DateTimeFormat(undefined, {
+        month: "long",
+        year: "numeric",
+      }).format(panelDate.toDate(getLocalTimeZone()))
     : "";
 
   return (
-    <div className={bare ? "w-[296px] shrink-0" : "w-[326px] shrink-0 rounded-2xl bg-background-primary-default p-[15px] shadow-xs"}>
+    <div
+      className={
+        bare
+          ? "w-[296px] shrink-0"
+          : "w-[326px] shrink-0 rounded-2xl bg-background-primary-default p-[15px] shadow-xs"
+      }
+    >
       <div className="flex flex-col gap-5">
         {!hideHeader && (
           <div className="flex items-center justify-between">
@@ -195,7 +240,9 @@ export function MonthPanel({
             ) : (
               <span className="size-4" aria-hidden />
             )}
-            <span className="flex-1 text-center text-body-medium text-text-primary">{title}</span>
+            <span className="flex-1 text-center text-body-medium text-text-primary">
+              {title}
+            </span>
             {showNext ? (
               <RACButton
                 slot="next"
@@ -286,7 +333,7 @@ export const triggerButtonClassName = cx(
   "transition-[background-color,border-color,box-shadow] duration-150 ease",
   "hover:bg-background-primary-hover hover:border-border-button-hover",
   "focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-border-focus-ring",
-  "disabled:cursor-not-allowed disabled:bg-background-primary-disabled disabled:text-text-tertiary disabled:shadow-none",
+  "disabled:cursor-not-allowed disabled:bg-background-primary-disabled disabled:text-text-tertiary disabled:shadow-none"
 );
 
 /** Shared popover chrome (Figma's rounded/3xl, background/secondary/default
@@ -295,5 +342,5 @@ export const popoverClassName = cx(
   "origin-top rounded-3xl bg-background-secondary-default shadow-dropdown",
   "transition duration-150 ease-out",
   "data-[entering]:opacity-0 data-[entering]:scale-95 data-[entering]:blur-[2px]",
-  "data-[exiting]:opacity-0 data-[exiting]:scale-95 data-[exiting]:blur-[2px]",
+  "data-[exiting]:opacity-0 data-[exiting]:scale-95 data-[exiting]:blur-[2px]"
 );

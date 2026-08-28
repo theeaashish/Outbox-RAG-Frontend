@@ -29,4 +29,3 @@ export interface ComposerSubmitData {
   mode: ComposerMode;
   attachments: ComposerAttachment[];
 }
-

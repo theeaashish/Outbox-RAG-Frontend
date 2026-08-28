@@ -30,7 +30,7 @@ const TEXT_FAMILIES = [
 const TEXT_WEIGHTS = ["regular", "medium", "semibold", "bold"] as const;
 
 const TEXT_STYLE_SUFFIXES = TEXT_FAMILIES.flatMap((family) =>
-  TEXT_WEIGHTS.map((weight) => `${family}-${weight}`),
+  TEXT_WEIGHTS.map((weight) => `${family}-${weight}`)
 );
 
 const twMerge = extendTailwindMerge({
@@ -54,7 +54,9 @@ export const cx = twMerge;
 export function sortCx<
   T extends Record<
     string,
-    string | number | Record<string, string | number | Record<string, string | number>>
+    | string
+    | number
+    | Record<string, string | number | Record<string, string | number>>
   >,
 >(classes: T): T {
   return classes;

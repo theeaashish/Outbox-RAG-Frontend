@@ -34,7 +34,7 @@ export function HintText({
       className={cx(
         "pt-px text-caption-1-medium text-text-secondary",
         isInvalid && "text-text-error-primary",
-        className,
+        className
       )}
     />
   );

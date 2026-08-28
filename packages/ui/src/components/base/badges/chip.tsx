@@ -27,7 +27,16 @@ import { cx, sortCx } from "../../../utils/cx";
  */
 
 type ChipVariant = "bold" | "subtle" | "caption";
-type ChipColor = "lime" | "rose" | "yellow" | "cyan" | "blue" | "purple" | "neutral" | "gray" | "soft";
+type ChipColor =
+  | "lime"
+  | "rose"
+  | "yellow"
+  | "cyan"
+  | "blue"
+  | "purple"
+  | "neutral"
+  | "gray"
+  | "soft";
 
 export interface ChipProps extends HTMLAttributes<HTMLSpanElement> {
   variant?: ChipVariant;
@@ -65,7 +74,12 @@ export function Chip({
   return (
     <span
       ref={ref}
-      className={cx(styles.base, styles.variant[variant], styles.color[color], className)}
+      className={cx(
+        styles.base,
+        styles.variant[variant],
+        styles.color[color],
+        className
+      )}
       {...props}
     />
   );

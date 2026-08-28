@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   RiDeleteBin6Line,
   RiDownload2Line,
@@ -111,8 +105,16 @@ function StoredFileIcon({ kind }: { kind: FileKind }) {
   if (dark) {
     return (
       <>
-        <img src={light} alt="" className="theme-asset-light size-6 shrink-0 object-contain" />
-        <img src={dark} alt="" className="theme-asset-dark size-6 shrink-0 object-contain" />
+        <img
+          src={light}
+          alt=""
+          className="theme-asset-light size-6 shrink-0 object-contain"
+        />
+        <img
+          src={dark}
+          alt=""
+          className="theme-asset-dark size-6 shrink-0 object-contain"
+        />
       </>
     );
   }
@@ -134,21 +136,74 @@ function makeRng(seed: number) {
 }
 
 const GENERATED_NAMES = [
-  "Invoice", "Contract", "Payroll Sheet", "Quarterly report", "Pitch deck",
-  "Budget plan", "Onboarding video", "Team photo", "Meeting notes", "Roadmap",
+  "Invoice",
+  "Contract",
+  "Payroll Sheet",
+  "Quarterly report",
+  "Pitch deck",
+  "Budget plan",
+  "Onboarding video",
+  "Team photo",
+  "Meeting notes",
+  "Roadmap",
 ];
-const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MONTH_LABELS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
 /** 1,262 files — the Figma toolbar's "Stored in 1,262 files" is the real
  *  count of this inventory. The first five rows pin Figma's exact examples
  *  (names, dates, sizes, selection); the rest are generated. */
 const STORED_FILES: StoredFile[] = (() => {
   const pinned: Array<Omit<StoredFile, "id" | "uploadedStamp">> = [
-    { name: "Invoice 1", kind: "document", uploadedOn: "May 11, 2026", sizeLabel: "4 MB", bytes: 4 * 1024 * 1024 },
-    { name: "Payroll Sheet", kind: "spreadsheet", uploadedOn: "May 11, 2026", sizeLabel: "539 KB", bytes: 539 * 1024, selected: true },
-    { name: "Welcome video", kind: "video", uploadedOn: "May 11, 2026", sizeLabel: "36 MB", bytes: 36 * 1024 * 1024 },
-    { name: "Payroll Sheet", kind: "spreadsheet", uploadedOn: "May 11, 2026", sizeLabel: "539 KB", bytes: 539 * 1024, selected: true },
-    { name: "Invoice 1", kind: "document", uploadedOn: "May 11, 2026", sizeLabel: "4 MB", bytes: 4 * 1024 * 1024 },
+    {
+      name: "Invoice 1",
+      kind: "document",
+      uploadedOn: "May 11, 2026",
+      sizeLabel: "4 MB",
+      bytes: 4 * 1024 * 1024,
+    },
+    {
+      name: "Payroll Sheet",
+      kind: "spreadsheet",
+      uploadedOn: "May 11, 2026",
+      sizeLabel: "539 KB",
+      bytes: 539 * 1024,
+      selected: true,
+    },
+    {
+      name: "Welcome video",
+      kind: "video",
+      uploadedOn: "May 11, 2026",
+      sizeLabel: "36 MB",
+      bytes: 36 * 1024 * 1024,
+    },
+    {
+      name: "Payroll Sheet",
+      kind: "spreadsheet",
+      uploadedOn: "May 11, 2026",
+      sizeLabel: "539 KB",
+      bytes: 539 * 1024,
+      selected: true,
+    },
+    {
+      name: "Invoice 1",
+      kind: "document",
+      uploadedOn: "May 11, 2026",
+      sizeLabel: "4 MB",
+      bytes: 4 * 1024 * 1024,
+    },
   ];
 
   const rng = makeRng(26);
@@ -163,7 +218,9 @@ const STORED_FILES: StoredFile[] = (() => {
     }
     const kind = pick(kinds) ?? "document";
     const bytes = Math.floor(
-      kind === "video" ? (4 + rng() * 60) * 1024 * 1024 : 40 * 1024 + rng() * 7 * 1024 * 1024,
+      kind === "video"
+        ? (4 + rng() * 60) * 1024 * 1024
+        : 40 * 1024 + rng() * 7 * 1024 * 1024
     );
     const month = Math.floor(rng() * 5); // Jan–May 2026, before the pinned rows
     const day = 1 + Math.floor(rng() * 28);
@@ -205,7 +262,12 @@ function SortableHeader({
       onClick={() => onSort(sortKey)}
       className="flex cursor-pointer items-center gap-0.5 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-border-focus-ring"
     >
-      <span className={cx("text-body-medium whitespace-nowrap", active ? "text-text-primary" : "text-text-tertiary")}>
+      <span
+        className={cx(
+          "text-body-medium whitespace-nowrap",
+          active ? "text-text-primary" : "text-text-tertiary"
+        )}
+      >
         {label}
       </span>
       <span className="flex size-6 shrink-0 items-center justify-center">
@@ -213,7 +275,7 @@ function SortableHeader({
           className={cx(
             "size-6 transition-[transform,color] duration-150 ease",
             active ? "text-text-secondary" : "text-text-tertiary",
-            active && sort?.dir === "asc" && "rotate-180",
+            active && sort?.dir === "asc" && "rotate-180"
           )}
         />
       </span>
@@ -221,7 +283,13 @@ function SortableHeader({
   );
 }
 
-function RowActionButton({ icon, label }: { icon: typeof RiDeleteBin6Line; label: string }) {
+function RowActionButton({
+  icon,
+  label,
+}: {
+  icon: typeof RiDeleteBin6Line;
+  label: string;
+}) {
   return (
     <TooltipTrigger delay={200}>
       <Focusable>
@@ -253,19 +321,32 @@ function RowMoreMenu({ name }: { name: string }) {
             "border border-border-button-default bg-background-primary-default text-foreground-icon-primary shadow-xs",
             "transition-[background-color,border-color,box-shadow,color] duration-150 ease",
             "hover:border-border-button-hover hover:bg-background-primary-hover",
-            isOpen && "border-border-button-active bg-background-primary-active",
+            isOpen && "border-border-button-active bg-background-primary-active"
           )}
         >
           <RiMore2Fill className="size-4 shrink-0" aria-hidden />
         </DropdownTrigger>
         <Tooltip size="md">More actions</Tooltip>
       </TooltipTrigger>
-      <DropdownPopover aria-label={`More actions for ${name}`} placement="bottom end" className="w-[200px] p-2">
+      <DropdownPopover
+        aria-label={`More actions for ${name}`}
+        placement="bottom end"
+        className="w-[200px] p-2"
+      >
         <DropdownGroup>
           {MORE_MENU_ACTIONS.map(({ icon: Icon, label }) => (
-            <DropdownItem key={label} onSelect={() => setIsOpen(false)} className="px-2 py-1.5">
-              <Icon className="size-[18px] shrink-0 text-foreground-icon-secondary" aria-hidden />
-              <span className="truncate text-body-medium whitespace-nowrap text-text-primary">{label}</span>
+            <DropdownItem
+              key={label}
+              onSelect={() => setIsOpen(false)}
+              className="px-2 py-1.5"
+            >
+              <Icon
+                className="size-[18px] shrink-0 text-foreground-icon-secondary"
+                aria-hidden
+              />
+              <span className="truncate text-body-medium whitespace-nowrap text-text-primary">
+                {label}
+              </span>
             </DropdownItem>
           ))}
         </DropdownGroup>
@@ -292,14 +373,14 @@ function AnimatedRow({
       className={cx(
         "grid grid-rows-[1fr]",
         phase === "entering" && "animate-row-grow-in",
-        phase === "exiting" && "pointer-events-none animate-row-collapse-out",
+        phase === "exiting" && "pointer-events-none animate-row-collapse-out"
       )}
     >
       <div className="overflow-hidden">
         <div
           className={cx(
             phase === "entering" && "animate-row-slide-in",
-            phase === "exiting" && "animate-row-slide-out",
+            phase === "exiting" && "animate-row-slide-out"
           )}
         >
           {children}
@@ -314,7 +395,7 @@ function AnimatedRow({
 export function SettingsStorage() {
   const [files, setFiles] = useState<StoredFile[]>(STORED_FILES);
   const [selected, setSelected] = useState<Set<string>>(
-    () => new Set(STORED_FILES.filter((f) => f.selected).map((f) => f.id)),
+    () => new Set(STORED_FILES.filter((f) => f.selected).map((f) => f.id))
   );
   const [page, setPage] = useState(1);
   const [kindFilter, setKindFilter] = useState("all");
@@ -327,14 +408,16 @@ export function SettingsStorage() {
   const [justAddedId, setJustAddedId] = useState<string | null>(null);
   const [deletingIds, setDeletingIds] = useState<Set<string>>(() => new Set());
   const justAddedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const deleteTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  const deleteTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(
+    new Map()
+  );
   useEffect(
     () => () => {
       if (justAddedTimer.current) clearTimeout(justAddedTimer.current);
       for (const timer of deleteTimers.current.values()) clearTimeout(timer);
       deleteTimers.current.clear();
     },
-    [],
+    []
   );
 
   const onSort = (key: SortKey) => {
@@ -350,7 +433,7 @@ export function SettingsStorage() {
     const rows = files.filter(
       (f) =>
         (kindFilter === "all" || f.kind === kindFilter) &&
-        (q === "" || f.name.toLowerCase().includes(q)),
+        (q === "" || f.name.toLowerCase().includes(q))
     );
     if (sort) {
       const { key, dir } = sort;
@@ -365,7 +448,9 @@ export function SettingsStorage() {
       });
     } else {
       rows.sort((a, b) =>
-        recency === "newest" ? b.uploadedStamp - a.uploadedStamp : a.uploadedStamp - b.uploadedStamp,
+        recency === "newest"
+          ? b.uploadedStamp - a.uploadedStamp
+          : a.uploadedStamp - b.uploadedStamp
       );
     }
     return rows;
@@ -373,7 +458,10 @@ export function SettingsStorage() {
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const currentPage = Math.min(page, totalPages);
-  const rows = filtered.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
+  const rows = filtered.slice(
+    (currentPage - 1) * PER_PAGE,
+    currentPage * PER_PAGE
+  );
 
   const selectedOnPage = rows.filter((f) => selected.has(f.id)).length;
   const allOnPageSelected = rows.length > 0 && selectedOnPage === rows.length;
@@ -422,7 +510,7 @@ export function SettingsStorage() {
           return next;
         });
         deleteTimers.current.delete(id);
-      }, ROW_EXIT_DURATION_MS),
+      }, ROW_EXIT_DURATION_MS)
     );
   };
 
@@ -431,7 +519,9 @@ export function SettingsStorage() {
     // border, overhanging 9.5px) headroom inside the modal's scroll clip.
     <div className="flex w-full flex-col gap-6 pt-2.5">
       <FileUpload
-        renderFileIcon={(file) => <StoredFileIcon kind={kindForFile(file.name)} />}
+        renderFileIcon={(file) => (
+          <StoredFileIcon kind={kindForFile(file.name)} />
+        )}
         onUploadComplete={(file) => {
           const now = new Date();
           const storedFile: StoredFile = {
@@ -459,7 +549,9 @@ export function SettingsStorage() {
         {/* Toolbar */}
         <div className="flex w-full flex-col items-start gap-3 px-3 py-1 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col justify-center">
-            <p className="text-body-medium whitespace-nowrap text-text-tertiary">Stored in</p>
+            <p className="text-body-medium whitespace-nowrap text-text-tertiary">
+              Stored in
+            </p>
             <p className="text-body-medium whitespace-nowrap text-text-primary">
               {filtered.length.toLocaleString()} files
             </p>
@@ -524,16 +616,33 @@ export function SettingsStorage() {
               onChange={toggleAllOnPage}
               aria-label="Select all files on this page"
             />
-            <SortableHeader label="File name" sortKey="name" sort={sort} onSort={onSort} />
+            <SortableHeader
+              label="File name"
+              sortKey="name"
+              sort={sort}
+              onSort={onSort}
+            />
           </div>
           <div className="flex w-[150px] shrink-0 items-center px-3 py-2.5">
-            <SortableHeader label="Uploaded on" sortKey="uploadedOn" sort={sort} onSort={onSort} />
+            <SortableHeader
+              label="Uploaded on"
+              sortKey="uploadedOn"
+              sort={sort}
+              onSort={onSort}
+            />
           </div>
           <div className="flex w-[104px] shrink-0 items-center px-3 py-2.5">
-            <SortableHeader label="File size" sortKey="bytes" sort={sort} onSort={onSort} />
+            <SortableHeader
+              label="File size"
+              sortKey="bytes"
+              sort={sort}
+              onSort={onSort}
+            />
           </div>
           <div className="flex w-[116px] shrink-0 items-center px-3 py-2.5">
-            <span className="text-body-medium whitespace-nowrap text-text-tertiary">Actions</span>
+            <span className="text-body-medium whitespace-nowrap text-text-tertiary">
+              Actions
+            </span>
           </div>
         </div>
 
@@ -552,7 +661,9 @@ export function SettingsStorage() {
                     <div className="flex min-w-0 flex-1 items-center gap-2 py-2.5">
                       <Checkbox
                         isSelected={selected.has(file.id)}
-                        onChange={(isSelected) => toggleRow(file.id, isSelected)}
+                        onChange={(isSelected) =>
+                          toggleRow(file.id, isSelected)
+                        }
                         aria-label={`Select ${file.name}`}
                       />
                       <div className="flex min-w-0 items-center gap-2">
@@ -574,7 +685,10 @@ export function SettingsStorage() {
                     </div>
                     <div className="flex w-[116px] shrink-0 items-center justify-end gap-2.5 px-3 py-2.5">
                       <span onClick={() => deleteFile(file.id)}>
-                        <RowActionButton icon={RiDeleteBin6Line} label="Delete file" />
+                        <RowActionButton
+                          icon={RiDeleteBin6Line}
+                          label="Delete file"
+                        />
                       </span>
                       <RowMoreMenu name={file.name} />
                     </div>
@@ -584,14 +698,20 @@ export function SettingsStorage() {
             })
           ) : (
             <div className="flex w-full items-center justify-center py-10 pr-3">
-              <span className="text-body-medium text-text-tertiary">No files match your filters.</span>
+              <span className="text-body-medium text-text-tertiary">
+                No files match your filters.
+              </span>
             </div>
           )}
         </div>
 
         {/* Pagination */}
         <div className="px-3 pt-3">
-          <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} />
+          <Pagination
+            page={currentPage}
+            totalPages={totalPages}
+            onChange={setPage}
+          />
         </div>
       </section>
     </div>

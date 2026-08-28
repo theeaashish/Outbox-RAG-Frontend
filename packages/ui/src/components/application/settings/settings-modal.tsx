@@ -126,7 +126,9 @@ export function SettingsModal({
   // whenever a profile field commits a change (Enter / blur). Three phases
   // so the motion is directional: it rises in from below ("hidden" starting
   // offset) and keeps drifting upward while fading out ("leaving" offset).
-  const [savedPhase, setSavedPhase] = useState<"hidden" | "shown" | "leaving">("hidden");
+  const [savedPhase, setSavedPhase] = useState<"hidden" | "shown" | "leaving">(
+    "hidden"
+  );
   const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const showSavedToast = () => {
     if (savedTimer.current) clearTimeout(savedTimer.current);
@@ -150,7 +152,9 @@ export function SettingsModal({
       setMounted(true);
       // Double rAF: the panel must commit its hidden state before the
       // transition to visible starts, or the browser skips the animation.
-      requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)));
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => setVisible(true))
+      );
     } else {
       setVisible(false);
       setSavedPhase("hidden");
@@ -177,7 +181,10 @@ export function SettingsModal({
   if (!mounted || typeof document === "undefined") return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-100 flex items-center justify-center p-4" role="presentation">
+    <div
+      className="fixed inset-0 z-100 flex items-center justify-center p-4"
+      role="presentation"
+    >
       {/* Backdrop — dark-mode modal reference uses black at 70%. */}
       <button
         type="button"
@@ -186,7 +193,7 @@ export function SettingsModal({
         onClick={onClose}
         className={cx(
           "absolute inset-0 cursor-default bg-black/70 transition-opacity duration-300 ease-out",
-          visible ? "opacity-100" : "opacity-0",
+          visible ? "opacity-100" : "opacity-0"
         )}
       />
 
@@ -200,148 +207,173 @@ export function SettingsModal({
           // forces a huge re-filter every frame of the scale-down, which is
           // what made the close stutter. 4px + GPU promotion stays smooth.
           "transform-gpu transition-[opacity,transform,filter] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] will-change-[opacity,transform,filter]",
-          visible ? "scale-100 opacity-100 blur-0" : "scale-[0.85] opacity-0 blur-[4px]",
+          visible
+            ? "scale-100 opacity-100 blur-0"
+            : "scale-[0.85] opacity-0 blur-[4px]"
         )}
       >
-      {/* Panel */}
-      <div
-        ref={panelRef}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Settings"
-        tabIndex={-1}
-        className={cx(
-          "relative flex h-[614px] max-h-[calc(100dvh-32px)] w-[871px] max-w-[calc(100vw-32px)]",
-          // overflow-CLIP, not hidden: hidden boxes are still programmatically
-          // scrollable, so focusing a switch's hidden input in a row clipped
-          // by the inner scroller made the browser scroll-reveal it through
-          // the panel too — shifting the whole modal content up with no way
-          // back. clip forbids scrolling outright.
-          "overflow-clip rounded-3xl bg-background-full shadow-xs outline-none",
-        )}
-      >
-        {/* Nav rail — the board-team dropdown group/item recipe */}
-        <nav
-          aria-label="Settings sections"
-          className="flex w-[274px] shrink-0 flex-col gap-5 overflow-y-auto border-r border-separator-border bg-background-secondary-default p-2.5"
+        {/* Panel */}
+        <div
+          ref={panelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Settings"
+          tabIndex={-1}
+          className={cx(
+            "relative flex h-[614px] max-h-[calc(100dvh-32px)] w-[871px] max-w-[calc(100vw-32px)]",
+            // overflow-CLIP, not hidden: hidden boxes are still programmatically
+            // scrollable, so focusing a switch's hidden input in a row clipped
+            // by the inner scroller made the browser scroll-reveal it through
+            // the panel too — shifting the whole modal content up with no way
+            // back. clip forbids scrolling outright.
+            "overflow-clip rounded-3xl bg-background-full shadow-xs outline-none"
+          )}
         >
-          {NAV_GROUPS.map((group) => (
-            <div key={group.label} className="flex w-full flex-col gap-1.5 pt-1">
-              <span className="pl-2 text-body-medium text-text-secondary">{group.label}</span>
-              <div className="flex w-full flex-col gap-1">
-                {group.items.map((item) => {
-                  const selected = item.page !== undefined && item.page === page;
-                  return (
-                    <button
-                      key={`${group.label}:${item.label}`}
-                      type="button"
-                      aria-current={selected ? "page" : undefined}
-                      onClick={
-                        item.page
-                          ? () => {
-                              setPage(item.page!);
-                              setContentScrolled(false);
-                            }
-                          : undefined
-                      }
-                      className={cx(
-                        "flex w-full cursor-pointer items-center gap-2 rounded-2lg p-2 text-left",
-                        "outline-none transition-colors duration-150 ease focus-visible:ring-2 focus-visible:ring-border-focus-ring",
-                        selected
-                          ? "bg-background-secondary-hover"
-                          : "hover:bg-background-secondary-hover/60",
-                      )}
-                    >
-                      <item.icon className="size-5 shrink-0 text-foreground-icon-secondary" aria-hidden />
-                      <span
+          {/* Nav rail — the board-team dropdown group/item recipe */}
+          <nav
+            aria-label="Settings sections"
+            className="flex w-[274px] shrink-0 flex-col gap-5 overflow-y-auto border-r border-separator-border bg-background-secondary-default p-2.5"
+          >
+            {NAV_GROUPS.map((group) => (
+              <div
+                key={group.label}
+                className="flex w-full flex-col gap-1.5 pt-1"
+              >
+                <span className="pl-2 text-body-medium text-text-secondary">
+                  {group.label}
+                </span>
+                <div className="flex w-full flex-col gap-1">
+                  {group.items.map((item) => {
+                    const selected =
+                      item.page !== undefined && item.page === page;
+                    return (
+                      <button
+                        key={`${group.label}:${item.label}`}
+                        type="button"
+                        aria-current={selected ? "page" : undefined}
+                        onClick={
+                          item.page
+                            ? () => {
+                                setPage(item.page!);
+                                setContentScrolled(false);
+                              }
+                            : undefined
+                        }
                         className={cx(
-                          "truncate text-body-medium",
-                          selected ? "text-text-primary" : "text-text-secondary",
+                          "flex w-full cursor-pointer items-center gap-2 rounded-2lg p-2 text-left",
+                          "outline-none transition-colors duration-150 ease focus-visible:ring-2 focus-visible:ring-border-focus-ring",
+                          selected
+                            ? "bg-background-secondary-hover"
+                            : "hover:bg-background-secondary-hover/60"
                         )}
                       >
-                        {item.label}
-                      </span>
-                    </button>
-                  );
-                })}
+                        <item.icon
+                          className="size-5 shrink-0 text-foreground-icon-secondary"
+                          aria-hidden
+                        />
+                        <span
+                          className={cx(
+                            "truncate text-body-medium",
+                            selected
+                              ? "text-text-primary"
+                              : "text-text-secondary"
+                          )}
+                        >
+                          {item.label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
-        </nav>
+            ))}
+          </nav>
 
-        {/* Content pane — fixed title row, scrollable page below */}
-        <div className="flex min-w-0 flex-1 flex-col">
-          {/* Storage keeps a tighter title gap: its page already carries
+          {/* Content pane — fixed title row, scrollable page below */}
+          <div className="flex min-w-0 flex-1 flex-col">
+            {/* Storage keeps a tighter title gap: its page already carries
               10px of scroll-safe headroom for the upload progress badge, so
               the shared pb-3 read as a double margin above the dropzone. */}
-          <div
-            className={cx(
-              "flex shrink-0 items-center justify-between px-8 pt-8",
-              page === "storage" ? "pb-1.5" : "pb-3",
-            )}
-          >
-            <h2 className="text-title-3-medium text-text-primary">{PAGE_TITLES[page]}</h2>
-            <button
-              type="button"
-              aria-label="Close settings"
-              onClick={onClose}
-              className={cx(
-                "flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-full",
-                "bg-background-tertiary-default text-foreground-icon-secondary",
-                "transition-colors duration-150 ease hover:bg-background-tertiary-hover",
-                "outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring",
-              )}
-            >
-              <RiCloseLine className="size-4" aria-hidden />
-            </button>
-          </div>
-          <div className="relative min-h-0 flex-1">
             <div
-              className="h-full overflow-y-auto px-8 pb-8"
-              onScroll={(e) => setContentScrolled(e.currentTarget.scrollTop > 0)}
-            >
-              {page === "profile" ? (
-                <SettingsProfile onSaved={showSavedToast} />
-              ) : page === "storage" ? (
-                <SettingsStorage />
-              ) : page === "tools" ? (
-                <SettingsTools />
-              ) : (
-                <SettingsGeneral planArtSrc={planArtSrc} />
+              className={cx(
+                "flex shrink-0 items-center justify-between px-8 pt-8",
+                page === "storage" ? "pb-1.5" : "pb-3"
               )}
+            >
+              <h2 className="text-title-3-medium text-text-primary">
+                {PAGE_TITLES[page]}
+              </h2>
+              <button
+                type="button"
+                aria-label="Close settings"
+                onClick={onClose}
+                className={cx(
+                  "flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-full",
+                  "bg-background-tertiary-default text-foreground-icon-secondary",
+                  "transition-colors duration-150 ease hover:bg-background-tertiary-hover",
+                  "outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring"
+                )}
+              >
+                <RiCloseLine className="size-4" aria-hidden />
+              </button>
             </div>
-            {/* Progressive top fade — eases in once the page is scrolled so
+            <div className="relative min-h-0 flex-1">
+              <div
+                className="h-full overflow-y-auto px-8 pb-8"
+                onScroll={(e) =>
+                  setContentScrolled(e.currentTarget.scrollTop > 0)
+                }
+              >
+                {page === "profile" ? (
+                  <SettingsProfile onSaved={showSavedToast} />
+                ) : page === "storage" ? (
+                  <SettingsStorage />
+                ) : page === "tools" ? (
+                  <SettingsTools />
+                ) : (
+                  <SettingsGeneral planArtSrc={planArtSrc} />
+                )}
+              </div>
+              {/* Progressive top fade — eases in once the page is scrolled so
                 content dissolves under the title row instead of hard-cutting. */}
-            <div
-              aria-hidden
-              className={cx(
-                "pointer-events-none absolute inset-x-0 top-0 h-10 bg-linear-to-b from-background-primary-default to-transparent",
-                "transition-opacity duration-200 ease-out",
-                contentScrolled ? "opacity-100" : "opacity-0",
-              )}
-            />
+              <div
+                aria-hidden
+                className={cx(
+                  "pointer-events-none absolute inset-x-0 top-0 h-10 bg-linear-to-b from-background-primary-default to-transparent",
+                  "transition-opacity duration-200 ease-out",
+                  contentScrolled ? "opacity-100" : "opacity-0"
+                )}
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Saved toast — straddles the panel's bottom edge, half in / half out. */}
-      <div
-        aria-live="polite"
-        className={cx(
-          "pointer-events-none absolute bottom-0 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1",
-          "rounded-full border border-border-button-default bg-background-primary-default py-1 pr-2.5 pl-1.5 shadow-dropdown",
-          "transition-[opacity,transform,filter] duration-200 ease-out",
-          savedPhase === "shown" && "translate-y-1/2 opacity-100 scale-100 blur-0",
-          // Starts below the resting spot, rises in; keeps drifting up on exit.
-          savedPhase === "hidden" && "translate-y-[calc(50%+12px)] opacity-0 scale-90 blur-[2px]",
-          savedPhase === "leaving" && "translate-y-[calc(50%-10px)] opacity-0 scale-90 blur-[2px]",
-        )}
-      >
-        <RiCheckboxCircleFill className="size-4 shrink-0 text-lime-600" aria-hidden />
-        <span className="text-body-2-medium whitespace-nowrap text-text-primary">Saved</span>
-      </div>
+        {/* Saved toast — straddles the panel's bottom edge, half in / half out. */}
+        <div
+          aria-live="polite"
+          className={cx(
+            "pointer-events-none absolute bottom-0 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1",
+            "rounded-full border border-border-button-default bg-background-primary-default py-1 pr-2.5 pl-1.5 shadow-dropdown",
+            "transition-[opacity,transform,filter] duration-200 ease-out",
+            savedPhase === "shown" &&
+              "translate-y-1/2 opacity-100 scale-100 blur-0",
+            // Starts below the resting spot, rises in; keeps drifting up on exit.
+            savedPhase === "hidden" &&
+              "translate-y-[calc(50%+12px)] opacity-0 scale-90 blur-[2px]",
+            savedPhase === "leaving" &&
+              "translate-y-[calc(50%-10px)] opacity-0 scale-90 blur-[2px]"
+          )}
+        >
+          <RiCheckboxCircleFill
+            className="size-4 shrink-0 text-lime-600"
+            aria-hidden
+          />
+          <span className="text-body-2-medium whitespace-nowrap text-text-primary">
+            Saved
+          </span>
+        </div>
       </div>
     </div>,
-    document.body,
+    document.body
   );
 }

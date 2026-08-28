@@ -29,8 +29,10 @@ import { cx, sortCx } from "../../../utils/cx";
 
 type CloseButtonSize = "2xs" | "xs" | "sm" | "md";
 
-export interface CloseButtonProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
+export interface CloseButtonProps extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  "children"
+> {
   size?: CloseButtonSize;
   /** Accessible name — required since there is no visible label. */
   "aria-label": string;
@@ -95,7 +97,13 @@ export function CloseButton({
       className={cx(styles.base, styles.container[size], className)}
       {...props}
     >
-      <svg width={glyph} height={glyph} viewBox={`0 0 ${glyph} ${glyph}`} fill="none" aria-hidden>
+      <svg
+        width={glyph}
+        height={glyph}
+        viewBox={`0 0 ${glyph} ${glyph}`}
+        fill="none"
+        aria-hidden
+      >
         <path
           d={`M${inset} ${inset}L${glyph - inset} ${glyph - inset}`}
           stroke="currentColor"

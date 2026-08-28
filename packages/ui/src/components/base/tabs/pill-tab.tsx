@@ -4,7 +4,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { ComponentType, HTMLAttributes, ReactNode, Ref } from "react";
 import { cx, sortCx } from "../../../utils/cx";
 
-const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 /**
  * Figma source: Board UI → "ai_chat" → Changes / Browser panel switcher
@@ -68,7 +69,12 @@ export interface PillTabListProps extends HTMLAttributes<HTMLDivElement> {
   ref?: Ref<HTMLDivElement>;
 }
 
-export function PillTabList({ children, className, ref, ...props }: PillTabListProps) {
+export function PillTabList({
+  children,
+  className,
+  ref,
+  ...props
+}: PillTabListProps) {
   const innerRef = useRef<HTMLDivElement>(null);
   const [thumb, setThumb] = useState<Thumb | null>(null);
 
@@ -122,7 +128,7 @@ export function PillTabList({ children, className, ref, ...props }: PillTabListP
             "transition-[transform,width,height] duration-300",
             "[transition-timing-function:cubic-bezier(0.34,1.2,0.64,1)]",
             styles.radius[thumb.variant],
-            styles.thumb[thumb.variant],
+            styles.thumb[thumb.variant]
           )}
           style={{
             transform: `translate(${thumb.left}px, ${thumb.top}px)`,
@@ -163,7 +169,7 @@ export function PillTab({
         styles.radius[variant],
         "outline-none transition-colors duration-150 ease",
         "focus-visible:ring-2 focus-visible:ring-border-focus-ring",
-        className,
+        className
       )}
     >
       <span
@@ -173,14 +179,16 @@ export function PillTab({
           "transition-opacity duration-200 ease-out",
           styles.radius[variant],
           styles.hover[variant],
-          !isSelected && "group-hover:opacity-100",
+          !isSelected && "group-hover:opacity-100"
         )}
       />
       {Icon && (
         <Icon
           className={cx(
             "relative z-10 size-5 shrink-0",
-            isSelected ? styles.selectedIcon[variant] : "text-foreground-icon-secondary",
+            isSelected
+              ? styles.selectedIcon[variant]
+              : "text-foreground-icon-secondary"
           )}
           aria-hidden
         />
@@ -188,7 +196,7 @@ export function PillTab({
       <span
         className={cx(
           "relative z-10 text-body-medium whitespace-nowrap",
-          isSelected ? styles.selectedLabel[variant] : "text-text-secondary",
+          isSelected ? styles.selectedLabel[variant] : "text-text-secondary"
         )}
       >
         {children}

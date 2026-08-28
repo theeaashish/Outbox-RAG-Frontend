@@ -47,7 +47,7 @@ export function Label({
       className={cx(
         "flex cursor-default items-center gap-0.5",
         "text-body-medium text-text-primary",
-        className,
+        className
       )}
     >
       {children}

@@ -2,17 +2,18 @@
 
 import { useRef, useState, type ComponentProps } from "react";
 import { CalendarDate } from "@internationalized/date";
-import { RiCalendarLine, RiExternalLinkLine, RiLogoutCircleLine, RiMailLine } from "@remixicon/react";
+import {
+  RiCalendarLine,
+  RiExternalLinkLine,
+  RiLogoutCircleLine,
+  RiMailLine,
+} from "@remixicon/react";
 import { Button } from "../../base/buttons/button";
 import { DatePicker } from "../../base/date-picker/date-picker";
 import { Input } from "../../base/input/input";
 import { Switch } from "../../base/switch/switch";
 import { cx } from "../../../utils/cx";
-import {
-  SettingsCard,
-  SettingsRow,
-  SettingsValueField,
-} from "./settings-rows";
+import { SettingsCard, SettingsRow, SettingsValueField } from "./settings-rows";
 
 /**
  * Figma source: Board UI → "Settings/Profile" (node 4081:13943), the right
@@ -27,8 +28,18 @@ import {
  */
 
 const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 function formatBirthDate(date: CalendarDate) {
@@ -72,7 +83,9 @@ function SavableInput({
 }
 
 export function SettingsProfile({ onSaved }: { onSaved?: () => void } = {}) {
-  const [birthDate, setBirthDate] = useState<CalendarDate>(new CalendarDate(1997, 7, 28));
+  const [birthDate, setBirthDate] = useState<CalendarDate>(
+    new CalendarDate(1997, 7, 28)
+  );
   const [birthOpen, setBirthOpen] = useState(false);
   const birthTriggerRef = useRef<HTMLButtonElement>(null);
   const [publicProfile, setPublicProfile] = useState(true);
@@ -90,10 +103,18 @@ export function SettingsProfile({ onSaved }: { onSaved?: () => void } = {}) {
           />
         </SettingsRow>
         <SettingsRow label="First name">
-          <SavableInput aria-label="First name" initialValue="Mertcan" onSaved={onSaved} />
+          <SavableInput
+            aria-label="First name"
+            initialValue="Mertcan"
+            onSaved={onSaved}
+          />
         </SettingsRow>
         <SettingsRow label="Last name">
-          <SavableInput aria-label="Last name" initialValue="Esmergül" onSaved={onSaved} />
+          <SavableInput
+            aria-label="Last name"
+            initialValue="Esmergül"
+            onSaved={onSaved}
+          />
         </SettingsRow>
         <SettingsRow label="Date of birth">
           <button
@@ -107,7 +128,10 @@ export function SettingsProfile({ onSaved }: { onSaved?: () => void } = {}) {
               "outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring",
             ].join(" ")}
           >
-            <RiCalendarLine className="size-[18px] shrink-0 text-foreground-icon-primary" aria-hidden />
+            <RiCalendarLine
+              className="size-[18px] shrink-0 text-foreground-icon-primary"
+              aria-hidden
+            />
             <span className="px-0.5 text-body-regular whitespace-nowrap text-text-primary">
               {formatBirthDate(birthDate)}
             </span>
@@ -125,7 +149,11 @@ export function SettingsProfile({ onSaved }: { onSaved?: () => void } = {}) {
 
       <SettingsCard>
         <SettingsRow label="BoardUI account">
-          <Button variant="secondary" size="small" leadingIcon={RiExternalLinkLine}>
+          <Button
+            variant="secondary"
+            size="small"
+            leadingIcon={RiExternalLinkLine}
+          >
             Manage
           </Button>
         </SettingsRow>
@@ -140,10 +168,16 @@ export function SettingsProfile({ onSaved }: { onSaved?: () => void } = {}) {
           />
         </SettingsRow>
         <SettingsRow label="Device ID">
-          <SettingsValueField muted>593e2611-b9e3-44e2-1289-ab3f9d21</SettingsValueField>
+          <SettingsValueField muted>
+            593e2611-b9e3-44e2-1289-ab3f9d21
+          </SettingsValueField>
         </SettingsRow>
         <SettingsRow label="Log out from all devices">
-          <Button variant="secondary" size="small" leadingIcon={RiLogoutCircleLine}>
+          <Button
+            variant="secondary"
+            size="small"
+            leadingIcon={RiLogoutCircleLine}
+          >
             Logout
           </Button>
         </SettingsRow>

@@ -28,8 +28,10 @@ type IconComponent = ComponentType<{
   "aria-hidden"?: boolean | "true" | "false";
 }>;
 
-export interface IconButtonProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
+export interface IconButtonProps extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  "children"
+> {
   icon: IconComponent;
   size?: IconButtonSize;
   /** Accessible name — required since there is no visible label. */
@@ -37,8 +39,10 @@ export interface IconButtonProps
   ref?: Ref<HTMLButtonElement>;
 }
 
-export interface IconLinkButtonProps
-  extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "children"> {
+export interface IconLinkButtonProps extends Omit<
+  AnchorHTMLAttributes<HTMLAnchorElement>,
+  "children"
+> {
   icon: IconComponent;
   size?: IconButtonSize;
   /** Accessible name — required since there is no visible label. */

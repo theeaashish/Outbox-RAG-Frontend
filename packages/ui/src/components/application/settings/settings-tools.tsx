@@ -15,7 +15,11 @@ import {
 import { Switch } from "../../base/switch/switch";
 import { ChevronUpDownSmall } from "../../foundations/icons/chevrons";
 import { cx } from "../../../utils/cx";
-import { SettingsCard, SettingsRow, SettingsSectionLabel } from "./settings-rows";
+import {
+  SettingsCard,
+  SettingsRow,
+  SettingsSectionLabel,
+} from "./settings-rows";
 
 /**
  * The settings modal's Tools page — MCP server management, structured after
@@ -49,7 +53,10 @@ interface McpServer {
   tools?: string[];
 }
 
-const SERVERS: Record<"astro" | "figma" | "paper" | "posthog" | "vercel", McpServer> = {
+const SERVERS: Record<
+  "astro" | "figma" | "paper" | "posthog" | "vercel",
+  McpServer
+> = {
   astro: {
     id: "astro",
     name: "astro",
@@ -64,7 +71,13 @@ const SERVERS: Record<"astro" | "figma" | "paper" | "posthog" | "vercel", McpSer
     tileClass: "bg-pink-200 text-pink-700",
     status: "connected",
     summary: "26 tools, 1 prompts, 104 resources enabled",
-    tools: ["get_design_context", "get_metadata", "get_screenshot", "get_variable_defs", "create_new_file"],
+    tools: [
+      "get_design_context",
+      "get_metadata",
+      "get_screenshot",
+      "get_variable_defs",
+      "create_new_file",
+    ],
   },
   paper: {
     id: "paper",
@@ -80,7 +93,13 @@ const SERVERS: Record<"astro" | "figma" | "paper" | "posthog" | "vercel", McpSer
     tileClass: "bg-amber-200 text-amber-700",
     status: "connected",
     summary: "521 tools, 173 resources enabled",
-    tools: ["query_insights", "list_dashboards", "capture_event", "feature_flags", "session_recordings"],
+    tools: [
+      "query_insights",
+      "list_dashboards",
+      "capture_event",
+      "feature_flags",
+      "session_recordings",
+    ],
   },
   vercel: {
     id: "vercel",
@@ -89,7 +108,12 @@ const SERVERS: Record<"astro" | "figma" | "paper" | "posthog" | "vercel", McpSer
     tileClass: "bg-neutral-950 text-white",
     status: "connected",
     summary: "30 tools, 13 prompts enabled",
-    tools: ["list_deployments", "get_build_logs", "promote_deployment", "env_variables"],
+    tools: [
+      "list_deployments",
+      "get_build_logs",
+      "promote_deployment",
+      "env_variables",
+    ],
   },
 };
 
@@ -104,7 +128,11 @@ const SCOPES: { id: string; label: string; servers: McpServer[] }[] = [
   { id: "cloud", label: "Cloud", servers: [SERVERS.vercel, SERVERS.posthog] },
 ];
 
-const PLUGIN_SERVERS: McpServer[] = [SERVERS.paper, SERVERS.posthog, SERVERS.vercel];
+const PLUGIN_SERVERS: McpServer[] = [
+  SERVERS.paper,
+  SERVERS.posthog,
+  SERVERS.vercel,
+];
 
 /* ----------------------------------------------------------------- pieces */
 
@@ -116,7 +144,7 @@ function ServerTile({ server }: { server: McpServer }) {
       <span
         className={cx(
           "flex size-8 items-center justify-center rounded-lg text-body-2-medium",
-          server.tileClass,
+          server.tileClass
         )}
       >
         {server.initial}
@@ -125,7 +153,7 @@ function ServerTile({ server }: { server: McpServer }) {
         aria-hidden
         className={cx(
           "absolute -bottom-0.5 -left-0.5 size-2.5 rounded-full ring-2 ring-background-secondary-default",
-          server.status === "connected" ? "bg-green-500" : "bg-red-600",
+          server.status === "connected" ? "bg-green-500" : "bg-red-600"
         )}
       />
     </span>
@@ -144,16 +172,26 @@ function ServerMenu({ name }: { name: string }) {
           "flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md",
           "text-foreground-icon-secondary outline-none transition-colors duration-150 ease",
           "hover:bg-background-secondary-hover focus-visible:ring-2 focus-visible:ring-border-focus-ring",
-          isOpen && "bg-background-secondary-hover",
+          isOpen && "bg-background-secondary-hover"
         )}
       >
         <RiMoreFill className="size-4 shrink-0" aria-hidden />
       </DropdownTrigger>
-      <DropdownPopover aria-label={`Actions for ${name}`} placement="bottom end" className="w-[180px] p-2">
+      <DropdownPopover
+        aria-label={`Actions for ${name}`}
+        placement="bottom end"
+        className="w-[180px] p-2"
+      >
         <DropdownGroup>
           {["Show output", "Refresh tools", "Remove server"].map((label) => (
-            <DropdownItem key={label} onSelect={() => setIsOpen(false)} className="px-2 py-1.5">
-              <span className="truncate text-body-medium whitespace-nowrap text-text-primary">{label}</span>
+            <DropdownItem
+              key={label}
+              onSelect={() => setIsOpen(false)}
+              className="px-2 py-1.5"
+            >
+              <span className="truncate text-body-medium whitespace-nowrap text-text-primary">
+                {label}
+              </span>
             </DropdownItem>
           ))}
         </DropdownGroup>
@@ -163,7 +201,13 @@ function ServerMenu({ name }: { name: string }) {
 }
 
 /** Quiet inline text action ("Logout", "Show Output"). */
-function InlineAction({ children, onClick }: { children: ReactNode; onClick?: () => void }) {
+function InlineAction({
+  children,
+  onClick,
+}: {
+  children: ReactNode;
+  onClick?: () => void;
+}) {
   return (
     <button
       type="button"
@@ -171,7 +215,7 @@ function InlineAction({ children, onClick }: { children: ReactNode; onClick?: ()
       className={cx(
         "cursor-pointer rounded-sm text-body-2-regular whitespace-nowrap text-text-tertiary",
         "outline-none transition-colors duration-150 ease",
-        "hover:text-text-secondary focus-visible:ring-2 focus-visible:ring-border-focus-ring",
+        "hover:text-text-secondary focus-visible:ring-2 focus-visible:ring-border-focus-ring"
       )}
     >
       {children}
@@ -187,12 +231,16 @@ function ServerRow({ server }: { server: McpServer }) {
         <ServerTile server={server} />
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="flex items-baseline gap-2">
-            <p className="text-body-medium whitespace-nowrap text-text-primary">{server.name}</p>
+            <p className="text-body-medium whitespace-nowrap text-text-primary">
+              {server.name}
+            </p>
             <InlineAction>Logout</InlineAction>
           </div>
           {server.status === "connected" ? (
             <div className="flex items-center gap-1">
-              <p className="truncate text-body-2-regular text-text-secondary">{server.summary}</p>
+              <p className="truncate text-body-2-regular text-text-secondary">
+                {server.summary}
+              </p>
               {server.tools && (
                 <button
                   type="button"
@@ -202,7 +250,7 @@ function ServerRow({ server }: { server: McpServer }) {
                   className={cx(
                     "flex size-4 shrink-0 cursor-pointer items-center justify-center rounded-xs",
                     "text-foreground-icon-tertiary outline-none transition-colors duration-150 ease",
-                    "hover:text-foreground-icon-secondary focus-visible:ring-2 focus-visible:ring-border-focus-ring",
+                    "hover:text-foreground-icon-secondary focus-visible:ring-2 focus-visible:ring-border-focus-ring"
                   )}
                 >
                   <ChevronUpDownSmall className="size-4" aria-hidden />
@@ -211,7 +259,9 @@ function ServerRow({ server }: { server: McpServer }) {
             </div>
           ) : (
             <div className="flex items-center gap-1">
-              <p className="text-body-2-regular whitespace-nowrap text-text-secondary">Error</p>
+              <p className="text-body-2-regular whitespace-nowrap text-text-secondary">
+                Error
+              </p>
               <span className="text-body-2-regular text-text-tertiary">–</span>
               <InlineAction>Show Output</InlineAction>
             </div>
@@ -226,7 +276,9 @@ function ServerRow({ server }: { server: McpServer }) {
         <div
           className={cx(
             "grid transition-[grid-template-rows,opacity] duration-300 ease-out",
-            expanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+            expanded
+              ? "grid-rows-[1fr] opacity-100"
+              : "grid-rows-[0fr] opacity-0"
           )}
         >
           <div className="overflow-hidden">
@@ -250,19 +302,24 @@ function NewServerRow() {
       type="button"
       className={cx(
         "group flex w-full cursor-pointer items-center gap-2.5 py-2.5 pr-2.5 text-left",
-        "outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus-ring",
+        "outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus-ring"
       )}
     >
       <span
         className={cx(
           "flex size-8 shrink-0 items-center justify-center rounded-lg bg-background-tertiary-default",
-          "transition-colors duration-150 ease group-hover:bg-background-tertiary-hover",
+          "transition-colors duration-150 ease group-hover:bg-background-tertiary-hover"
         )}
       >
-        <RiAddLine className="size-5 shrink-0 text-foreground-icon-secondary" aria-hidden />
+        <RiAddLine
+          className="size-5 shrink-0 text-foreground-icon-secondary"
+          aria-hidden
+        />
       </span>
       <span className="flex min-w-0 flex-col">
-        <span className="text-body-medium whitespace-nowrap text-text-primary">New MCP Server</span>
+        <span className="text-body-medium whitespace-nowrap text-text-primary">
+          New MCP Server
+        </span>
         <span className="text-body-2-regular whitespace-nowrap text-text-secondary">
           Add a Custom MCP Server
         </span>
@@ -287,7 +344,12 @@ export function SettingsTools() {
         className="-mx-1 flex w-[calc(100%+8px)] overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {SCOPES.map((s) => (
-          <PillTab key={s.id} variant="gray" isSelected={s.id === scopeId} onSelect={() => setScopeId(s.id)}>
+          <PillTab
+            key={s.id}
+            variant="gray"
+            isSelected={s.id === scopeId}
+            onSelect={() => setScopeId(s.id)}
+          >
             {s.label}
           </PillTab>
         ))}
@@ -295,13 +357,19 @@ export function SettingsTools() {
 
       {/* Authentication */}
       <div className="flex w-full flex-col gap-2">
-        <SettingsSectionLabel className="px-2">Authentication</SettingsSectionLabel>
+        <SettingsSectionLabel className="px-2">
+          Authentication
+        </SettingsSectionLabel>
         <SettingsCard>
           <SettingsRow
             label="Wait for MCP Authentication"
             description="Wait indefinitely to authenticate when prompted. When off, skip authentication prompts after 30 seconds."
           >
-            <Switch isSelected={waitForAuth} onChange={setWaitForAuth} aria-label="Wait for MCP authentication" />
+            <Switch
+              isSelected={waitForAuth}
+              onChange={setWaitForAuth}
+              aria-label="Wait for MCP authentication"
+            />
           </SettingsRow>
         </SettingsCard>
       </div>
@@ -309,7 +377,9 @@ export function SettingsTools() {
       {/* Scope servers */}
       <div className="flex w-full flex-col gap-2">
         <div className="flex w-full flex-col gap-0.5">
-          <SettingsSectionLabel className="px-2">{scope.label} MCP Servers</SettingsSectionLabel>
+          <SettingsSectionLabel className="px-2">
+            {scope.label} MCP Servers
+          </SettingsSectionLabel>
           <p className="w-full px-2 text-body-2-regular text-text-tertiary">
             Servers available from {scope.label}.
           </p>
@@ -326,7 +396,9 @@ export function SettingsTools() {
       <div className="flex w-full flex-col gap-2">
         <div className="flex w-full items-end justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-0.5">
-            <SettingsSectionLabel className="px-2">Team MCP Servers</SettingsSectionLabel>
+            <SettingsSectionLabel className="px-2">
+              Team MCP Servers
+            </SettingsSectionLabel>
             <p className="w-full px-2 text-body-2-regular text-text-tertiary">
               Configured in the dashboard
             </p>
@@ -337,10 +409,12 @@ export function SettingsTools() {
         </div>
         <div className="flex w-full flex-col items-center gap-3 rounded-2xl bg-background-secondary-default px-6 py-8">
           <div className="flex flex-col items-center gap-1 text-center">
-            <p className="text-body-medium text-text-primary">No Team MCP Servers</p>
+            <p className="text-body-medium text-text-primary">
+              No Team MCP Servers
+            </p>
             <p className="max-w-[360px] text-body-2-regular text-text-secondary">
-              Configure MCP servers in the dashboard to make them available in BoardUI on desktop
-              and in the cloud.
+              Configure MCP servers in the dashboard to make them available in
+              BoardUI on desktop and in the cloud.
             </p>
           </div>
           <Button variant="secondary" size="small">
@@ -351,7 +425,9 @@ export function SettingsTools() {
 
       {/* Plugin servers */}
       <div className="flex w-full flex-col gap-2">
-        <SettingsSectionLabel className="px-2">Plugin MCP Servers</SettingsSectionLabel>
+        <SettingsSectionLabel className="px-2">
+          Plugin MCP Servers
+        </SettingsSectionLabel>
         <SettingsCard>
           {PLUGIN_SERVERS.map((server) => (
             <ServerRow key={server.id} server={server} />

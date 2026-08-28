@@ -27,7 +27,12 @@ const styles = sortCx({
   },
 });
 
-export function Badge({ color = "neutral", className, ref, ...props }: BadgeProps) {
+export function Badge({
+  color = "neutral",
+  className,
+  ref,
+  ...props
+}: BadgeProps) {
   return (
     <span
       ref={ref}

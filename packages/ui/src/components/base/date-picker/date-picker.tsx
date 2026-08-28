@@ -74,13 +74,19 @@ export function DatePicker({
 
   const [internalOpen, setInternalOpen] = useState(false);
   const isOpen = isExternal ? (controlledIsOpen ?? false) : internalOpen;
-  const setIsOpen = isExternal ? (controlledOnOpenChange ?? (() => {})) : setInternalOpen;
+  const setIsOpen = isExternal
+    ? (controlledOnOpenChange ?? (() => {}))
+    : setInternalOpen;
 
   const isControlled = value !== undefined;
-  const [internalValue, setInternalValue] = useState<CalendarDate | null>(defaultValue);
+  const [internalValue, setInternalValue] = useState<CalendarDate | null>(
+    defaultValue
+  );
   const committedValue = isControlled ? (value ?? null) : internalValue;
 
-  const [pendingValue, setPendingValue] = useState<CalendarDate | null>(committedValue);
+  const [pendingValue, setPendingValue] = useState<CalendarDate | null>(
+    committedValue
+  );
   // React Aria's `Calendar` keeps its own internal `visibleRange` state for
   // as long as it stays mounted (Popover keeps its content mounted between
   // opens for the exit animation), so it never re-derives the visible month
@@ -112,7 +118,10 @@ export function DatePicker({
     setIsOpen(open);
   };
 
-  useDismissOnOutsidePress(isOpen, () => setIsOpen(false), [triggerRef, popoverRef]);
+  useDismissOnOutsidePress(isOpen, () => setIsOpen(false), [
+    triggerRef,
+    popoverRef,
+  ]);
 
   return (
     <>
@@ -124,7 +133,10 @@ export function DatePicker({
           onClick={() => openChange(!isOpen)}
           className={cx(triggerButtonClassName, className)}
         >
-          <RiCalendarLine className="size-5 shrink-0 text-foreground-icon-primary" aria-hidden />
+          <RiCalendarLine
+            className="size-5 shrink-0 text-foreground-icon-primary"
+            aria-hidden
+          />
           <span className="flex items-center justify-center whitespace-nowrap px-1 text-body-medium text-text-primary">
             {committedValue ? formatTriggerDate(committedValue) : "Select date"}
           </span>
@@ -141,7 +153,12 @@ export function DatePicker({
         className={popoverClassName}
       >
         <Dialog aria-label={ariaLabel} className="outline-none">
-          <Calendar key={openKey} aria-label={ariaLabel} value={pendingValue} onChange={setPendingValue}>
+          <Calendar
+            key={openKey}
+            aria-label={ariaLabel}
+            value={pendingValue}
+            onChange={setPendingValue}
+          >
             <div className="flex flex-col pt-2 pr-2 pb-3 pl-2">
               <MonthPanel offset={0} showPrev showNext />
               <div className="flex items-center justify-between pt-3 pr-4 pl-4">
@@ -153,9 +170,16 @@ export function DatePicker({
                         initial={{ opacity: 0, y: -12 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -12 }}
-                        transition={{ duration: 0.25, ease: [0.34, 1.2, 0.64, 1] }}
+                        transition={{
+                          duration: 0.25,
+                          ease: [0.34, 1.2, 0.64, 1],
+                        }}
                       >
-                        <DateChipInput date={pendingValue} label="Date" onCommit={setPendingValue} />
+                        <DateChipInput
+                          date={pendingValue}
+                          label="Date"
+                          onCommit={setPendingValue}
+                        />
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -170,7 +194,10 @@ export function DatePicker({
                   >
                     Cancel
                   </Button>
-                  <Button onClick={() => commit(pendingValue)} disabled={!pendingValue}>
+                  <Button
+                    onClick={() => commit(pendingValue)}
+                    disabled={!pendingValue}
+                  >
                     Apply
                   </Button>
                 </div>

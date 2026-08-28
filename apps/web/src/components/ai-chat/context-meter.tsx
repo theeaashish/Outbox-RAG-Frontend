@@ -3,15 +3,19 @@ export function ContextMeter({ value }: { value: number }) {
   const circumference = 2 * Math.PI * radius;
 
   return (
-    <span className="flex items-center gap-1.5 rounded-full bg-zinc-200/70 py-0.5 pl-2 pr-2.5 text-xs font-medium text-zinc-600">
-      <svg viewBox="0 0 16 16" className="size-3.5 -rotate-90" aria-hidden="true">
+    <span className="flex items-center gap-1.5 rounded-full bg-zinc-200/70 dark:bg-zinc-800/90 py-0.5 pl-2 pr-2.5 text-xs font-medium text-zinc-600 dark:text-zinc-300">
+      <svg
+        viewBox="0 0 16 16"
+        className="size-3.5 -rotate-90"
+        aria-hidden="true"
+      >
         <circle
           cx="8"
           cy="8"
           r={radius}
           fill="none"
           strokeWidth="3"
-          className="stroke-zinc-300"
+          className="stroke-zinc-300 dark:stroke-zinc-700"
         />
         <circle
           cx="8"
@@ -20,7 +24,7 @@ export function ContextMeter({ value }: { value: number }) {
           fill="none"
           strokeWidth="3"
           strokeLinecap="round"
-          className="stroke-zinc-600"
+          className="stroke-zinc-600 dark:stroke-zinc-300"
           strokeDasharray={`${(value / 100) * circumference} ${circumference}`}
         />
       </svg>

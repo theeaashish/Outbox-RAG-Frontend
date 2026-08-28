@@ -77,4 +77,3 @@ export function Hero({ children }: HeroProps) {
     </section>
   );
 }
-

@@ -52,13 +52,19 @@ function extensionFor(fileName: string) {
 
 function DefaultFileIcon({ file }: { file: File }) {
   const extension = extensionFor(file.name);
-  const Icon = extension === "xlsx"
-    ? RiFileExcel2Line
-    : ["jpg", "jpeg", "png"].includes(extension)
-      ? RiFileImageLine
-      : RiFileTextLine;
+  const Icon =
+    extension === "xlsx"
+      ? RiFileExcel2Line
+      : ["jpg", "jpeg", "png"].includes(extension)
+        ? RiFileImageLine
+        : RiFileTextLine;
 
-  return <Icon className="size-6 shrink-0 text-foreground-icon-secondary" aria-hidden />;
+  return (
+    <Icon
+      className="size-6 shrink-0 text-foreground-icon-secondary"
+      aria-hidden
+    />
+  );
 }
 
 /** Drives the Transitions.dev text-reveal states defined in globals.css. */
@@ -81,18 +87,28 @@ function useStaggerState(active: boolean): StaggerState {
 }
 
 const staggerContainer = (state: StaggerState) =>
-  cx("t-stagger", state === "shown" && "is-shown", state === "hiding" && "is-hiding");
+  cx(
+    "t-stagger",
+    state === "shown" && "is-shown",
+    state === "hiding" && "is-hiding"
+  );
 
 const staggerLine = (state: StaggerState) =>
   cx(
     state === "shown" &&
       "translate-y-0 opacity-100 blur-0 [transition:opacity_var(--stagger-dur)_var(--stagger-ease),translate_var(--stagger-dur)_var(--stagger-ease),filter_var(--stagger-dur)_var(--stagger-ease)]",
-    state === "hiding" && "translate-y-0 opacity-0 blur-0 [transition:opacity_200ms_ease]",
-    state === "hidden" && "translate-y-3 opacity-0 blur-[3px] transition-none",
+    state === "hiding" &&
+      "translate-y-0 opacity-0 blur-0 [transition:opacity_200ms_ease]",
+    state === "hidden" && "translate-y-3 opacity-0 blur-[3px] transition-none"
   );
 
 /** Rounded-rect progress path beginning at top-center and running clockwise. */
-function ringPath(width: number, height: number, inset: number, radius: number) {
+function ringPath(
+  width: number,
+  height: number,
+  inset: number,
+  radius: number
+) {
   const x0 = inset;
   const y0 = inset;
   const x1 = width - inset;
@@ -151,8 +167,12 @@ export function FileUpload({
 
   const startUpload = (nextFile: File) => {
     const extension = extensionFor(nextFile.name);
-    if (!allowedExtensions.map((value) => value.toLowerCase()).includes(extension)) {
-      setRejection(`Only ${allowedExtensions.map((value) => value.toUpperCase()).join(", ")} files are supported`);
+    if (
+      !allowedExtensions.map((value) => value.toLowerCase()).includes(extension)
+    ) {
+      setRejection(
+        `Only ${allowedExtensions.map((value) => value.toUpperCase()).join(", ")} files are supported`
+      );
       timers.current.push(setTimeout(() => setRejection(null), 2600));
       return;
     }
@@ -181,7 +201,7 @@ export function FileUpload({
           onUploadComplete?.(nextFile);
           setPhase("idle");
           setFile(null);
-        }, 1600),
+        }, 1600)
       );
     };
     timers.current.push(setTimeout(tick, 250));
@@ -225,9 +245,11 @@ export function FileUpload({
       className={cx(
         "group relative h-[164px] w-full shrink-0 rounded-2xl outline-none",
         "transition-colors duration-300 ease-out",
-        busy ? "bg-background-primary-default" : "cursor-pointer bg-background-secondary-default",
+        busy
+          ? "bg-background-primary-default"
+          : "cursor-pointer bg-background-secondary-default",
         "focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-border-focus-ring",
-        className,
+        className
       )}
     >
       <input
@@ -251,7 +273,7 @@ export function FileUpload({
             ? "border-border-button-active"
             : "border-border-checkbox-default group-hover:border-border-button-active",
           "transition-[opacity,border-color] duration-300 ease-out",
-          busy ? "opacity-0" : "opacity-100",
+          busy ? "opacity-0" : "opacity-100"
         )}
       />
 
@@ -261,7 +283,7 @@ export function FileUpload({
         preserveAspectRatio="none"
         className={cx(
           "pointer-events-none absolute inset-0 size-full transition-opacity duration-300 ease-out",
-          busy ? "opacity-100" : "opacity-0",
+          busy ? "opacity-100" : "opacity-0"
         )}
       >
         <rect
@@ -292,7 +314,9 @@ export function FileUpload({
           "absolute -top-[9.5px] left-1/2 -translate-x-1/2 rounded-md bg-accent-400 px-1.5 py-0.5",
           "text-caption-1-medium whitespace-nowrap text-white tabular-nums",
           "[transition:opacity_160ms_ease-out,filter_160ms_ease-out,translate_300ms_ease-out]",
-          busy ? "translate-y-0 opacity-100 blur-0" : "-translate-y-2.5 opacity-0 blur-[2px]",
+          busy
+            ? "translate-y-0 opacity-100 blur-0"
+            : "-translate-y-2.5 opacity-0 blur-[2px]"
         )}
       >
         {progress}%
@@ -302,7 +326,7 @@ export function FileUpload({
         className={cx(
           "absolute inset-0 flex flex-col items-center justify-center gap-3.5",
           staggerContainer(idleReveal),
-          busy && "pointer-events-none",
+          busy && "pointer-events-none"
         )}
       >
         <span className="t-stagger-line t-stagger-line--1 flex size-10 items-center justify-center rounded-full bg-file-upload-icon-background p-2.5">
@@ -315,12 +339,13 @@ export function FileUpload({
           <p
             className={cx(
               "t-stagger-line t-stagger-line--2 text-body-medium",
-              rejection ? "text-text-error-primary" : "text-text-secondary",
+              rejection ? "text-text-error-primary" : "text-text-secondary"
             )}
           >
             {rejection ?? (
               <>
-                Drag and drop to upload or <span className="text-accent-500">select</span>
+                Drag and drop to upload or{" "}
+                <span className="text-accent-500">select</span>
               </>
             )}
           </p>
@@ -334,11 +359,16 @@ export function FileUpload({
         className={cx(
           "absolute inset-0 flex flex-col items-center justify-center",
           staggerContainer(busyReveal),
-          !busy && "pointer-events-none",
+          !busy && "pointer-events-none"
         )}
       >
         <span className="t-stagger-line t-stagger-line--1 flex size-10 items-center justify-center rounded-full border border-border-button-default bg-background-primary-default p-2">
-          {file && (renderFileIcon ? renderFileIcon(file) : <DefaultFileIcon file={file} />)}
+          {file &&
+            (renderFileIcon ? (
+              renderFileIcon(file)
+            ) : (
+              <DefaultFileIcon file={file} />
+            ))}
         </span>
         <p className="t-stagger-line t-stagger-line--2 mt-3.5 max-w-[90%] truncate text-body-medium text-text-primary">
           {file?.name}
@@ -347,7 +377,7 @@ export function FileUpload({
           <p
             className={cx(
               "absolute inset-x-0 text-center text-body-2-regular text-text-secondary",
-              staggerLine(uploadingLine),
+              staggerLine(uploadingLine)
             )}
           >
             Uploading {file ? formatFileSize(file.size) : ""}
@@ -356,7 +386,7 @@ export function FileUpload({
           <p
             className={cx(
               "absolute inset-x-0 text-center text-body-2-regular text-text-secondary",
-              staggerLine(completeLine),
+              staggerLine(completeLine)
             )}
           >
             Uploaded successfully!

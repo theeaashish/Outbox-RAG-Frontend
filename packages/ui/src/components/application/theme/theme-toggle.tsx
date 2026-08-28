@@ -44,7 +44,7 @@ function createBlurCircleMask() {
 function installThemeTransitionStyle(
   { x, y }: ThemeTransitionOrigin,
   radius: number,
-  duration: number,
+  duration: number
 ) {
   document.getElementById(THEME_TRANSITION_STYLE_ID)?.remove();
 
@@ -87,13 +87,18 @@ function installThemeTransitionStyle(
 function storedTheme(): ThemeMode {
   if (typeof window === "undefined") return "light";
   try {
-    return window.localStorage.getItem(THEME_STORAGE_KEY) === "dark" ? "dark" : "light";
+    return window.localStorage.getItem(THEME_STORAGE_KEY) === "dark"
+      ? "dark"
+      : "light";
   } catch {
     return "light";
   }
 }
 
-export function applyTheme(theme: ThemeMode, { persist = true }: { persist?: boolean } = {}) {
+export function applyTheme(
+  theme: ThemeMode,
+  { persist = true }: { persist?: boolean } = {}
+) {
   if (typeof document === "undefined") return;
   document.documentElement.classList.toggle("dark", theme === "dark");
   if (persist) {
@@ -116,7 +121,7 @@ function elementCenter(element: HTMLElement | null): ThemeTransitionOrigin {
 
 function normalizedOrigin(
   origin: ThemeTransitionOrigin | null,
-  element: HTMLElement | null,
+  element: HTMLElement | null
 ): ThemeTransitionOrigin {
   const fallback = elementCenter(element);
   const x = origin?.x ?? fallback.x;
@@ -142,12 +147,14 @@ export async function applyThemeWithTransition(
     origin?: ThemeTransitionOrigin | null;
     element?: HTMLElement | null;
     duration?: number;
-  } = {},
+  } = {}
 ) {
   if (typeof document === "undefined" || currentTheme() === theme) return;
 
   const transitionDocument = document as ViewTransitionDocument;
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduceMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
   if (!transitionDocument.startViewTransition || reduceMotion) {
     applyTheme(theme);
     return;
@@ -157,12 +164,16 @@ export async function applyThemeWithTransition(
   const { x, y } = normalizedOrigin(origin, element);
   const radius = Math.hypot(
     Math.max(x, window.innerWidth - x),
-    Math.max(y, window.innerHeight - y),
+    Math.max(y, window.innerHeight - y)
   );
 
   themeTransitionRunning = true;
   document.documentElement.classList.add("theme-transitioning");
-  const transitionStyle = installThemeTransitionStyle({ x, y }, radius, duration);
+  const transitionStyle = installThemeTransitionStyle(
+    { x, y },
+    radius,
+    duration
+  );
   try {
     const transition = transitionDocument.startViewTransition(() => {
       flushSync(() => applyTheme(theme));
@@ -189,7 +200,9 @@ function subscribe(onStoreChange: () => void) {
   const onThemeChange = () => onStoreChange();
   const onStorage = (event: StorageEvent) => {
     if (event.key !== THEME_STORAGE_KEY) return;
-    applyTheme(event.newValue === "dark" ? "dark" : "light", { persist: false });
+    applyTheme(event.newValue === "dark" ? "dark" : "light", {
+      persist: false,
+    });
   };
   window.addEventListener(THEME_CHANGE_EVENT, onThemeChange);
   window.addEventListener("storage", onStorage);
@@ -212,7 +225,11 @@ export interface ThemeToggleProps {
    * hero shader's near-white band in both themes and a token that follows the
    * page would invert out of sight in dark mode.
    */
-  appearance?: "sidebar" | "segmented" | "sidebar-segmented" | "glass-segmented";
+  appearance?:
+    | "sidebar"
+    | "segmented"
+    | "sidebar-segmented"
+    | "glass-segmented";
   className?: string;
   /** Circular reveal duration in milliseconds. */
   transitionDuration?: number;
@@ -265,7 +282,7 @@ export function ThemeToggle({
             : sidebarSurface
               ? "bg-theme-toggle-sidebar-background"
               : "bg-background-secondary-default",
-          className,
+          className
         )}
       >
         <span
@@ -280,7 +297,7 @@ export function ThemeToggle({
                 ? "bg-theme-toggle-sidebar-selected-background"
                 : "bg-background-primary-default",
             // Segment width + the 4px gap: 28+4 on mobile, 32+4 above it.
-            dark && (glass ? "translate-x-8 sm:translate-x-9" : "translate-x-9"),
+            dark && (glass ? "translate-x-8 sm:translate-x-9" : "translate-x-9")
           )}
         />
         {options.map(({ mode, label, Icon }) => {
@@ -317,7 +334,7 @@ export function ThemeToggle({
                     : "text-black/45 hover:text-black/70 dark:text-white/45 dark:hover:text-white/70"
                   : selected
                     ? "text-foreground-icon-primary"
-                    : "text-foreground-icon-secondary hover:text-foreground-icon-primary",
+                    : "text-foreground-icon-secondary hover:text-foreground-icon-primary"
               )}
             >
               <Icon className="size-4" aria-hidden />
@@ -352,7 +369,7 @@ export function ThemeToggle({
           "text-foreground-icon-secondary transition-colors duration-150 ease",
           "hover:bg-background-secondary-hover hover:text-foreground-icon-primary",
           "outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring",
-          className,
+          className
         )}
       >
         <Icon className="size-5" aria-hidden />
@@ -382,15 +399,20 @@ export function ThemeToggle({
           "flex w-full cursor-pointer items-center justify-between rounded-2lg p-2",
           "transition-colors duration-150 ease hover:bg-background-secondary-hover",
           isFocusVisible && "ring-2 ring-inset ring-border-focus-ring",
-          className,
+          className
         )
       }
     >
       {(state) => (
         <>
           <span className="flex min-w-0 items-center gap-2">
-            <RiMoonLine className="size-5 shrink-0 text-foreground-icon-secondary" aria-hidden />
-            <span className="text-body-medium text-text-secondary">Dark mode</span>
+            <RiMoonLine
+              className="size-5 shrink-0 text-foreground-icon-secondary"
+              aria-hidden
+            />
+            <span className="text-body-medium text-text-secondary">
+              Dark mode
+            </span>
           </span>
           <SwitchTrack state={state} size="sm" shape="pill" />
         </>

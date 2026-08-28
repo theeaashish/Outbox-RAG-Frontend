@@ -59,12 +59,27 @@ const sizes = sortCx({
  */
 export const TOOLTIP_CARETS = sortCx({
   top: { width: 12, height: 7, path: "M0 0 L6 6 L12 0", shadow: "0 1.5px 1px" },
-  bottom: { width: 12, height: 7, path: "M0 7 L6 1 L12 7", shadow: "0 -1.5px 1px" },
+  bottom: {
+    width: 12,
+    height: 7,
+    path: "M0 7 L6 1 L12 7",
+    shadow: "0 -1.5px 1px",
+  },
   // left/right carets stick out sideways from the body; their shadow should
   // still fall *downward* (light-from-top, matching the body's shadow-dropdown)
   // rather than horizontally, which read as floating.
-  left: { width: 7, height: 12, path: "M0 0 L6 6 L0 12", shadow: "0 1.5px 1px" },
-  right: { width: 7, height: 12, path: "M7 0 L1 6 L7 12", shadow: "0 1.5px 1px" },
+  left: {
+    width: 7,
+    height: 12,
+    path: "M0 0 L6 6 L0 12",
+    shadow: "0 1.5px 1px",
+  },
+  right: {
+    width: 7,
+    height: 12,
+    path: "M7 0 L1 6 L7 12",
+    shadow: "0 1.5px 1px",
+  },
 });
 
 export interface TooltipProps extends Omit<AriaTooltipProps, "children"> {
@@ -75,7 +90,14 @@ export interface TooltipProps extends Omit<AriaTooltipProps, "children"> {
   showArrow?: boolean;
 }
 
-export function Tooltip({ children, className, size = "sm", showArrow = true, offset = 10, ...props }: TooltipProps) {
+export function Tooltip({
+  children,
+  className,
+  size = "sm",
+  showArrow = true,
+  offset = 10,
+  ...props
+}: TooltipProps) {
   return (
     <AriaTooltip
       offset={offset}
@@ -91,7 +113,7 @@ export function Tooltip({ children, className, size = "sm", showArrow = true, of
           "transition duration-200 ease-out",
           "data-[entering]:scale-90 data-[entering]:opacity-0 data-[entering]:blur-[4px]",
           "data-[exiting]:scale-90 data-[exiting]:opacity-0 data-[exiting]:blur-[4px]",
-          typeof className === "function" ? className(state) : className,
+          typeof className === "function" ? className(state) : className
         )
       }
     >
@@ -100,14 +122,18 @@ export function Tooltip({ children, className, size = "sm", showArrow = true, of
           {({ placement }) => {
             // `placement` includes react-aria's `"center"` (for other overlay
             // types); this tooltip only ever resolves to one of our 4 sides.
-            const caret = TOOLTIP_CARETS[placement as keyof typeof TOOLTIP_CARETS] ?? TOOLTIP_CARETS.top;
+            const caret =
+              TOOLTIP_CARETS[placement as keyof typeof TOOLTIP_CARETS] ??
+              TOOLTIP_CARETS.top;
             return (
               <svg
                 width={caret.width}
                 height={caret.height}
                 viewBox={`0 0 ${caret.width} ${caret.height}`}
                 className="block overflow-visible fill-background-primary-default stroke-border-button-default"
-                style={{ filter: `drop-shadow(${caret.shadow} rgb(0 0 0 / 0.05))` }}
+                style={{
+                  filter: `drop-shadow(${caret.shadow} rgb(0 0 0 / 0.05))`,
+                }}
               >
                 <path d={caret.path} />
               </svg>
@@ -122,6 +148,12 @@ export function Tooltip({ children, className, size = "sm", showArrow = true, of
 
 export type TooltipTriggerProps = ComponentProps<typeof AriaTooltipTrigger>;
 
-export function TooltipTrigger({ delay = 0, closeDelay = 0, ...props }: TooltipTriggerProps) {
-  return <AriaTooltipTrigger delay={delay} closeDelay={closeDelay} {...props} />;
+export function TooltipTrigger({
+  delay = 0,
+  closeDelay = 0,
+  ...props
+}: TooltipTriggerProps) {
+  return (
+    <AriaTooltipTrigger delay={delay} closeDelay={closeDelay} {...props} />
+  );
 }

@@ -85,12 +85,20 @@ const GROUPS: MenuGroup[] = [
 ];
 
 /** Label/chevron slot on the trigger: blurs + fades away as the rail collapses. */
-function Collapsible({ collapsed, children }: { collapsed: boolean; children: ReactNode }) {
+function Collapsible({
+  collapsed,
+  children,
+}: {
+  collapsed: boolean;
+  children: ReactNode;
+}) {
   return (
     <span
       className={cx(
         "flex min-w-0 items-center overflow-hidden transition-[max-width,opacity,filter] duration-300 ease-in-out",
-        collapsed ? "max-w-0 opacity-0 blur-[3px]" : "max-w-40 opacity-100 blur-0",
+        collapsed
+          ? "max-w-0 opacity-0 blur-[3px]"
+          : "max-w-40 opacity-100 blur-0"
       )}
     >
       {children}
@@ -98,7 +106,13 @@ function Collapsible({ collapsed, children }: { collapsed: boolean; children: Re
   );
 }
 
-function TeamMenuItem({ icon: Icon, label, badge, isSelected, onSelect }: MenuRow & { onSelect: () => void }) {
+function TeamMenuItem({
+  icon: Icon,
+  label,
+  badge,
+  isSelected,
+  onSelect,
+}: MenuRow & { onSelect: () => void }) {
   return (
     <a
       href="#"
@@ -108,12 +122,17 @@ function TeamMenuItem({ icon: Icon, label, badge, isSelected, onSelect }: MenuRo
         "flex w-full items-center gap-2.5 rounded-2lg p-2 outline-none transition-colors",
         isSelected
           ? "bg-background-primary-hover"
-          : "hover:bg-background-primary-hover focus-visible:bg-background-primary-hover",
+          : "hover:bg-background-primary-hover focus-visible:bg-background-primary-hover"
       )}
     >
       <span className="flex min-w-0 flex-1 items-center gap-2">
-        <Icon className="size-5 shrink-0 text-foreground-icon-secondary" aria-hidden />
-        <span className="truncate text-body-medium text-text-primary">{label}</span>
+        <Icon
+          className="size-5 shrink-0 text-foreground-icon-secondary"
+          aria-hidden
+        />
+        <span className="truncate text-body-medium text-text-primary">
+          {label}
+        </span>
       </span>
       {badge && (
         <Badge
@@ -160,22 +179,34 @@ export function DashboardTeamMenu({
           collapsed
             ? "size-9 justify-start rounded-full bg-transparent p-0"
             : "w-full justify-between rounded-xl bg-background-tertiary-default py-2 pr-4 pl-2.5",
-          className,
+          className
         )}
       >
         <span className="flex min-w-0 items-center gap-2">
-          <Avatar size="md" color="blue" src="/brand/boardui_logo_circle.webp" alt="Board team" />
+          <Avatar
+            size="md"
+            color="blue"
+            src="/brand/boardui_logo_circle.webp"
+            alt="Board team"
+          />
           <Collapsible collapsed={collapsed}>
             <span className="flex min-w-0 flex-col items-start justify-center">
-              <span className="text-body-medium whitespace-nowrap text-text-primary">Board team</span>
-              <span className="text-body-regular whitespace-nowrap text-text-secondary">hi@boardui.com</span>
+              <span className="text-body-medium whitespace-nowrap text-text-primary">
+                Board team
+              </span>
+              <span className="text-body-regular whitespace-nowrap text-text-secondary">
+                hi@boardui.com
+              </span>
             </span>
           </Collapsible>
         </span>
         <Collapsible collapsed={collapsed}>
           <span className="flex size-4 shrink-0 items-center justify-center rounded-[3px] bg-background-tertiary-hover">
             <ChevronDownSmall
-              className={cx("size-4 text-text-secondary transition-transform duration-200 ease", isOpen && "rotate-180")}
+              className={cx(
+                "size-4 text-text-secondary transition-transform duration-200 ease",
+                isOpen && "rotate-180"
+              )}
             />
           </span>
         </Collapsible>
@@ -189,29 +220,48 @@ export function DashboardTeamMenu({
           "rounded-2xl border border-border-button-default bg-background-primary-default p-2.5 shadow-dropdown",
           "transition duration-150 ease-out",
           "data-[entering]:opacity-0 data-[entering]:scale-95 data-[entering]:blur-[2px]",
-          "data-[exiting]:opacity-0 data-[exiting]:scale-95 data-[exiting]:blur-[2px]",
+          "data-[exiting]:opacity-0 data-[exiting]:scale-95 data-[exiting]:blur-[2px]"
         )}
       >
-        <AriaDialog aria-label="Board team menu" className="flex flex-col gap-[7px] outline-none">
+        <AriaDialog
+          aria-label="Board team menu"
+          className="flex flex-col gap-[7px] outline-none"
+        >
           {/* Header */}
           <div className="flex w-full items-center gap-2 px-2 pt-1">
-            <Avatar size="md" color="blue" src="/brand/boardui_logo_circle.webp" alt="Board team" />
+            <Avatar
+              size="md"
+              color="blue"
+              src="/brand/boardui_logo_circle.webp"
+              alt="Board team"
+            />
             <div className="flex min-w-0 flex-col items-start justify-center">
-              <span className="text-body-medium whitespace-nowrap text-text-primary">Board team</span>
-              <span className="text-body-regular whitespace-nowrap text-text-secondary">hi@boardui.com</span>
+              <span className="text-body-medium whitespace-nowrap text-text-primary">
+                Board team
+              </span>
+              <span className="text-body-regular whitespace-nowrap text-text-secondary">
+                hi@boardui.com
+              </span>
             </div>
           </div>
 
           {/* Grouped sidebar-style rows */}
           <div className="flex w-full flex-col">
             {GROUPS.map((group, index) => (
-              <Group key={group.id} group={group} showDivider={index > 0} onSelect={() => setIsOpen(false)} />
+              <Group
+                key={group.id}
+                group={group}
+                showDivider={index > 0}
+                onSelect={() => setIsOpen(false)}
+              />
             ))}
           </div>
 
           {/* Footer */}
           <div className="flex w-full items-center justify-between px-2 pt-1 pb-2">
-            <span className="text-body-2-medium whitespace-nowrap text-text-tertiary">BoardUI</span>
+            <span className="text-body-2-medium whitespace-nowrap text-text-tertiary">
+              BoardUI
+            </span>
             <span className="inline-flex items-center justify-center rounded-sm bg-background-tertiary-default px-1 py-px text-body-2-medium whitespace-nowrap text-text-tertiary">
               v1.0.1
             </span>
@@ -222,13 +272,30 @@ export function DashboardTeamMenu({
   );
 }
 
-function Group({ group, showDivider, onSelect }: { group: MenuGroup; showDivider: boolean; onSelect: () => void }) {
+function Group({
+  group,
+  showDivider,
+  onSelect,
+}: {
+  group: MenuGroup;
+  showDivider: boolean;
+  onSelect: () => void;
+}) {
   return (
     <>
-      {showDivider && <div className="-mx-2.5 my-2.5 h-px bg-border-button-default" />}
-      <div className={cx("flex w-full flex-col gap-1", group.label && "gap-1.5 pt-1")}>
+      {showDivider && (
+        <div className="-mx-2.5 my-2.5 h-px bg-border-button-default" />
+      )}
+      <div
+        className={cx(
+          "flex w-full flex-col gap-1",
+          group.label && "gap-1.5 pt-1"
+        )}
+      >
         {group.label && (
-          <span className="px-2 text-body-medium text-text-secondary">{group.label}</span>
+          <span className="px-2 text-body-medium text-text-secondary">
+            {group.label}
+          </span>
         )}
         <div className="flex w-full flex-col gap-1">
           {group.items.map((item) => (

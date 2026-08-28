@@ -28,6 +28,21 @@ export {
   type ButtonProps as BoardButtonProps,
   type ButtonLinkProps as BoardButtonLinkProps,
 } from "./components/base/buttons/button";
+export * from "./components/base/buttons/close-button";
+export * from "./components/base/buttons/icon-button";
+export * from "./components/base/kbd/kbd";
+export {
+  Avatar as BoardAvatar,
+  type AvatarProps as BoardAvatarProps,
+} from "./components/base/avatar/avatar";
+export {
+  Badge as BoardBadge,
+  type BadgeProps as BoardBadgeProps,
+} from "./components/base/badges/badge";
+export {
+  Chip as BoardChip,
+  type ChipProps as BoardChipProps,
+} from "./components/base/badges/chip";
 
 // Application - Dashboard & Sidebar
 export * from "./components/application/dashboard/dashboard-sidebar";

@@ -1,0 +1,45 @@
+import type { ProjectItem } from "./sidebar/sidebar-data";
+
+export const MOCK_PROJECT_NAME = "vibl coding project";
+export const MOCK_SCENARIO_NAME = "coding scenario";
+
+export const MOCK_PROJECTS: ProjectItem[] = [
+  { id: "boardui", name: "boardui" },
+  {
+    id: "vibl",
+    name: MOCK_PROJECT_NAME,
+    expanded: true,
+    sessions: [
+      { id: "landing", title: "landing page design", time: "34m" },
+      { id: "image", title: "image generation", time: "now" },
+      { id: "coding", title: MOCK_SCENARIO_NAME, time: "now" },
+      { id: "mobile", title: "mobile app for vuejs...", time: "5h" },
+      { id: "refactor", title: "code refactor dropd...", time: "10h" },
+    ],
+  },
+  { id: "strider", name: "strider landing page work" },
+  { id: "pirate", name: "pirate mini game iOS" },
+];
+
+export const MOCK_ACTIVE_SESSION_ID = "coding";
+
+export interface AgentStep {
+  id: string;
+  label: string;
+  status: "complete" | "active";
+}
+
+export const MOCK_TRANSCRIPT = {
+  prompt:
+    "update our color tokens for dark mode and add a reusable theme toggle to the registry. run lint and a production build when you're done.",
+  stepsRemaining: 5,
+  thinkingSeconds: 8.9,
+  steps: [
+    { id: "read-files", label: "Read project files", status: "complete" },
+    {
+      id: "light-tokens",
+      label: "Update and install light mode tokens",
+      status: "active",
+    },
+  ] satisfies AgentStep[],
+};
