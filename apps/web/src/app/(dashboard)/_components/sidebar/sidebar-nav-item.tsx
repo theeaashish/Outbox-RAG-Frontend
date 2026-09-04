@@ -1,6 +1,5 @@
 import type { ComponentType } from "react";
-import { cx } from "@repo/ui";
-import { Collapsible } from "./collapsible";
+import { SidebarCollapsible, cx } from "@repo/ui";
 
 export interface NavAction {
   label: string;
@@ -25,9 +24,9 @@ export function SidebarNavItem({
       )}
     >
       <Icon className="size-4 shrink-0 text-zinc-500" />
-      <Collapsible collapsed={collapsed}>
+      <SidebarCollapsible collapsed={collapsed}>
         <span className="whitespace-nowrap">{label}</span>
-      </Collapsible>
+      </SidebarCollapsible>
     </button>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useState } from "react";
 import { RiAddFill, RiEqualizer3Line } from "@remixicon/react";
 import {
   Button as AriaButton,
@@ -12,6 +12,8 @@ import { Avatar } from "../../base/avatar/avatar";
 import { Button } from "../../base/buttons/button";
 import { ChevronUpDownSmall } from "../../foundations/icons/chevrons";
 import { cx } from "../../../utils/cx";
+import { useMediaQuery } from "../../../hooks/use-media-query";
+import { SidebarCollapsible } from "./sidebar-collapsible";
 
 /**
  * Figma source: Board UI → sidebar account menu (node 3828:3895).
@@ -25,72 +27,73 @@ import { cx } from "../../../utils/cx";
 
 type AvatarColor = "neutral" | "lime" | "pink";
 
-type UserRow = {
-  initials: string;
-  color: AvatarColor;
+export interface DashboardUserMenuItem {
   name: string;
+  initials: string;
+  /** Avatar tint; defaults to "neutral". */
+  color?: AvatarColor;
+  /** Marks the active user in the "Users with access" list. */
   isSelected?: boolean;
+}
+
+/** Fixture identity so template/showcase usages render without props. */
+const TEMPLATE_USER: DashboardUserMenuItem = {
+  name: "Mertcan Esmergul",
+  initials: "M",
 };
 
-const USERS: UserRow[] = [
+const TEMPLATE_USERS: DashboardUserMenuItem[] = [
   { initials: "M", color: "neutral", name: "Mertcan Esmergul" },
   { initials: "S", color: "lime", name: "Steven Raule" },
   { initials: "L", color: "pink", name: "Lauren Proso" },
 ];
 
-/** Label slot on the trigger: blurs + fades away as the rail collapses. */
-function Collapsible({
-  collapsed,
-  children,
+function UserMenuItem({
+  user,
+  onSelect,
 }: {
-  collapsed: boolean;
-  children: ReactNode;
+  user: DashboardUserMenuItem;
+  onSelect: () => void;
 }) {
   return (
-    <span
-      className={cx(
-        "flex min-w-0 items-center overflow-hidden transition-[max-width,opacity,filter] duration-300 ease-in-out",
-        collapsed
-          ? "max-w-0 opacity-0 blur-[3px]"
-          : "max-w-40 opacity-100 blur-0"
-      )}
-    >
-      {children}
-    </span>
-  );
-}
-
-function UserMenuItem({
-  initials,
-  color,
-  name,
-  isSelected,
-  onSelect,
-}: UserRow & { onSelect: () => void }) {
-  return (
-    <a
-      href="#"
-      aria-current={isSelected ? "page" : undefined}
+    <button
+      type="button"
+      aria-current={user.isSelected ? "page" : undefined}
       onClick={onSelect}
       className={cx(
-        "flex w-full items-center gap-2 rounded-2lg px-2 py-1.5 outline-none transition-colors",
-        isSelected
+        "flex w-full cursor-pointer items-center gap-2 rounded-2lg px-2 py-1.5 text-left outline-none transition-colors",
+        user.isSelected
           ? "bg-background-primary-hover"
           : "hover:bg-background-primary-hover focus-visible:bg-background-primary-hover"
       )}
     >
-      <Avatar size="xs" color={color} initials={initials} />
+      <Avatar
+        size="xs"
+        color={user.color ?? "neutral"}
+        initials={user.initials}
+      />
       <span className="truncate text-body-medium text-text-primary">
-        {name}
+        {user.name}
       </span>
-    </a>
+    </button>
   );
 }
 
 /** The dropdown's contents — users-with-access list + Add user/Manage
  *  actions — split out so other triggers (e.g. the calendar template's
- *  inbox icon) can open the same panel without duplicating it. */
-export function AccountMenuContent({ onSelect }: { onSelect: () => void }) {
+ *  inbox icon) can open the same panel without duplicating it. Callers own
+ *  closing; every interaction is surfaced as a semantic callback. */
+export function AccountMenuContent({
+  users = TEMPLATE_USERS,
+  onSelectUser,
+  onAddUser,
+  onManage,
+}: {
+  users?: DashboardUserMenuItem[];
+  onSelectUser?: (user: DashboardUserMenuItem) => void;
+  onAddUser?: () => void;
+  onManage?: () => void;
+}) {
   return (
     <>
       {/* Users with access */}
@@ -99,8 +102,12 @@ export function AccountMenuContent({ onSelect }: { onSelect: () => void }) {
           Users with access
         </span>
         <div className="flex w-full flex-col gap-1">
-          {USERS.map((user) => (
-            <UserMenuItem key={user.name} {...user} onSelect={onSelect} />
+          {users.map((user) => (
+            <UserMenuItem
+              key={user.name}
+              user={user}
+              onSelect={() => onSelectUser?.(user)}
+            />
           ))}
         </div>
       </div>
@@ -116,7 +123,7 @@ export function AccountMenuContent({ onSelect }: { onSelect: () => void }) {
           size="small"
           leadingIcon={RiAddFill}
           className="flex-1"
-          onClick={onSelect}
+          onClick={onAddUser}
         >
           Add user
         </Button>
@@ -125,7 +132,7 @@ export function AccountMenuContent({ onSelect }: { onSelect: () => void }) {
           size="small"
           leadingIcon={RiEqualizer3Line}
           className="flex-1"
-          onClick={onSelect}
+          onClick={onManage}
         >
           Manage
         </Button>
@@ -139,6 +146,11 @@ export function DashboardUserMenu({
   suppressHover = false,
   onHoverSuppressionEnd,
   avatarClassName,
+  user = TEMPLATE_USER,
+  users = TEMPLATE_USERS,
+  onSelectUser,
+  onAddUser,
+  onManage,
 }: {
   collapsed?: boolean;
   /** Prevents expansion from creating a hover state under a stationary pointer. */
@@ -146,25 +158,26 @@ export function DashboardUserMenu({
   /** Re-arms hover after the pointer fully leaves the trigger. */
   onHoverSuppressionEnd?: () => void;
   avatarClassName?: string;
+  /** Trigger identity. Defaults to the template fixture user. */
+  user?: DashboardUserMenuItem;
+  /** "Users with access" list. Defaults to the template fixture users. */
+  users?: DashboardUserMenuItem[];
+  /** Semantic events — the menu always closes; handlers decide what runs. */
+  onSelectUser?: (user: DashboardUserMenuItem) => void;
+  onAddUser?: () => void;
+  onManage?: () => void;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
   // "right" placement assumes room to the sidebar's right (true in-flow on
   // desktop) — on mobile the sidebar can span the full viewport, so the
   // 265px panel would render off-screen. Below sm, drop into a plain
   // dropdown under the trigger instead.
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 639px)");
-    setIsMobile(mq.matches);
-    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
+  const isMobile = useMediaQuery("(max-width: 639px)");
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <AriaDialogTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
       <AriaButton
-        aria-label="Mertcan Esmergul"
+        aria-label={user.name}
         onPointerLeave={() => {
           if (suppressHover) onHoverSuppressionEnd?.();
         }}
@@ -190,17 +203,17 @@ export function DashboardUserMenu({
         <Avatar
           size="md"
           color="neutral"
-          initials="M"
+          initials={user.initials}
           className={avatarClassName}
         />
-        <Collapsible collapsed={collapsed}>
+        <SidebarCollapsible collapsed={collapsed}>
           <span className="flex items-center gap-0.5">
             <span className="text-body-medium whitespace-nowrap text-text-primary">
-              Mertcan Esmergul
+              {user.name}
             </span>
             <ChevronUpDownSmall className="size-4 shrink-0 text-foreground-icon-tertiary" />
           </span>
-        </Collapsible>
+        </SidebarCollapsible>
       </AriaButton>
 
       <AriaPopover
@@ -218,7 +231,21 @@ export function DashboardUserMenu({
           aria-label="Account menu"
           className="flex flex-col outline-none"
         >
-          <AccountMenuContent onSelect={() => setIsOpen(false)} />
+          <AccountMenuContent
+            users={users}
+            onSelectUser={(item) => {
+              onSelectUser?.(item);
+              setIsOpen(false);
+            }}
+            onAddUser={() => {
+              onAddUser?.();
+              setIsOpen(false);
+            }}
+            onManage={() => {
+              onManage?.();
+              setIsOpen(false);
+            }}
+          />
         </AriaDialog>
       </AriaPopover>
     </AriaDialogTrigger>

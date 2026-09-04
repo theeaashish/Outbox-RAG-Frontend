@@ -12,7 +12,6 @@ export {
   type Model,
 } from "./constants";
 export {
-  COMPOSER_STATUSES,
   type ComposerStatus,
   type ComposerMode,
   type AttachmentStatus,

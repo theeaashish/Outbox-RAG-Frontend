@@ -2,8 +2,7 @@
 
 import * as React from "react";
 import { RiSearchLine } from "@remixicon/react";
-import { CloseButton, Kbd, cx } from "@repo/ui";
-import { Collapsible } from "./collapsible";
+import { CloseButton, Kbd, SidebarCollapsible, cx } from "@repo/ui";
 
 interface QuickSearchProps {
   collapsed: boolean;
@@ -61,13 +60,13 @@ export function QuickSearch({
     >
       <span className="flex min-w-0 items-center gap-2">
         <RiSearchLine className="size-4 shrink-0 text-zinc-500" aria-hidden />
-        <Collapsible collapsed={collapsed}>
+        <SidebarCollapsible collapsed={collapsed}>
           <span className="whitespace-nowrap text-xs">Quick Search</span>
-        </Collapsible>
+        </SidebarCollapsible>
       </span>
-      <Collapsible collapsed={collapsed}>
+      <SidebarCollapsible collapsed={collapsed}>
         <Kbd>⌘L</Kbd>
-      </Collapsible>
+      </SidebarCollapsible>
     </button>
   );
 }

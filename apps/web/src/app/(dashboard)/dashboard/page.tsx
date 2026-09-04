@@ -11,9 +11,10 @@ import {
   HeaderAction,
 } from "@/app/(dashboard)/_components/dashboard-header";
 import {
+  MOCK_PROJECT_ID,
   MOCK_PROJECT_NAME,
+  MOCK_PROMPT,
   MOCK_SCENARIO_NAME,
-  MOCK_TRANSCRIPT,
 } from "@/app/(dashboard)/_components/fixtures";
 import { UserMessage } from "@/app/(dashboard)/_components/transcript";
 import { useChatComposer } from "@/app/(dashboard)/_hooks/use-chat-composer";
@@ -45,7 +46,7 @@ export default function DashboardPage() {
 
       <div className="relative flex flex-1 flex-col justify-between overflow-y-auto px-4 py-4 sm:px-8">
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 pt-4">
-          <UserMessage>{MOCK_TRANSCRIPT.prompt}</UserMessage>
+          <UserMessage>{MOCK_PROMPT}</UserMessage>
         </div>
 
         <div className="mx-auto w-full max-w-2xl pb-2 pt-4">
@@ -62,7 +63,7 @@ export default function DashboardPage() {
             onSubmit={composer.submit}
             onCancel={composer.cancel}
             branch={{ id: "main", name: "Main" }}
-            project={{ id: "project-sea", name: "project-sea" }}
+            project={{ id: MOCK_PROJECT_ID, name: MOCK_PROJECT_NAME }}
             contextUsage={57}
           />
         </div>

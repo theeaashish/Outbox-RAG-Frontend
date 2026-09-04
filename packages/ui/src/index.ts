@@ -19,6 +19,7 @@ export * from "./components/portal";
 
 // Hooks
 export * from "./hooks/use-scroll";
+export * from "./hooks/use-media-query";
 
 // Theme Provider
 export * from "./components/theme-provider";
@@ -47,7 +48,8 @@ export {
 } from "./components/base/badges/chip";
 
 // Application - Dashboard & Sidebar
-export * from "./components/application/dashboard/dashboard-sidebar";
+export * from "./components/application/dashboard/sidebar-collapsible";
+export * from "./components/application/dashboard/template-sidebar";
 export * from "./components/application/dashboard/dashboard-team-menu";
 export * from "./components/application/dashboard/dashboard-user-menu";
 export * from "./components/application/settings/settings-modal";

@@ -10,9 +10,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  SidebarCollapsible,
   cx,
 } from "@repo/ui";
-import { Collapsible } from "./collapsible";
 import type { ChatSession, ProjectItem } from "./sidebar-data";
 
 interface SessionRowProps {
@@ -123,9 +123,9 @@ export function ProjectNode({
           )}
         >
           <FolderIcon className="size-4 shrink-0 text-zinc-500" aria-hidden />
-          <Collapsible collapsed={collapsed}>
+          <SidebarCollapsible collapsed={collapsed} className="max-w-full">
             <span className="truncate">{project.name}</span>
-          </Collapsible>
+          </SidebarCollapsible>
         </button>
 
         {!collapsed && (

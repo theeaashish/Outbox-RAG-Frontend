@@ -39,8 +39,6 @@ export type ProjectsAction =
 
 import { createId } from "@/utils/id";
 
-export { createId };
-
 export function projectsReducer(
   state: ProjectsState,
   action: ProjectsAction

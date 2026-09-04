@@ -7,6 +7,7 @@ import { DashboardSidebar } from "./sidebar/dashboard-sidebar";
 import { panelSurfaceClassName } from "./panel";
 import { useEscapeKey } from "@/app/(dashboard)/_hooks/use-escape-key";
 import { useBodyScrollLock } from "@/app/(dashboard)/_hooks/use-body-scroll-lock";
+import { useFocusTrap } from "@/app/(dashboard)/_hooks/use-focus-trap";
 
 export interface DashboardShellProps {
   children: React.ReactNode;
@@ -72,17 +73,21 @@ function MobileSidebarDrawer({
   open: boolean;
   onClose: () => void;
 }) {
+  const drawerRef = React.useRef<HTMLDivElement>(null);
   useEscapeKey(open, onClose);
   useBodyScrollLock(open);
+  useFocusTrap(open, drawerRef);
 
   if (!open) return null;
 
   return (
     <div
+      ref={drawerRef}
       className="fixed inset-0 z-50 md:hidden"
       role="dialog"
       aria-modal="true"
       aria-label="Navigation sidebar"
+      tabIndex={-1}
     >
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-xs"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ComponentType, type ReactNode } from "react";
+import { useState, type ComponentType } from "react";
 import {
   RiBankCardLine,
   RiBankLine,
@@ -23,6 +23,8 @@ import { Avatar } from "../../base/avatar/avatar";
 import { Badge } from "../../base/badges/badge";
 import { ChevronDownSmall } from "../../foundations/icons/chevrons";
 import { cx } from "../../../utils/cx";
+import { useMediaQuery } from "../../../hooks/use-media-query";
+import { SidebarCollapsible } from "./sidebar-collapsible";
 
 /**
  * Figma source: Board UI → sidebar profile menu (node 3823:3699).
@@ -41,20 +43,33 @@ type IconComponent = ComponentType<{
   "aria-hidden"?: boolean | "true" | "false";
 }>;
 
-type MenuRow = {
+export interface DashboardTeamMenuItem {
   icon: IconComponent;
   label: string;
   badge?: string;
   isSelected?: boolean;
-};
+}
 
-type MenuGroup = {
+export interface DashboardTeamMenuGroup {
   id: string;
   label?: string;
-  items: MenuRow[];
+  items: DashboardTeamMenuItem[];
+}
+
+export interface DashboardTeamMenuTeam {
+  name: string;
+  email?: string;
+  avatarSrc?: string;
+}
+
+/** Fixture identity so template/showcase usages render without props. */
+const TEMPLATE_TEAM: DashboardTeamMenuTeam = {
+  name: "Board team",
+  email: "hi@boardui.com",
+  avatarSrc: "/brand/boardui_logo_circle.webp",
 };
 
-const GROUPS: MenuGroup[] = [
+const TEMPLATE_GROUPS: DashboardTeamMenuGroup[] = [
   {
     id: "workspace",
     items: [
@@ -84,43 +99,22 @@ const GROUPS: MenuGroup[] = [
   },
 ];
 
-/** Label/chevron slot on the trigger: blurs + fades away as the rail collapses. */
-function Collapsible({
-  collapsed,
-  children,
-}: {
-  collapsed: boolean;
-  children: ReactNode;
-}) {
-  return (
-    <span
-      className={cx(
-        "flex min-w-0 items-center overflow-hidden transition-[max-width,opacity,filter] duration-300 ease-in-out",
-        collapsed
-          ? "max-w-0 opacity-0 blur-[3px]"
-          : "max-w-40 opacity-100 blur-0"
-      )}
-    >
-      {children}
-    </span>
-  );
-}
-
 function TeamMenuItem({
-  icon: Icon,
-  label,
-  badge,
-  isSelected,
+  item,
   onSelect,
-}: MenuRow & { onSelect: () => void }) {
+}: {
+  item: DashboardTeamMenuItem;
+  onSelect: () => void;
+}) {
+  const Icon = item.icon;
   return (
-    <a
-      href="#"
-      aria-current={isSelected ? "page" : undefined}
+    <button
+      type="button"
+      aria-current={item.isSelected ? "page" : undefined}
       onClick={onSelect}
       className={cx(
-        "flex w-full items-center gap-2.5 rounded-2lg p-2 outline-none transition-colors",
-        isSelected
+        "flex w-full cursor-pointer items-center gap-2.5 rounded-2lg p-2 text-left outline-none transition-colors",
+        item.isSelected
           ? "bg-background-primary-hover"
           : "hover:bg-background-primary-hover focus-visible:bg-background-primary-hover"
       )}
@@ -131,46 +125,53 @@ function TeamMenuItem({
           aria-hidden
         />
         <span className="truncate text-body-medium text-text-primary">
-          {label}
+          {item.label}
         </span>
       </span>
-      {badge && (
+      {item.badge && (
         <Badge
           color="neutral"
           className="bg-team-menu-count-background text-team-menu-count-foreground"
         >
-          {badge}
+          {item.badge}
         </Badge>
       )}
-    </a>
+    </button>
   );
 }
 
 export function DashboardTeamMenu({
   collapsed = false,
   className,
+  team = TEMPLATE_TEAM,
+  groups = TEMPLATE_GROUPS,
+  onItemSelect,
 }: {
   collapsed?: boolean;
   className?: string;
+  /** Trigger + header identity. Defaults to the template fixture team. */
+  team?: DashboardTeamMenuTeam;
+  /** Menu sections. Defaults to the template fixture groups. */
+  groups?: DashboardTeamMenuGroup[];
+  /** Semantic event — the menu always closes; the handler decides what runs. */
+  onItemSelect?: (item: DashboardTeamMenuItem) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   // "right" placement assumes room to the sidebar's right (true in-flow on
   // desktop) — on mobile the sidebar can span the full viewport, so the
   // 265px panel would render off-screen. Below sm, drop into a plain
   // dropdown under the trigger instead.
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 639px)");
-    setIsMobile(mq.matches);
-    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
+  const isMobile = useMediaQuery("(max-width: 639px)");
+
+  const handleItemSelect = (item: DashboardTeamMenuItem) => {
+    onItemSelect?.(item);
+    setIsOpen(false);
+  };
 
   return (
     <AriaDialogTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
       <AriaButton
-        aria-label="Board team"
+        aria-label={team.name}
         className={cx(
           "flex cursor-pointer items-center overflow-hidden outline-none",
           "border-2 border-transparent hover:border-border-button-hover",
@@ -183,24 +184,21 @@ export function DashboardTeamMenu({
         )}
       >
         <span className="flex min-w-0 items-center gap-2">
-          <Avatar
-            size="md"
-            color="blue"
-            src="/brand/boardui_logo_circle.webp"
-            alt="Board team"
-          />
-          <Collapsible collapsed={collapsed}>
+          <Avatar size="md" color="blue" src={team.avatarSrc} alt={team.name} />
+          <SidebarCollapsible collapsed={collapsed}>
             <span className="flex min-w-0 flex-col items-start justify-center">
               <span className="text-body-medium whitespace-nowrap text-text-primary">
-                Board team
+                {team.name}
               </span>
-              <span className="text-body-regular whitespace-nowrap text-text-secondary">
-                hi@boardui.com
-              </span>
+              {team.email && (
+                <span className="text-body-regular whitespace-nowrap text-text-secondary">
+                  {team.email}
+                </span>
+              )}
             </span>
-          </Collapsible>
+          </SidebarCollapsible>
         </span>
-        <Collapsible collapsed={collapsed}>
+        <SidebarCollapsible collapsed={collapsed}>
           <span className="flex size-4 shrink-0 items-center justify-center rounded-[3px] bg-background-tertiary-hover">
             <ChevronDownSmall
               className={cx(
@@ -209,7 +207,7 @@ export function DashboardTeamMenu({
               )}
             />
           </span>
-        </Collapsible>
+        </SidebarCollapsible>
       </AriaButton>
 
       <AriaPopover
@@ -224,7 +222,7 @@ export function DashboardTeamMenu({
         )}
       >
         <AriaDialog
-          aria-label="Board team menu"
+          aria-label={`${team.name} menu`}
           className="flex flex-col gap-[7px] outline-none"
         >
           {/* Header */}
@@ -232,27 +230,29 @@ export function DashboardTeamMenu({
             <Avatar
               size="md"
               color="blue"
-              src="/brand/boardui_logo_circle.webp"
-              alt="Board team"
+              src={team.avatarSrc}
+              alt={team.name}
             />
             <div className="flex min-w-0 flex-col items-start justify-center">
               <span className="text-body-medium whitespace-nowrap text-text-primary">
-                Board team
+                {team.name}
               </span>
-              <span className="text-body-regular whitespace-nowrap text-text-secondary">
-                hi@boardui.com
-              </span>
+              {team.email && (
+                <span className="text-body-regular whitespace-nowrap text-text-secondary">
+                  {team.email}
+                </span>
+              )}
             </div>
           </div>
 
           {/* Grouped sidebar-style rows */}
           <div className="flex w-full flex-col">
-            {GROUPS.map((group, index) => (
+            {groups.map((group, index) => (
               <Group
                 key={group.id}
                 group={group}
                 showDivider={index > 0}
-                onSelect={() => setIsOpen(false)}
+                onItemSelect={handleItemSelect}
               />
             ))}
           </div>
@@ -275,11 +275,11 @@ export function DashboardTeamMenu({
 function Group({
   group,
   showDivider,
-  onSelect,
+  onItemSelect,
 }: {
-  group: MenuGroup;
+  group: DashboardTeamMenuGroup;
   showDivider: boolean;
-  onSelect: () => void;
+  onItemSelect: (item: DashboardTeamMenuItem) => void;
 }) {
   return (
     <>
@@ -299,7 +299,11 @@ function Group({
         )}
         <div className="flex w-full flex-col gap-1">
           {group.items.map((item) => (
-            <TeamMenuItem key={item.label} {...item} onSelect={onSelect} />
+            <TeamMenuItem
+              key={item.label}
+              item={item}
+              onSelect={() => onItemSelect(item)}
+            />
           ))}
         </div>
       </div>

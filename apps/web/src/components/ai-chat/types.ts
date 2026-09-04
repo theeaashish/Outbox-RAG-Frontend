@@ -1,14 +1,11 @@
 import type { Model } from "./constants";
 
-export const COMPOSER_STATUSES = [
-  "idle",
-  "submitting",
-  "streaming",
-  "cancelling",
-  "error",
-] as const;
-
-export type ComposerStatus = (typeof COMPOSER_STATUSES)[number];
+export type ComposerStatus =
+  | "idle"
+  | "submitting"
+  | "streaming"
+  | "cancelling"
+  | "error";
 
 export type ComposerMode = "chat" | "plan" | "agent";
 

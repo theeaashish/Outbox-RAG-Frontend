@@ -14,13 +14,14 @@ import {
   DashboardTeamMenu,
   DashboardUserMenu,
   SettingsModal,
+  SidebarCollapsible,
   ThemeToggle,
   cx,
+  useMediaQuery,
 } from "@repo/ui";
 import { panelSurfaceClassName } from "../panel";
 import { filterProjects } from "./sidebar-data";
 import { useDashboardProjects } from "./sidebar-data-provider";
-import { Collapsible } from "./collapsible";
 import { SidebarNavItem, type NavAction } from "./sidebar-nav-item";
 import { ProjectNode } from "./project-node";
 import { QuickSearch } from "./quick-search";
@@ -77,9 +78,13 @@ export function DashboardSidebar({
     [openSearch]
   );
 
-  // The desktop instance already handles the hotkey; don't double-bind in the drawer.
+  // The desktop instance stays mounted (CSS-hidden) below md, so the hotkey
+  // must also be viewport-gated — a bare `!mobile` lets ⌘L move focus into
+  // the invisible sidebar on narrow windows. And only the desktop instance
+  // binds the hotkey; don't double-bind in the drawer.
+  const isDesktopViewport = useMediaQuery("(min-width: 768px)");
   useHotkey(
-    { key: "l", metaOrCtrl: true, enabled: !mobile },
+    { key: "l", metaOrCtrl: true, enabled: !mobile && isDesktopViewport },
     handleSearchHotkey
   );
 
@@ -190,11 +195,11 @@ export function DashboardSidebar({
         </nav>
 
         <div className="flex flex-col gap-1 pt-1">
-          <Collapsible collapsed={collapsed}>
+          <SidebarCollapsible collapsed={collapsed}>
             <span className="px-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
               Projects
             </span>
-          </Collapsible>
+          </SidebarCollapsible>
 
           <div className="flex flex-col gap-0.5">
             {visibleProjects.map((project) => (

@@ -30,6 +30,7 @@ import { Badge } from "../../base/badges/badge";
 import { CloseButton } from "../../base/buttons/close-button";
 import { Kbd } from "../../base/kbd/kbd";
 import { cx } from "../../../utils/cx";
+import { SidebarCollapsible } from "./sidebar-collapsible";
 import { DashboardTeamMenu } from "./dashboard-team-menu";
 import { DashboardUserMenu } from "./dashboard-user-menu";
 
@@ -37,6 +38,9 @@ import { DashboardUserMenu } from "./dashboard-user-menu";
  * Figma sources:
  *   expanded  → Board UI → dashboard 1 → Sidebar (node 3731:2934)
  *   collapsed → Board UI → Sidebar (node 3768:3382)
+ *
+ * Template/showcase sidebar with a fixed demo navigation — the dashboard app
+ * ships its own project-tree sidebar and does not render this component.
  *
  * Floating sidebar panel. Expanded: 260px wide, p 12, radius/3xl (24px),
  * white 1px border, "Background/Sidebar Elevation" shadow, bg
@@ -53,35 +57,6 @@ type IconComponent = ComponentType<{
   className?: string;
   "aria-hidden"?: boolean | "true" | "false";
 }>;
-
-/**
- * Collapsible text/badge slot: blurs + fades + shrinks away when the rail
- * closes, and blurs back in on expand. The icons/rows themselves stay pinned in
- * place — only these label/badge slots animate — so nothing jumps to center.
- */
-function Collapsible({
-  collapsed,
-  children,
-  className,
-}: {
-  collapsed: boolean;
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <span
-      className={cx(
-        "flex min-w-0 items-center overflow-hidden transition-[max-width,opacity,filter] duration-300 ease-in-out",
-        collapsed
-          ? "max-w-0 opacity-0 blur-[3px]"
-          : "max-w-40 opacity-100 blur-0",
-        className
-      )}
-    >
-      {children}
-    </span>
-  );
-}
 
 function NavItem({
   icon: Icon,
@@ -132,7 +107,7 @@ function NavItem({
           )}
           aria-hidden
         />
-        <Collapsible collapsed={collapsed}>
+        <SidebarCollapsible collapsed={collapsed}>
           <span
             className={cx(
               "text-body-medium whitespace-nowrap",
@@ -141,14 +116,16 @@ function NavItem({
           >
             {label}
           </span>
-        </Collapsible>
+        </SidebarCollapsible>
       </span>
-      {badge && <Collapsible collapsed={collapsed}>{badge}</Collapsible>}
+      {badge && (
+        <SidebarCollapsible collapsed={collapsed}>{badge}</SidebarCollapsible>
+      )}
     </a>
   );
 }
 
-export type DashboardNavKey =
+export type TemplateNavKey =
   | "home"
   | "marketing"
   | "calendar"
@@ -159,7 +136,7 @@ export type DashboardNavKey =
   | "hr"
   | "profile";
 
-export function DashboardSidebar({
+export function TemplateSidebar({
   mobile = false,
   onClose,
   fluid = false,
@@ -180,7 +157,7 @@ export function DashboardSidebar({
   /** Hide the app-level theme control when the sidebar is used as marketing artwork. */
   showThemeToggle?: boolean;
   /** Which nav item shows the selected (filled blue) state. */
-  selected?: DashboardNavKey;
+  selected?: TemplateNavKey;
   /** Removes the floating panel treatment for a sidebar revealed beneath mobile content. */
   flat?: boolean;
   className?: string;
@@ -467,15 +444,15 @@ export function DashboardSidebar({
                     className="size-5 shrink-0 text-foreground-icon-secondary"
                     aria-hidden
                   />
-                  <Collapsible collapsed={collapsed}>
+                  <SidebarCollapsible collapsed={collapsed}>
                     <span className="text-body-medium whitespace-nowrap text-text-secondary">
                       Quick Search
                     </span>
-                  </Collapsible>
+                  </SidebarCollapsible>
                 </span>
-                <Collapsible collapsed={collapsed}>
+                <SidebarCollapsible collapsed={collapsed}>
                   <Kbd>⌘L</Kbd>
-                </Collapsible>
+                </SidebarCollapsible>
               </button>
             ))}
 
