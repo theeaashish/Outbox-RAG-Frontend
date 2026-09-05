@@ -50,7 +50,7 @@ export function ModelMenu({
             size="small"
             disabled={disabled}
             className={cn(
-              "rounded-full px-2.5 text-xs font-medium text-zinc-500 hover:text-zinc-900 focus-visible:ring-0 focus-visible:ring-offset-0 dark:text-zinc-400 dark:hover:text-zinc-100",
+              "rounded-full px-2.5 text-xs font-medium text-zinc-500 hover:text-zinc-900 outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 dark:text-zinc-400 dark:hover:text-zinc-100",
               open &&
                 "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
             )}

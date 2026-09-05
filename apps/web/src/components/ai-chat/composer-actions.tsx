@@ -43,7 +43,7 @@ export function ComposerActions({
           disabled={disabled}
           aria-label="Voice input"
           onClick={onVoiceClick}
-          className="rounded-full text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200 focus-visible:ring-0 focus-visible:ring-offset-0"
+          className="rounded-full text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200 outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
         >
           <Mic className="size-4" />
         </BoardButton>
@@ -56,7 +56,7 @@ export function ComposerActions({
         type="submit"
         disabled={sendDisabled}
         aria-label={isGenerating ? "Stop generation" : "Send message"}
-        className="rounded-full shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+        className="rounded-full shadow-none outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
       >
         {isGenerating ? (
           <Square className="size-3 fill-current" />

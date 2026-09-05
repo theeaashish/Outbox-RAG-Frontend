@@ -65,7 +65,7 @@ export function AddMenu({
             iconOnly
             disabled={disabled}
             aria-label={open ? "Close add menu" : "Open add menu"}
-            className="rounded-full border-0 bg-zinc-100/90 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200/70 dark:hover:bg-zinc-700 hover:text-zinc-800 dark:hover:text-zinc-200 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="rounded-full border-0 bg-zinc-100/90 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200/70 dark:hover:bg-zinc-700 hover:text-zinc-800 dark:hover:text-zinc-200 shadow-none outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
           />
         }
       >

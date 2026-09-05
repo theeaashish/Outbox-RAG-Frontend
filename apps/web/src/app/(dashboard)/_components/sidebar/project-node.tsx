@@ -110,16 +110,23 @@ export function ProjectNode({
   const FolderIcon = project.expanded ? RiFolderOpenLine : RiFolder6Line;
 
   return (
-    <div className="group/project flex flex-col">
-      <div className="relative flex items-center">
+    <div
+      className={cx("group/project flex flex-col", collapsed && "items-center")}
+    >
+      <div
+        className={cx(
+          "relative flex items-center",
+          collapsed && "justify-center"
+        )}
+      >
         <button
           type="button"
           onClick={() => onToggle(project.id)}
           aria-expanded={Boolean(project.expanded)}
           title={collapsed ? project.name : undefined}
           className={cx(
-            "flex h-8 cursor-pointer items-center gap-2 rounded-xl px-2 text-left text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800/60",
-            collapsed ? "w-9 justify-center px-0" : "w-full"
+            "flex cursor-pointer items-center rounded-xl text-left text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800/60",
+            collapsed ? "size-9 justify-center p-0" : "h-8 w-full gap-2 px-2"
           )}
         >
           <FolderIcon className="size-4 shrink-0 text-zinc-500" aria-hidden />

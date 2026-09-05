@@ -67,13 +67,7 @@ export function DashboardProjectsProvider({
         dispatch({ type: "delete-chat", projectId, sessionId }),
       selectSession,
     }),
-    [
-      state,
-      selectSession,
-      projectsQuery.isLoading,
-      projectsQuery.error,
-      projectsQuery.refetch,
-    ]
+    [state.projects, state.activeSessionId, projectsQuery, selectSession]
   );
 
   return (

@@ -129,18 +129,30 @@ export function DashboardSidebar({
       className={cx(
         "flex h-full shrink-0 select-none flex-col justify-between overflow-hidden transition-[width] duration-300 ease-in-out",
         panelSurfaceClassName,
-        collapsed ? "w-15 px-2.5 py-3" : "w-65 p-3",
+        collapsed ? "w-15 px-2.75 py-3" : "w-65 p-3",
         className
       )}
     >
-      <div className="-m-2 flex min-h-0 w-[calc(100%+16px)] flex-col gap-3 overflow-y-auto p-2 scrollbar-none [&::-webkit-scrollbar]:hidden">
+      <div
+        className={cx(
+          "-m-2 flex min-h-0 w-[calc(100%+16px)] flex-col gap-3 overflow-y-auto p-2 scrollbar-none [&::-webkit-scrollbar]:hidden",
+          collapsed && "items-center"
+        )}
+      >
         <div
           className={cx(
-            "flex w-full items-center justify-between",
-            collapsed && "flex-col-reverse gap-2"
+            "flex w-full items-center",
+            collapsed
+              ? "flex-col-reverse justify-center gap-2.5"
+              : "justify-between"
           )}
         >
-          <div className="min-w-0 flex-1 overflow-hidden">
+          <div
+            className={cx(
+              "min-w-0 overflow-hidden",
+              collapsed ? "flex w-9 items-center justify-center" : "flex-1"
+            )}
+          >
             <DashboardUserMenu
               collapsed={collapsed}
               avatarClassName="bg-zinc-200 font-semibold text-zinc-800"
@@ -163,7 +175,7 @@ export function DashboardSidebar({
               onClick={() => setCollapsedState((value) => !value)}
               className={cx(
                 "cursor-pointer text-zinc-400 transition-colors hover:text-zinc-700 dark:hover:text-zinc-200",
-                collapsed && "flex w-9 items-center justify-center pt-1"
+                collapsed && "flex size-9 items-center justify-center"
               )}
             >
               <RiSideBarFill
@@ -187,7 +199,13 @@ export function DashboardSidebar({
           onQueryChange={setQuery}
         />
 
-        <nav aria-label="Primary" className="flex flex-col gap-0.5">
+        <nav
+          aria-label="Primary"
+          className={cx(
+            "flex w-full flex-col gap-0.5",
+            collapsed && "items-center"
+          )}
+        >
           {primaryActions.map((action) => (
             <SidebarNavItem
               key={action.label}
@@ -197,20 +215,30 @@ export function DashboardSidebar({
           ))}
         </nav>
 
-        <div className="flex flex-col gap-1 pt-1">
+        <div
+          className={cx(
+            "flex w-full flex-col gap-1 pt-1",
+            collapsed && "items-center"
+          )}
+        >
           <SidebarCollapsible collapsed={collapsed}>
             <span className="px-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
               Projects
             </span>
           </SidebarCollapsible>
 
-          <div className="flex flex-col gap-0.5">
-            {projectsLoading && (
+          <div
+            className={cx(
+              "flex w-full flex-col gap-0.5",
+              collapsed && "items-center"
+            )}
+          >
+            {!collapsed && projectsLoading && (
               <p className="px-2 py-1 text-xs text-zinc-400">
                 Loading projects...
               </p>
             )}
-            {projectsError && (
+            {!collapsed && projectsError && (
               <div className="flex items-center gap-2 px-2 py-1">
                 <p className="min-w-0 flex-1 text-xs text-red-500" role="alert">
                   {projectsError.message}
@@ -238,7 +266,8 @@ export function DashboardSidebar({
                   onDeleteSession={deleteChat}
                 />
               ))}
-            {!projectsLoading &&
+            {!collapsed &&
+              !projectsLoading &&
               !projectsError &&
               visibleProjects.length === 0 && (
                 <p className="px-2 py-1 text-xs text-zinc-400">
@@ -249,13 +278,24 @@ export function DashboardSidebar({
         </div>
       </div>
 
-      <div className="flex shrink-0 flex-col gap-2.5 pt-2">
+      <div
+        className={cx(
+          "flex shrink-0 flex-col gap-2.5 pt-2",
+          collapsed ? "w-full items-center" : "w-full"
+        )}
+      >
         <ThemeToggle
           collapsed={collapsed}
           appearance={collapsed ? undefined : "sidebar-segmented"}
         />
 
-        <nav aria-label="Secondary" className="flex flex-col gap-0.5">
+        <nav
+          aria-label="Secondary"
+          className={cx(
+            "flex w-full flex-col gap-0.5",
+            collapsed && "items-center"
+          )}
+        >
           {secondaryActions.map((action) => (
             <SidebarNavItem
               key={action.label}

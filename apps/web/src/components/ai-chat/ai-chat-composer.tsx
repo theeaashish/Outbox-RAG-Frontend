@@ -219,7 +219,7 @@ export function AiChatComposer({
         <div
           ref={containerRef}
           className={cn(
-            "relative transition-[border-color,box-shadow,border-radius,padding] duration-150 ease-out outline-none focus:outline-none",
+            "relative transition-[border-color,box-shadow,border-radius,padding] duration-150 ease-out outline-none focus:outline-none focus-within:outline-none focus-visible:outline-none",
             "bg-white/95 dark:bg-zinc-900/95 border border-zinc-200/80 dark:border-zinc-800",
             "shadow-[0_2px_8px_rgba(0,0,0,0.04),0_12px_24px_-8px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)]",
             "focus-within:border-zinc-300 dark:focus-within:border-zinc-700",
@@ -251,7 +251,7 @@ export function AiChatComposer({
               rows={1}
               disabled={controlsDisabled}
               className={cn(
-                "block w-full resize-none bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:outline-none focus:ring-0 scrollbar-none dark:text-zinc-100 dark:placeholder:text-zinc-500 [&::-webkit-scrollbar]:hidden",
+                "block w-full resize-none bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 scrollbar-none dark:text-zinc-100 dark:placeholder:text-zinc-500 [&::-webkit-scrollbar]:hidden",
                 isMultiline
                   ? "leading-relaxed"
                   : "py-1 leading-snug overflow-hidden"
@@ -302,7 +302,7 @@ export function AiChatComposer({
                   type="button"
                   onClick={onBranchClick}
                   disabled={disabled}
-                  className="flex cursor-pointer items-center gap-1.5 transition-colors hover:text-zinc-900 disabled:opacity-50 dark:hover:text-zinc-100"
+                  className="flex cursor-pointer items-center gap-1.5 outline-none focus:outline-none focus-visible:outline-none transition-colors hover:text-zinc-900 disabled:opacity-50 dark:hover:text-zinc-100"
                 >
                   <GitBranch className="size-3.5 text-zinc-400" />
                   <span>{branch.name}</span>
@@ -314,7 +314,7 @@ export function AiChatComposer({
                   type="button"
                   onClick={onProjectClick}
                   disabled={disabled}
-                  className="flex cursor-pointer items-center gap-1.5 transition-colors hover:text-zinc-900 disabled:opacity-50 dark:hover:text-zinc-100"
+                  className="flex cursor-pointer items-center gap-1.5 outline-none focus:outline-none focus-visible:outline-none transition-colors hover:text-zinc-900 disabled:opacity-50 dark:hover:text-zinc-100"
                 >
                   <Folder className="size-3.5 text-zinc-400" />
                   <span>{project.name}</span>
@@ -331,7 +331,7 @@ export function AiChatComposer({
                       <button
                         type="button"
                         disabled={controlsDisabled}
-                        className="flex cursor-pointer items-center gap-1.5 transition-colors hover:text-zinc-900 disabled:opacity-50 dark:hover:text-zinc-100"
+                        className="flex cursor-pointer items-center gap-1.5 outline-none focus:outline-none focus-visible:outline-none transition-colors hover:text-zinc-900 disabled:opacity-50 dark:hover:text-zinc-100"
                       />
                     }
                   >

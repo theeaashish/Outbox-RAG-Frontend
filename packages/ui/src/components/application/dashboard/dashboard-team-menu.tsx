@@ -178,12 +178,17 @@ export function DashboardTeamMenu({
           "transition-[width,background-color,border-color,padding] duration-300 ease-in-out",
           "focus-visible:ring-2 focus-visible:ring-border-focus-ring focus-visible:ring-offset-2",
           collapsed
-            ? "size-9 justify-start rounded-full bg-transparent p-0"
+            ? "size-9 items-center justify-center rounded-full bg-transparent p-0"
             : "w-full justify-between rounded-xl bg-background-tertiary-default py-2 pr-4 pl-2.5",
           className
         )}
       >
-        <span className="flex min-w-0 items-center gap-2">
+        <span
+          className={cx(
+            "flex min-w-0 items-center",
+            collapsed ? "justify-center" : "gap-2"
+          )}
+        >
           <Avatar size="md" color="blue" src={team.avatarSrc} alt={team.name} />
           <SidebarCollapsible collapsed={collapsed}>
             <span className="flex min-w-0 flex-col items-start justify-center">

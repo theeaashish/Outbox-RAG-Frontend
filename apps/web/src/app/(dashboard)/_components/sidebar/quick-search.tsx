@@ -54,11 +54,18 @@ export function QuickSearch({
       onClick={onActivate}
       title={collapsed ? "Quick Search" : undefined}
       className={cx(
-        "flex cursor-pointer items-center gap-2 rounded-xl bg-zinc-100/80 p-2 text-zinc-500 transition-colors hover:bg-zinc-200/70 dark:bg-zinc-800/70 dark:text-zinc-400 dark:hover:bg-zinc-800",
-        collapsed ? "w-9 justify-center" : "w-full justify-between text-left"
+        "flex cursor-pointer items-center rounded-xl bg-zinc-100/80 text-zinc-500 transition-colors hover:bg-zinc-200/70 dark:bg-zinc-800/70 dark:text-zinc-400 dark:hover:bg-zinc-800",
+        collapsed
+          ? "size-9 justify-center p-0"
+          : "w-full justify-between p-2 text-left gap-2"
       )}
     >
-      <span className="flex min-w-0 items-center gap-2">
+      <span
+        className={cx(
+          "flex min-w-0 items-center",
+          collapsed ? "justify-center" : "gap-2"
+        )}
+      >
         <RiSearchLine className="size-4 shrink-0 text-zinc-500" aria-hidden />
         <SidebarCollapsible collapsed={collapsed}>
           <span className="whitespace-nowrap text-xs">Quick Search</span>
