@@ -55,6 +55,15 @@ export * from "./components/application/dashboard/dashboard-user-menu";
 export * from "./components/application/settings/settings-modal";
 export * from "./components/application/theme/theme-toggle";
 
+// Application - Auth
+export * from "./components/application/auth/auth-card";
+
+// Base Components - Controls & Primitives
+export * from "./components/base/buttons/link-button";
+export * from "./components/base/divider/divider";
+export * from "./components/base/input-otp/input-otp";
+export * from "./components/base/social-button/social-button";
+
 // Utilities
 export { cn } from "./lib/utils";
 export { cx } from "./utils/cx";

@@ -18,6 +18,7 @@ export function Providers({
         defaultTheme="light"
         enableSystem={false}
         disableTransitionOnChange
+        storageKey="theme"
       >
         {children}
         <Toaster />

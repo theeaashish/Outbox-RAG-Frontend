@@ -39,10 +39,16 @@ export function MobileNav({
       <Button
         className="w-full rounded-lg border-zinc-200 bg-white text-xs font-medium text-zinc-900 shadow-xs hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
         variant="outline"
+        render={<Link href="/login" onClick={() => setOpen(false)} />}
+        nativeButton={false}
       >
         Sign In
       </Button>
-      <Button className="w-full rounded-lg bg-zinc-900 text-xs font-medium text-white shadow-xs hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200">
+      <Button
+        className="w-full rounded-lg bg-zinc-900 text-xs font-medium text-white shadow-xs hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
+        render={<Link href="/register" onClick={() => setOpen(false)} />}
+        nativeButton={false}
+      >
         Get Started
       </Button>
     </>

@@ -9,7 +9,8 @@ import { cx } from "../../../utils/cx";
 
 export type ThemeMode = "light" | "dark";
 
-export const THEME_STORAGE_KEY = "boardui:theme";
+export const THEME_STORAGE_KEY = "theme";
+export const BOARDUI_THEME_STORAGE_KEY = "boardui:theme";
 export const THEME_CHANGE_EVENT = "boardui:theme-change";
 
 const THEME_TRANSITION_DURATION = 820;
@@ -87,9 +88,10 @@ function installThemeTransitionStyle(
 function storedTheme(): ThemeMode {
   if (typeof window === "undefined") return "light";
   try {
-    return window.localStorage.getItem(THEME_STORAGE_KEY) === "dark"
-      ? "dark"
-      : "light";
+    const value =
+      window.localStorage.getItem(THEME_STORAGE_KEY) ??
+      window.localStorage.getItem(BOARDUI_THEME_STORAGE_KEY);
+    return value === "dark" ? "dark" : "light";
   } catch {
     return "light";
   }
@@ -104,6 +106,7 @@ export function applyTheme(
   if (persist) {
     try {
       window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+      window.localStorage.setItem(BOARDUI_THEME_STORAGE_KEY, theme);
     } catch {
       // The control remains usable when storage is blocked or unavailable.
     }
@@ -199,10 +202,15 @@ function currentTheme(): ThemeMode {
 function subscribe(onStoreChange: () => void) {
   const onThemeChange = () => onStoreChange();
   const onStorage = (event: StorageEvent) => {
-    if (event.key !== THEME_STORAGE_KEY) return;
-    applyTheme(event.newValue === "dark" ? "dark" : "light", {
-      persist: false,
-    });
+    if (
+      event.key !== THEME_STORAGE_KEY &&
+      event.key !== BOARDUI_THEME_STORAGE_KEY
+    )
+      return;
+    const newTheme = event.newValue === "dark" ? "dark" : "light";
+    if (currentTheme() !== newTheme) {
+      applyTheme(newTheme, { persist: false });
+    }
   };
   window.addEventListener(THEME_CHANGE_EVENT, onThemeChange);
   window.addEventListener("storage", onStorage);
@@ -250,7 +258,10 @@ export function ThemeToggle({
   // Makes the component self-contained in customer projects. BoardUI itself
   // also runs the same lookup before hydration to avoid a first-paint flash.
   useEffect(() => {
-    applyTheme(storedTheme(), { persist: false });
+    const stored = storedTheme();
+    if (currentTheme() !== stored) {
+      applyTheme(stored, { persist: false });
+    }
   }, []);
 
   if (

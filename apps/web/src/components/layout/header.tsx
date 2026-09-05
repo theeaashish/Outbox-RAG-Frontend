@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Button, Logo, useScroll, cn } from "@repo/ui";
+import { Button, Logo, useScroll, cn, ThemeToggle } from "@repo/ui";
 import { MobileNav } from "./mobile-nav";
 import { navLinks, type NavItem } from "./nav-links";
 
@@ -31,12 +31,16 @@ export function Header({
         size="sm"
         variant="outline"
         className="h-8 rounded-lg border-zinc-200 bg-white px-3.5 text-xs font-medium text-zinc-900 shadow-xs hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+        render={<Link href="/login" />}
+        nativeButton={false}
       >
         Sign In
       </Button>
       <Button
         size="sm"
         className="h-8 rounded-lg bg-zinc-900 px-3.5 text-xs font-medium text-white shadow-xs hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
+        render={<Link href="/register" />}
+        nativeButton={false}
       >
         Get Started
       </Button>
@@ -84,7 +88,9 @@ export function Header({
         <div className="flex flex-1 items-center justify-end gap-2">
           <div className="hidden md:flex items-center gap-2">
             {actions ?? defaultActions}
+            <ThemeToggle collapsed />
           </div>
+          <ThemeToggle collapsed className="md:hidden" />
           <MobileNav links={links} actions={actions ?? defaultActions} />
         </div>
       </nav>
