@@ -41,6 +41,9 @@ export function DashboardSidebar({
 }: DashboardSidebarProps) {
   const {
     projects,
+    projectsLoading,
+    projectsError,
+    retryProjects,
     activeSessionId,
     toggleProject,
     createChat,
@@ -202,23 +205,46 @@ export function DashboardSidebar({
           </SidebarCollapsible>
 
           <div className="flex flex-col gap-0.5">
-            {visibleProjects.map((project) => (
-              <ProjectNode
-                key={project.id}
-                project={project}
-                collapsed={collapsed}
-                activeSessionId={activeSessionId}
-                onToggle={toggleProject}
-                onNewChat={createChat}
-                onSelectSession={handleSelectSession}
-                onDeleteSession={deleteChat}
-              />
-            ))}
-            {visibleProjects.length === 0 && (
+            {projectsLoading && (
               <p className="px-2 py-1 text-xs text-zinc-400">
-                No matches for &ldquo;{query}&rdquo;.
+                Loading projects...
               </p>
             )}
+            {projectsError && (
+              <div className="flex items-center gap-2 px-2 py-1">
+                <p className="min-w-0 flex-1 text-xs text-red-500" role="alert">
+                  {projectsError.message}
+                </p>
+                <button
+                  type="button"
+                  onClick={retryProjects}
+                  className="shrink-0 text-xs font-medium text-zinc-600 underline underline-offset-2 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+            {!projectsLoading &&
+              !projectsError &&
+              visibleProjects.map((project) => (
+                <ProjectNode
+                  key={project.id}
+                  project={project}
+                  collapsed={collapsed}
+                  activeSessionId={activeSessionId}
+                  onToggle={toggleProject}
+                  onNewChat={createChat}
+                  onSelectSession={handleSelectSession}
+                  onDeleteSession={deleteChat}
+                />
+              ))}
+            {!projectsLoading &&
+              !projectsError &&
+              visibleProjects.length === 0 && (
+                <p className="px-2 py-1 text-xs text-zinc-400">
+                  No matches for &ldquo;{query}&rdquo;.
+                </p>
+              )}
           </div>
         </div>
       </div>

@@ -1,21 +1,16 @@
 "use client";
 
 import * as React from "react";
-import {
-  projectsReducer,
-  type KnowledgeBaseFile,
-  type ProjectItem,
-} from "./sidebar-data";
+import { projectsReducer, type ProjectItem } from "./sidebar-data";
+import { useProjects, type Project } from "@/features/projects";
 
 interface DashboardProjectsContextValue {
   projects: ProjectItem[];
+  projectsLoading: boolean;
+  projectsError: Error | null;
+  retryProjects: () => void;
   activeSessionId: string | null;
   toggleProject: (projectId: string) => void;
-  createProject: (payload: {
-    name: string;
-    description?: string;
-    knowledgeBase?: KnowledgeBaseFile[];
-  }) => void;
   createChat: (projectId: string) => void;
   deleteChat: (projectId: string, sessionId: string) => void;
   selectSession: (sessionId: string | null) => void;
@@ -26,21 +21,26 @@ const DashboardProjectsContext =
 
 interface DashboardProjectsProviderProps {
   children: React.ReactNode;
-  initialProjects: ProjectItem[];
-  initialActiveSessionId?: string | null;
   onSelectSession?: (sessionId: string | null) => void;
 }
 
 export function DashboardProjectsProvider({
   children,
-  initialProjects,
-  initialActiveSessionId = null,
   onSelectSession,
 }: DashboardProjectsProviderProps) {
+  const projectsQuery = useProjects();
   const [state, dispatch] = React.useReducer(projectsReducer, {
-    projects: initialProjects,
-    activeSessionId: initialActiveSessionId,
+    projects: [],
+    activeSessionId: null,
   });
+
+  React.useEffect(() => {
+    if (!projectsQuery.data) return;
+    dispatch({
+      type: "sync-projects",
+      projects: projectsQuery.data.map(toProjectItem),
+    });
+  }, [projectsQuery.data]);
 
   const selectSession = React.useCallback(
     (sessionId: string | null) => {
@@ -50,30 +50,30 @@ export function DashboardProjectsProvider({
     [onSelectSession]
   );
 
-  const createProject = React.useCallback(
-    (payload: {
-      name: string;
-      description?: string;
-      knowledgeBase?: KnowledgeBaseFile[];
-    }) => {
-      dispatch({ type: "create-project", ...payload });
-    },
-    []
-  );
-
   const value = React.useMemo<DashboardProjectsContextValue>(
     () => ({
       projects: state.projects,
+      projectsLoading: projectsQuery.isLoading,
+      projectsError:
+        projectsQuery.error instanceof Error ? projectsQuery.error : null,
+      retryProjects: () => {
+        void projectsQuery.refetch();
+      },
       activeSessionId: state.activeSessionId,
       toggleProject: (projectId) =>
         dispatch({ type: "toggle-project", projectId }),
-      createProject,
       createChat: (projectId) => dispatch({ type: "create-chat", projectId }),
       deleteChat: (projectId, sessionId) =>
         dispatch({ type: "delete-chat", projectId, sessionId }),
       selectSession,
     }),
-    [state, selectSession, createProject]
+    [
+      state,
+      selectSession,
+      projectsQuery.isLoading,
+      projectsQuery.error,
+      projectsQuery.refetch,
+    ]
   );
 
   return (
@@ -81,6 +81,15 @@ export function DashboardProjectsProvider({
       {children}
     </DashboardProjectsContext.Provider>
   );
+}
+
+function toProjectItem(project: Project): ProjectItem {
+  return {
+    id: project.id,
+    name: project.name,
+    ...(project.description ? { description: project.description } : {}),
+    knowledgeBaseId: project.knowledge_base_id,
+  };
 }
 
 // Required dependency: the sidebar without its provider is a bug, so we throw.

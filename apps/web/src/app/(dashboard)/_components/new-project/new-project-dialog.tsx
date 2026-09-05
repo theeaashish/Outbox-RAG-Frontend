@@ -13,10 +13,9 @@ import {
   Textarea,
   cx,
 } from "@repo/ui";
-import { validateKbFiles, createId, type SelectedFile } from "@/utils";
+import { validateKbFiles, type SelectedFile } from "@/utils";
 import { KnowledgeBaseUploader } from "./knowledge-base-uploader";
-import { useDashboardProjects } from "@/app/(dashboard)/_components/sidebar/sidebar-data-provider";
-import type { KnowledgeBaseFile } from "@/app/(dashboard)/_components/sidebar/sidebar-data";
+import { useCreateProject } from "@/features/projects";
 
 export interface NewProjectDialogProps {
   open: boolean;
@@ -42,7 +41,12 @@ export function NewProjectDialog({
   open,
   onOpenChange,
 }: NewProjectDialogProps) {
-  const { createProject } = useDashboardProjects();
+  const {
+    error: createProjectError,
+    isPending: createProjectPending,
+    mutateAsync: createProjectAsync,
+    reset: resetCreateProject,
+  } = useCreateProject();
   const [files, setFiles] = React.useState<SelectedFile[]>([]);
   const [fileError, setFileError] = React.useState<string | null>(null);
 
@@ -68,7 +72,8 @@ export function NewProjectDialog({
     reset(EMPTY_FORM);
     setFiles([]);
     setFileError(null);
-  }, [open, reset, setFocus]);
+    resetCreateProject();
+  }, [open, reset, resetCreateProject, setFocus]);
 
   const handleFilesSelected = (incoming: File[]) => {
     const { accepted, rejections } = validateKbFiles(incoming, files.length);
@@ -83,27 +88,19 @@ export function NewProjectDialog({
 
   const close = () => onOpenChange(false);
 
-  const onSubmit = (values: FormValues) => {
+  const onSubmit = async (values: FormValues) => {
     const name = values.name.trim();
     if (!name) return;
 
-    // Serializable metadata only — File objects never enter app state.
-    const knowledgeBase: KnowledgeBaseFile[] | undefined =
-      files.length > 0
-        ? files.map(({ file }) => ({
-            id: createId("kb"),
-            name: file.name,
-            sizeBytes: file.size,
-          }))
-        : undefined;
-
-    createProject({
-      name,
-      description: values.description.trim() || undefined,
-      knowledgeBase,
-    });
-
-    close();
+    try {
+      await createProjectAsync({
+        name,
+        description: values.description.trim() || undefined,
+      });
+      close();
+    } catch {
+      // The mutation error is rendered inline and the dialog stays open.
+    }
   };
 
   return (
@@ -235,6 +232,15 @@ export function NewProjectDialog({
             onRemove={removeFile}
           />
 
+          {createProjectError instanceof Error && (
+            <p
+              role="alert"
+              className="text-[11px] text-red-600 dark:text-red-400"
+            >
+              {createProjectError.message}
+            </p>
+          )}
+
           {/* Footer actions */}
           <div className="mt-2 flex items-center justify-end gap-2 border-t border-zinc-200/80 pt-3 dark:border-zinc-800">
             <BoardButton
@@ -249,7 +255,7 @@ export function NewProjectDialog({
               variant="primary"
               size="small"
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || createProjectPending}
             >
               Create project
             </BoardButton>

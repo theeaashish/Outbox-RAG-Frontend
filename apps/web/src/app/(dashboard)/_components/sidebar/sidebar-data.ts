@@ -15,6 +15,7 @@ export interface ProjectItem {
   id: string;
   name: string;
   description?: string;
+  knowledgeBaseId?: string;
   knowledgeBase?: KnowledgeBaseFile[];
   expanded?: boolean;
   sessions?: ChatSession[];
@@ -26,13 +27,8 @@ export interface ProjectsState {
 }
 
 export type ProjectsAction =
+  | { type: "sync-projects"; projects: ProjectItem[] }
   | { type: "toggle-project"; projectId: string }
-  | {
-      type: "create-project";
-      name: string;
-      description?: string;
-      knowledgeBase?: KnowledgeBaseFile[];
-    }
   | { type: "create-chat"; projectId: string }
   | { type: "delete-chat"; projectId: string; sessionId: string }
   | { type: "select-session"; sessionId: string | null };
@@ -44,6 +40,25 @@ export function projectsReducer(
   action: ProjectsAction
 ): ProjectsState {
   switch (action.type) {
+    case "sync-projects": {
+      const existingById = new Map(
+        state.projects.map((project) => [project.id, project])
+      );
+      return {
+        ...state,
+        projects: action.projects.map((project) => {
+          const existing = existingById.get(project.id);
+          return existing
+            ? {
+                ...project,
+                expanded: existing.expanded,
+                sessions: existing.sessions,
+              }
+            : project;
+        }),
+      };
+    }
+
     case "toggle-project":
       return {
         ...state,
@@ -51,26 +66,6 @@ export function projectsReducer(
           p.id === action.projectId ? { ...p, expanded: !p.expanded } : p
         ),
       };
-
-    case "create-project": {
-      const sessionId = createId("chat");
-      const project: ProjectItem = {
-        id: createId("project"),
-        name: action.name.trim(),
-        ...(action.description?.trim()
-          ? { description: action.description.trim() }
-          : {}),
-        ...(action.knowledgeBase && action.knowledgeBase.length > 0
-          ? { knowledgeBase: action.knowledgeBase }
-          : {}),
-        expanded: true,
-        sessions: [{ id: sessionId, title: "New chat", time: "now" }],
-      };
-      return {
-        projects: [project, ...state.projects],
-        activeSessionId: sessionId,
-      };
-    }
 
     case "create-chat": {
       const sessionId = createId("chat");
