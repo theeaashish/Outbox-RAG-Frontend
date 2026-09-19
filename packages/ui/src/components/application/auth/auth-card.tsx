@@ -92,6 +92,8 @@ export interface AuthCardProps {
   /** Fires with the form's own FormData; wire it to your auth library. */
   onSubmit?: (data: FormData) => void;
   onProvider?: (provider: SocialProvider) => void;
+  /** Disables auth controls while the host app is submitting the form. */
+  isSubmitting?: boolean;
   /** Footer link target, e.g. to the opposite mode. */
   switchHref?: string;
   className?: string;
@@ -138,6 +140,7 @@ export function AuthCard({
   footnote,
   onSubmit,
   onProvider,
+  isSubmitting = false,
   switchHref = "#",
   className,
 }: AuthCardProps) {
@@ -174,6 +177,7 @@ export function AuthCard({
           // `iconOnly` fixes a square width; the grid needs it to stretch,
           // and `className` is last into `cx` so it wins.
           className={layout === "grid" ? "w-full" : undefined}
+          disabled={isSubmitting}
           onClick={() => onProvider?.(provider)}
         />
       ))}
@@ -230,7 +234,11 @@ export function AuthCard({
         </p>
       </div>
 
-      <form onSubmit={submit} className="mt-6 flex flex-col gap-4">
+      <form
+        onSubmit={submit}
+        className="mt-6 flex flex-col gap-4"
+        aria-busy={isSubmitting}
+      >
         {verify ? (
           <div className="flex flex-col gap-1.5">
             <span className="text-body-medium text-text-secondary">
@@ -248,12 +256,12 @@ export function AuthCard({
           </div>
         ) : null}
 
-        {signup && !confirmPassword ? (
+        {signup ? (
           <Input
             name="name"
             label="Full name"
             placeholder="Ada Lovelace"
-            isRequired
+            autoComplete="name"
           />
         ) : null}
 
@@ -282,7 +290,7 @@ export function AuthCard({
               name="password"
               type="password"
               label="Password"
-              placeholder="At least 8 characters"
+              placeholder="At least 12 characters"
               autoComplete="new-password"
               isRequired
             />
@@ -301,7 +309,7 @@ export function AuthCard({
             type="password"
             label="Password"
             placeholder={
-              signup ? "At least 8 characters" : "Enter your password"
+              signup ? "At least 12 characters" : "Enter your password"
             }
             autoComplete={signup ? "new-password" : "current-password"}
             isRequired
@@ -317,7 +325,7 @@ export function AuthCard({
           </div>
         )}
 
-        <Button type="submit" className="w-full">
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
           {copy.cta}
         </Button>
 
@@ -354,7 +362,9 @@ export function AuthCard({
       ) : (
         <p className="mt-6 text-center text-body-regular text-text-secondary">
           {copy.switchLead}{" "}
-          <LinkButton href={switchHref}>{copy.switchAction}</LinkButton>
+          <LinkButton href={switchHref} disabled={isSubmitting}>
+            {copy.switchAction}
+          </LinkButton>
         </p>
       )}
     </>

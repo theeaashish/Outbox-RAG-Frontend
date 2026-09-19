@@ -1,28 +1,41 @@
 "use client";
 
-import * as React from "react";
+import { useRouter } from "next/navigation";
 import { AuthCard, AuthMediaCarousel, type SocialProvider } from "@repo/ui";
 import { toast } from "sonner";
+import { parseRegisterFormData, useRegister } from "@/features/auth";
 import { authCarouselSlides } from "../_components/auth-slides";
 
 export function RegisterView() {
-  const handleSubmit = (data: FormData) => {
-    const name = data.get("name") as string;
-    const email = data.get("email") as string;
-    const password = data.get("password") as string;
-    const confirmPassword = data.get("confirmPassword") as string;
+  const router = useRouter();
+  const registerMutation = useRegister();
 
-    if (confirmPassword && password !== confirmPassword) {
-      toast.error("Passwords do not match", {
-        description: "Please check your password and try again.",
-      });
+  const handleSubmit = async (data: FormData) => {
+    const result = parseRegisterFormData(data);
+    if (!result.success) {
+      const firstIssue = result.error.issues[0];
+      toast.error(firstIssue?.message ?? "Invalid input");
       return;
     }
 
-    console.log("Registration submission:", { name, email });
-    toast.info("Account creation submitted", {
-      description: `Creating account for ${name || email}...`,
-    });
+    try {
+      await registerMutation.mutateAsync({
+        email: result.data.email,
+        password: result.data.password,
+        name: result.data.name,
+      });
+      toast.success("Account created!", {
+        description: "Please sign in with your credentials to continue.",
+      });
+      router.push("/login");
+    } catch (error) {
+      toast.error("Account creation failed", {
+        description:
+          error instanceof Error
+            ? error.message
+            : "Unable to create account. Please try again.",
+      });
+    }
   };
 
   const handleProvider = (provider: SocialProvider) => {
@@ -39,6 +52,7 @@ export function RegisterView() {
       description="Start searching, organizing, and indexing your documents with Basic RAG."
       switchHref="/login"
       providers={["google", "github"]}
+      isSubmitting={registerMutation.isPending}
       onSubmit={handleSubmit}
       onProvider={handleProvider}
       media={<AuthMediaCarousel slides={authCarouselSlides} />}
