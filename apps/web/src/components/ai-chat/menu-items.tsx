@@ -1,9 +1,9 @@
-import * as React from "react";
+import type { ReactNode } from "react";
 
 import { cn } from "@repo/ui";
 
 export interface MenuRowProps {
-  icon: React.ReactNode;
+  icon: ReactNode;
   title: string;
   desc?: string;
   onClick?: () => void;
@@ -47,7 +47,7 @@ export function MenuDivider({ className }: { className?: string }) {
 
 export interface PluginIconProps {
   className?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function PluginIcon({ className, children }: PluginIconProps) {

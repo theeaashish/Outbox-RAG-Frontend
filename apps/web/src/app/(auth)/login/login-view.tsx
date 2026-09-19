@@ -54,16 +54,29 @@ export function LoginView() {
 }
 
 function getSafeRedirectUrl(): string {
+  if (typeof window === "undefined") return "/dashboard";
   const requestedUrl = new URLSearchParams(window.location.search).get("from");
   if (!requestedUrl) return "/dashboard";
 
+  if (
+    requestedUrl.startsWith("//") ||
+    requestedUrl.includes("\\") ||
+    requestedUrl.includes("\0")
+  ) {
+    return "/dashboard";
+  }
+
   try {
     const target = new URL(requestedUrl, window.location.origin);
-    if (
-      target.origin !== window.location.origin ||
-      !target.pathname.startsWith("/") ||
-      requestedUrl.startsWith("//")
-    ) {
+    if (target.origin !== window.location.origin) {
+      return "/dashboard";
+    }
+
+    const isDashboardPath =
+      target.pathname === "/dashboard" ||
+      target.pathname.startsWith("/dashboard/");
+
+    if (!isDashboardPath) {
       return "/dashboard";
     }
 

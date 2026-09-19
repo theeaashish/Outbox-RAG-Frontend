@@ -1,6 +1,14 @@
 "use client";
 
-import * as React from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { cx } from "@repo/ui";
 import { DashboardSidebar } from "./sidebar/dashboard-sidebar";
 
@@ -10,7 +18,7 @@ import { useBodyScrollLock } from "@/app/(dashboard)/_hooks/use-body-scroll-lock
 import { useFocusTrap } from "@/app/(dashboard)/_hooks/use-focus-trap";
 
 export interface DashboardShellProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 interface DashboardShellContextValue {
@@ -18,23 +26,23 @@ interface DashboardShellContextValue {
 }
 
 const DashboardShellContext =
-  React.createContext<DashboardShellContextValue | null>(null);
+  createContext<DashboardShellContextValue | null>(null);
 
 export function useDashboardShell() {
-  return React.useContext(DashboardShellContext);
+  return useContext(DashboardShellContext);
 }
 
 export function DashboardShell({ children }: DashboardShellProps) {
-  const [mobileSidebarOpen, setMobileSidebarOpen] = React.useState(false);
-  const openMobileSidebar = React.useCallback(
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const openMobileSidebar = useCallback(
     () => setMobileSidebarOpen(true),
     []
   );
-  const closeMobileSidebar = React.useCallback(
+  const closeMobileSidebar = useCallback(
     () => setMobileSidebarOpen(false),
     []
   );
-  const contextValue = React.useMemo(
+  const contextValue = useMemo(
     () => ({ openMobileSidebar }),
     [openMobileSidebar]
   );
@@ -73,7 +81,7 @@ function MobileSidebarDrawer({
   open: boolean;
   onClose: () => void;
 }) {
-  const drawerRef = React.useRef<HTMLDivElement>(null);
+  const drawerRef = useRef<HTMLDivElement>(null);
   useEscapeKey(open, onClose);
   useBodyScrollLock(open);
   useFocusTrap(open, drawerRef);

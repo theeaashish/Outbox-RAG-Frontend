@@ -1,6 +1,12 @@
 "use client";
 
-import * as React from "react";
+import {
+  useCallback,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type PointerEvent,
+} from "react";
 
 import { cn } from "@repo/ui";
 import { EFFORT_LEVELS } from "./constants";
@@ -9,6 +15,7 @@ export interface EffortSliderProps {
   /** Zero-based index into {@link EFFORT_LEVELS}. */
   value: number;
   onChange: (value: number) => void;
+  disabled?: boolean;
   className?: string;
 }
 
@@ -40,18 +47,20 @@ function getStepFromPointer(clientX: number, rect: DOMRect): number {
 export function EffortSlider({
   value,
   onChange,
+  disabled = false,
   className,
 }: EffortSliderProps) {
-  const trackRef = React.useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = React.useState(false);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   // Defensive normalization because this is a controlled component.
   const safeValue = clamp(value, 0, MAX_INDEX);
   const percentage = getPercentage(safeValue);
   const isMax = safeValue === MAX_INDEX;
 
-  const updateFromPointer = React.useCallback(
+  const updateFromPointer = useCallback(
     (clientX: number) => {
+      if (disabled) return;
       const track = trackRef.current;
 
       if (!track) {
@@ -67,12 +76,12 @@ export function EffortSlider({
         onChange(nextValue);
       }
     },
-    [onChange, safeValue]
+    [disabled, onChange, safeValue]
   );
 
-  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    // Ignore non-primary pointers such as additional mouse buttons.
-    if (!event.isPrimary) {
+  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    // Ignore non-primary pointers such as additional mouse buttons or when disabled.
+    if (disabled || !event.isPrimary) {
       return;
     }
 
@@ -82,15 +91,15 @@ export function EffortSlider({
     updateFromPointer(event.clientX);
   };
 
-  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDragging || !event.isPrimary) {
+  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (disabled || !isDragging || !event.isPrimary) {
       return;
     }
 
     updateFromPointer(event.clientX);
   };
 
-  const endDragging = (event: React.PointerEvent<HTMLDivElement>) => {
+  const endDragging = (event: PointerEvent<HTMLDivElement>) => {
     if (!isDragging) {
       return;
     }
@@ -102,7 +111,8 @@ export function EffortSlider({
     }
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (disabled) return;
     let nextValue: number | null = null;
 
     switch (event.key) {
@@ -139,7 +149,8 @@ export function EffortSlider({
     <div
       ref={trackRef}
       role="slider"
-      tabIndex={0}
+      tabIndex={disabled ? -1 : 0}
+      aria-disabled={disabled ? true : undefined}
       aria-label="Effort"
       aria-orientation="horizontal"
       aria-valuemin={0}
@@ -152,9 +163,11 @@ export function EffortSlider({
       onPointerUp={endDragging}
       onPointerCancel={endDragging}
       className={cn(
-        "relative h-8 cursor-pointer select-none touch-none rounded-lg outline-none",
-        "focus-visible:ring-2 focus-visible:ring-[#2B7CF6]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-zinc-900",
-        isDragging && "cursor-grabbing",
+        "relative h-8 select-none touch-none rounded-lg outline-none",
+        disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
+        !disabled &&
+          "focus-visible:ring-2 focus-visible:ring-[#2B7CF6]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-zinc-900",
+        isDragging && !disabled && "cursor-grabbing",
         className
       )}
     >

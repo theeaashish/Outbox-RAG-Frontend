@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState } from "react";
 import { Hero } from "@/app/(marketing)/_components/hero";
 import {
   AiChatComposer,
@@ -14,12 +14,12 @@ import {
 } from "@/components/ai-chat";
 
 export default function Home() {
-  const [draft, setDraft] = React.useState("");
-  const [model, setModel] = React.useState<Model>(DEFAULT_MODEL);
-  const [effort, setEffort] = React.useState(DEFAULT_EFFORT);
-  const [mode, setMode] = React.useState<ComposerMode>("agent");
-  const [status, setStatus] = React.useState<ComposerStatus>("idle");
-  const [attachments] = React.useState<ComposerAttachment[]>([]);
+  const [draft, setDraft] = useState("");
+  const [model, setModel] = useState<Model>(DEFAULT_MODEL);
+  const [effort, setEffort] = useState(DEFAULT_EFFORT);
+  const [mode, setMode] = useState<ComposerMode>("agent");
+  const [status, setStatus] = useState<ComposerStatus>("idle");
+  const [attachments] = useState<ComposerAttachment[]>([]);
 
   const handleSubmit = (data: ComposerSubmitData) => {
     console.log("Submitted prompt:", data);

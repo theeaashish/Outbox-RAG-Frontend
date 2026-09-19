@@ -1,6 +1,11 @@
 "use client";
 
-import * as React from "react";
+import {
+  useCallback,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+} from "react";
 import {
   ChevronDown,
   Folder,
@@ -43,8 +48,12 @@ export interface AiChatComposerProps extends AddMenuProps {
   model: Model;
   effort: number;
 
-  onModelChange: (model: Model) => void;
-  onEffortChange: (effort: number) => void;
+  onModelChange?: (model: Model) => void;
+  onEffortChange?: (effort: number) => void;
+
+  modelSelectorDisabled?: boolean;
+  effortSelectorDisabled?: boolean;
+  modeSelectorDisabled?: boolean;
 
   status?: ComposerStatus;
 
@@ -84,6 +93,9 @@ export function AiChatComposer({
   effort,
   onModelChange,
   onEffortChange,
+  modelSelectorDisabled = false,
+  effortSelectorDisabled = false,
+  modeSelectorDisabled = false,
   status = "idle",
   mode = "chat",
   onModeChange,
@@ -117,7 +129,7 @@ export function AiChatComposer({
     ghostWidth,
   } = useComposerAutosize(value);
 
-  const [modeMenuOpen, setModeMenuOpen] = React.useState(false);
+  const [modeMenuOpen, setModeMenuOpen] = useState(false);
 
   const isGenerating = status === "submitting" || status === "streaming";
   const controlsDisabled = disabled || isGenerating;
@@ -142,7 +154,7 @@ export function AiChatComposer({
     onCodeClick,
   };
 
-  const handleSubmit = React.useCallback(() => {
+  const handleSubmit = useCallback(() => {
     if (isGenerating) {
       onCancel();
       return;
@@ -173,12 +185,12 @@ export function AiChatComposer({
     onCancel,
   ]);
 
-  const handleFormSubmit = (event: React.FormEvent) => {
+  const handleFormSubmit = (event: FormEvent) => {
     event.preventDefault();
     handleSubmit();
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key !== "Enter") return;
     if (event.shiftKey) return; // newline
     if (event.nativeEvent.isComposing) return; // IME composition
@@ -271,6 +283,8 @@ export function AiChatComposer({
                   onModelChange={onModelChange}
                   onEffortChange={onEffortChange}
                   disabled={controlsDisabled}
+                  modelSelectorDisabled={modelSelectorDisabled}
+                  effortSelectorDisabled={effortSelectorDisabled}
                   isGenerating={isGenerating}
                   sendDisabled={isSendDisabled}
                   onVoiceClick={onVoiceClick}
@@ -285,6 +299,8 @@ export function AiChatComposer({
                 onModelChange={onModelChange}
                 onEffortChange={onEffortChange}
                 disabled={controlsDisabled}
+                modelSelectorDisabled={modelSelectorDisabled}
+                effortSelectorDisabled={effortSelectorDisabled}
                 isGenerating={isGenerating}
                 sendDisabled={isSendDisabled}
                 onVoiceClick={onVoiceClick}
@@ -324,7 +340,7 @@ export function AiChatComposer({
             </div>
 
             <div className="flex items-center gap-3">
-              {onModeChange ? (
+              {!modeSelectorDisabled && onModeChange ? (
                 <Popover open={modeMenuOpen} onOpenChange={setModeMenuOpen}>
                   <PopoverTrigger
                     render={
@@ -364,9 +380,24 @@ export function AiChatComposer({
                   </PopoverContent>
                 </Popover>
               ) : (
-                <div className="flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400">
+                <div
+                  title={
+                    modeSelectorDisabled
+                      ? "Mode selection is currently unavailable"
+                      : undefined
+                  }
+                  className={cn(
+                    "flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400",
+                    modeSelectorDisabled && "cursor-not-allowed opacity-50"
+                  )}
+                >
                   <InfinityIcon className="size-3.5 text-zinc-400" />
                   <span>{currentModeLabel}</span>
+                  {modeSelectorDisabled && (
+                    <span className="text-[10px] text-zinc-400 font-normal">
+                      (Unavailable)
+                    </span>
+                  )}
                 </div>
               )}
 

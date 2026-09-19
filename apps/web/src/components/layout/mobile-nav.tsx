@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon, Menu01Icon } from "@hugeicons/core-free-icons";
@@ -9,7 +9,7 @@ import { navLinks, type NavItem } from "./nav-links";
 
 export interface MobileNavProps {
   links?: NavItem[];
-  actions?: React.ReactNode;
+  actions?: ReactNode;
   className?: string;
 }
 
@@ -18,10 +18,10 @@ export function MobileNav({
   actions,
   className,
 }: MobileNavProps) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   // Close menu on Escape key
-  React.useEffect(() => {
+  useEffect(() => {
     if (!open) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {

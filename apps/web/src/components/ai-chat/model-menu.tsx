@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import {
   BoardButton,
@@ -21,9 +21,11 @@ import {
 export interface ModelMenuProps {
   model: Model;
   effort: number;
-  onModelChange: (model: Model) => void;
-  onEffortChange: (effort: number) => void;
+  onModelChange?: (model: Model) => void;
+  onEffortChange?: (effort: number) => void;
   disabled?: boolean;
+  modelSelectorDisabled?: boolean;
+  effortSelectorDisabled?: boolean;
 }
 
 const MODEL_OPTIONS = MODELS.map((model) => ({ value: model, label: model }));
@@ -35,22 +37,31 @@ export function ModelMenu({
   onModelChange,
   onEffortChange,
   disabled = false,
+  modelSelectorDisabled = false,
+  effortSelectorDisabled = false,
 }: ModelMenuProps) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   // Defensive clamp — effort arrives from props and drives a display lookup.
   const safeEffort = Math.min(Math.max(effort, 0), MAX_EFFORT_INDEX);
+  const isModelDisabled = disabled || modelSelectorDisabled;
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open && !isModelDisabled} onOpenChange={setOpen}>
       <PopoverTrigger
         render={
           <BoardButton
             variant="ghost"
             size="small"
-            disabled={disabled}
+            disabled={isModelDisabled}
+            title={
+              isModelDisabled
+                ? "Model selection is currently unavailable"
+                : undefined
+            }
             className={cn(
               "rounded-full px-2.5 text-xs font-medium text-zinc-500 hover:text-zinc-900 outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 dark:text-zinc-400 dark:hover:text-zinc-100",
+              isModelDisabled && "cursor-not-allowed opacity-50",
               open &&
                 "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
             )}
@@ -81,7 +92,8 @@ export function ModelMenu({
           options={MODEL_OPTIONS}
           value={model}
           onChange={(next) => {
-            onModelChange(next);
+            if (isModelDisabled) return;
+            onModelChange?.(next);
             setOpen(false);
           }}
         />
@@ -89,12 +101,17 @@ export function ModelMenu({
         <MenuDivider className="my-2" />
 
         <div className="px-3 pb-3">
-          <div className="flex items-baseline gap-2">
+          <div className="flex items-baseline justify-between gap-2">
             <span className="text-xs text-zinc-500 dark:text-zinc-400">
               Effort
             </span>
             <span className="text-xs font-medium text-zinc-900 dark:text-zinc-100">
               {EFFORT_LEVELS[safeEffort]}
+              {effortSelectorDisabled && (
+                <span className="ml-1 text-[10px] font-normal text-zinc-400">
+                  (Unavailable)
+                </span>
+              )}
             </span>
           </div>
 
@@ -106,7 +123,11 @@ export function ModelMenu({
           <EffortSlider
             className="mt-1"
             value={safeEffort}
-            onChange={onEffortChange}
+            disabled={disabled || effortSelectorDisabled}
+            onChange={(next) => {
+              if (disabled || effortSelectorDisabled) return;
+              onEffortChange?.(next);
+            }}
           />
         </div>
       </PopoverContent>

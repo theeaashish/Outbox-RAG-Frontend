@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import type { ComponentProps, ReactNode } from "react";
 import Link from "next/link";
 import { Button, Logo, useScroll, cn, ThemeToggle } from "@repo/ui";
 import { MobileNav } from "./mobile-nav";
@@ -8,11 +8,11 @@ import { navLinks, type NavItem } from "./nav-links";
 
 export type { NavItem };
 
-export interface HeaderProps extends React.ComponentProps<"header"> {
+export interface HeaderProps extends ComponentProps<"header"> {
   links?: NavItem[];
   logoHref?: string;
-  logo?: React.ReactNode;
-  actions?: React.ReactNode;
+  logo?: ReactNode;
+  actions?: ReactNode;
 }
 
 export function Header({

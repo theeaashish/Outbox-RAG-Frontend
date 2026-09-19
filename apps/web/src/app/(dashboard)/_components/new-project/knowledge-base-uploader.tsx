@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useRef, useState } from "react";
 import {
   RiErrorWarningLine,
   RiFilePdfLine,
@@ -20,6 +20,7 @@ interface KnowledgeBaseUploaderProps {
   error: string | null;
   onFilesSelected: (files: File[]) => void;
   onRemove: (id: string) => void;
+  statuses?: Record<string, "uploading" | "uploaded" | "error">;
 }
 
 export function KnowledgeBaseUploader({
@@ -27,9 +28,10 @@ export function KnowledgeBaseUploader({
   error,
   onFilesSelected,
   onRemove,
+  statuses = {},
 }: KnowledgeBaseUploaderProps) {
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const [dragOver, setDragOver] = React.useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [dragOver, setDragOver] = useState(false);
 
   const openFilePicker = () => inputRef.current?.click();
 
@@ -155,6 +157,24 @@ export function KnowledgeBaseUploader({
                 <span className="shrink-0 text-[10px] tabular-nums text-zinc-400 dark:text-zinc-500">
                   ({formatFileSize(file.size)})
                 </span>
+                {statuses[id] && (
+                  <span
+                    className={cx(
+                      "shrink-0 text-[10px]",
+                      statuses[id] === "error"
+                        ? "text-red-500"
+                        : statuses[id] === "uploaded"
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-zinc-400"
+                    )}
+                  >
+                    {statuses[id] === "uploading"
+                      ? "Uploading..."
+                      : statuses[id] === "uploaded"
+                        ? "Uploaded"
+                        : "Failed"}
+                  </span>
+                )}
               </div>
               <CloseButton
                 size="2xs"

@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState } from "react";
 import {
   Code,
   FileText,
@@ -48,7 +48,7 @@ export function AddMenu({
   onPresentationsClick,
   onCodeClick,
 }: AddMenuProps) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   const handleAction = (callback?: () => void) => {
     setOpen(false);

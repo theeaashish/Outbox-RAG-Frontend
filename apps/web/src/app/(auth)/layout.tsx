@@ -1,11 +1,11 @@
-import * as React from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { Logo, ThemeToggle } from "@repo/ui";
 
 export default function AuthLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <div className="relative flex min-h-screen flex-col justify-between bg-zinc-50 text-foreground antialiased selection:bg-zinc-900 selection:text-white dark:bg-zinc-950 dark:selection:bg-zinc-100 dark:selection:text-zinc-900">

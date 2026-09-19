@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { RiCloseLine } from "@remixicon/react";
 import {
@@ -15,7 +15,8 @@ import {
 } from "@repo/ui";
 import { validateKbFiles, type SelectedFile } from "@/utils";
 import { KnowledgeBaseUploader } from "./knowledge-base-uploader";
-import { useCreateProject } from "@/features/projects";
+import { useCreateProject, useUpdateProject } from "@/features/projects";
+import { useUploadDocument } from "@/features/documents";
 
 export interface NewProjectDialogProps {
   open: boolean;
@@ -34,6 +35,7 @@ const MAX_DESCRIPTION_LENGTH = 280;
  * mount and silently no-ops. Small delay is the pragmatic cross-library fix.
  */
 const INITIAL_FOCUS_DELAY_MS = 50;
+const CONCURRENT_UPLOAD_LIMIT = 3;
 
 const EMPTY_FORM: FormValues = { name: "", description: "" };
 
@@ -47,8 +49,31 @@ export function NewProjectDialog({
     mutateAsync: createProjectAsync,
     reset: resetCreateProject,
   } = useCreateProject();
-  const [files, setFiles] = React.useState<SelectedFile[]>([]);
-  const [fileError, setFileError] = React.useState<string | null>(null);
+  const {
+    error: updateProjectError,
+    isPending: updateProjectPending,
+    mutateAsync: updateProjectAsync,
+    reset: resetUpdateProject,
+  } = useUpdateProject();
+  const { mutateAsync: uploadDocumentAsync } = useUploadDocument();
+
+  const [files, setFiles] = useState<SelectedFile[]>([]);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const [uploadStatuses, setUploadStatuses] = useState<
+    Record<string, "uploading" | "uploaded" | "error">
+  >({});
+  const [isUploading, setIsUploading] = useState(false);
+  const [projectId, setProjectId] = useState<string | null>(null);
+  const [knowledgeBaseId, setKnowledgeBaseId] = useState<string | null>(
+    null
+  );
+  const lastSavedValuesRef = useRef<{
+    name: string;
+    description: string | null;
+  } | null>(null);
+
+  const isBusy =
+    createProjectPending || updateProjectPending || isUploading;
 
   const {
     register,
@@ -64,7 +89,7 @@ export function NewProjectDialog({
 
   const descriptionValue = watch("description") ?? "";
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       const timer = setTimeout(() => setFocus("name"), INITIAL_FOCUS_DELAY_MS);
       return () => clearTimeout(timer);
@@ -72,39 +97,143 @@ export function NewProjectDialog({
     reset(EMPTY_FORM);
     setFiles([]);
     setFileError(null);
+    setUploadStatuses({});
+    setProjectId(null);
+    setKnowledgeBaseId(null);
+    lastSavedValuesRef.current = null;
     resetCreateProject();
-  }, [open, reset, resetCreateProject, setFocus]);
+    resetUpdateProject();
+  }, [open, reset, resetCreateProject, resetUpdateProject, setFocus]);
 
   const handleFilesSelected = (incoming: File[]) => {
+    if (isBusy) return;
     const { accepted, rejections } = validateKbFiles(incoming, files.length);
     if (rejections.length > 0) setFileError(rejections.join(" "));
     if (accepted.length > 0) setFiles((prev) => [...prev, ...accepted]);
   };
 
   const removeFile = (id: string) => {
+    if (isBusy) return;
     setFiles((prev) => prev.filter((f) => f.id !== id));
+    setUploadStatuses((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
     setFileError(null);
   };
 
-  const close = () => onOpenChange(false);
+  const close = () => {
+    if (isBusy) return;
+    onOpenChange(false);
+  };
 
   const onSubmit = async (values: FormValues) => {
     const name = values.name.trim();
     if (!name) return;
+    const description = values.description.trim() || null;
+
+    setFileError(null);
+    setIsUploading(true);
 
     try {
-      await createProjectAsync({
-        name,
-        description: values.description.trim() || undefined,
-      });
-      close();
+      let currentProjectId = projectId;
+      let currentKbId = knowledgeBaseId;
+
+      if (!currentProjectId || !currentKbId) {
+        const project = await createProjectAsync({
+          name,
+          description: description || undefined,
+        });
+        currentProjectId = project.id;
+        currentKbId = project.knowledge_base_id;
+        setProjectId(project.id);
+        setKnowledgeBaseId(project.knowledge_base_id);
+        lastSavedValuesRef.current = { name, description };
+      } else {
+        const lastSaved = lastSavedValuesRef.current;
+        if (
+          !lastSaved ||
+          lastSaved.name !== name ||
+          lastSaved.description !== description
+        ) {
+          await updateProjectAsync({
+            projectId: currentProjectId,
+            input: { name, description },
+          });
+          lastSavedValuesRef.current = { name, description };
+        }
+      }
+
+      const pendingFiles = files.filter(
+        (selected) => uploadStatuses[selected.id] !== "uploaded"
+      );
+
+      let hasUploadFailure = false;
+
+      if (pendingFiles.length > 0) {
+        let fileIndex = 0;
+        const workerCount = Math.min(
+          CONCURRENT_UPLOAD_LIMIT,
+          pendingFiles.length
+        );
+
+        const workers = Array.from({ length: workerCount }, async () => {
+          while (fileIndex < pendingFiles.length) {
+            const currentIndex = fileIndex++;
+            const selected = pendingFiles[currentIndex];
+            if (!selected) continue;
+
+            setUploadStatuses((current) => ({
+              ...current,
+              [selected.id]: "uploading",
+            }));
+
+            try {
+              await uploadDocumentAsync({
+                knowledgeBaseId: currentKbId!,
+                file: selected.file,
+              });
+              setUploadStatuses((current) => ({
+                ...current,
+                [selected.id]: "uploaded",
+              }));
+            } catch {
+              hasUploadFailure = true;
+              setUploadStatuses((current) => ({
+                ...current,
+                [selected.id]: "error",
+              }));
+            }
+          }
+        });
+
+        await Promise.all(workers);
+      }
+
+      if (!hasUploadFailure) {
+        setIsUploading(false);
+        onOpenChange(false);
+      } else {
+        setFileError(
+          "The project was created, but one or more files could not be uploaded. Retry the failed files."
+        );
+      }
     } catch {
       // The mutation error is rendered inline and the dialog stays open.
+    } finally {
+      setIsUploading(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen && isBusy) return;
+        onOpenChange(nextOpen);
+      }}
+    >
       <DialogContent
         showCloseButton={false}
         aria-labelledby="new-project-dialog-title"
@@ -127,6 +256,7 @@ export function NewProjectDialog({
             iconOnly
             aria-label="Close dialog"
             onClick={close}
+            disabled={isBusy}
           >
             <RiCloseLine className="size-4" />
           </BoardButton>
@@ -230,14 +360,16 @@ export function NewProjectDialog({
             error={fileError}
             onFilesSelected={handleFilesSelected}
             onRemove={removeFile}
+            statuses={uploadStatuses}
           />
 
-          {createProjectError instanceof Error && (
+          {(createProjectError instanceof Error ||
+            updateProjectError instanceof Error) && (
             <p
               role="alert"
               className="text-[11px] text-red-600 dark:text-red-400"
             >
-              {createProjectError.message}
+              {createProjectError?.message || updateProjectError?.message}
             </p>
           )}
 
@@ -248,6 +380,7 @@ export function NewProjectDialog({
               size="small"
               type="button"
               onClick={close}
+              disabled={isBusy}
             >
               Cancel
             </BoardButton>
@@ -255,7 +388,7 @@ export function NewProjectDialog({
               variant="primary"
               size="small"
               type="submit"
-              disabled={isSubmitting || createProjectPending}
+              disabled={isSubmitting || isBusy}
             >
               Create project
             </BoardButton>

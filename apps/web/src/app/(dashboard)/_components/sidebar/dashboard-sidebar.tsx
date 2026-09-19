@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import {
   RiAddLine,
   RiCloseLine,
@@ -51,26 +51,26 @@ export function DashboardSidebar({
     selectSession,
   } = useDashboardProjects();
 
-  const [collapsedState, setCollapsedState] = React.useState(false);
-  const [settingsOpen, setSettingsOpen] = React.useState(false);
-  const [newProjectOpen, setNewProjectOpen] = React.useState(false);
-  const [searchActive, setSearchActive] = React.useState(false);
-  const [query, setQuery] = React.useState("");
-  const searchInputRef = React.useRef<HTMLInputElement>(null);
+  const [collapsedState, setCollapsedState] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [newProjectOpen, setNewProjectOpen] = useState(false);
+  const [searchActive, setSearchActive] = useState(false);
+  const [query, setQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const collapsed = mobile ? false : collapsedState;
 
-  const openSearch = React.useCallback(() => {
+  const openSearch = useCallback(() => {
     setCollapsedState(false);
     setSearchActive(true);
   }, []);
 
-  const closeSearch = React.useCallback(() => {
+  const closeSearch = useCallback(() => {
     setSearchActive(false);
     setQuery("");
   }, []);
 
-  const handleSearchHotkey = React.useCallback(
+  const handleSearchHotkey = useCallback(
     (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
       if (target?.closest("input, textarea, select, [contenteditable='true']"))
@@ -92,7 +92,7 @@ export function DashboardSidebar({
   );
 
   // Close the mobile drawer after picking a chat — expected drawer UX.
-  const handleSelectSession = React.useCallback(
+  const handleSelectSession = useCallback(
     (sessionId: string | null) => {
       selectSession(sessionId);
       if (mobile) onClose?.();
@@ -100,7 +100,7 @@ export function DashboardSidebar({
     [selectSession, mobile, onClose]
   );
 
-  const visibleProjects = React.useMemo(
+  const visibleProjects = useMemo(
     () => filterProjects(projects, query),
     [projects, query]
   );

@@ -1,13 +1,13 @@
 "use client";
 
-import * as React from "react";
+import { useEffect, useState, type ComponentProps } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "../lib/utils";
 
-function Portal({ className, ...props }: React.ComponentProps<"div">) {
-  const [mounted, setMounted] = React.useState(false);
+function Portal({ className, ...props }: ComponentProps<"div">) {
+  const [mounted, setMounted] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setMounted(true);
 
     const originalStyle = window.getComputedStyle(document.body).overflow;
@@ -39,7 +39,7 @@ function Portal({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function PortalBackdrop({ className, ...props }: React.ComponentProps<"div">) {
+function PortalBackdrop({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       className={cn(

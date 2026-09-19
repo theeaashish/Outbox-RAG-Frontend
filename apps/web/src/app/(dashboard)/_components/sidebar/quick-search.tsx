@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useEffect, type RefObject } from "react";
 import { RiSearchLine } from "@remixicon/react";
 import { CloseButton, Kbd, SidebarCollapsible, cx } from "@repo/ui";
 
@@ -8,7 +8,7 @@ interface QuickSearchProps {
   collapsed: boolean;
   active: boolean;
   query: string;
-  inputRef: React.RefObject<HTMLInputElement | null>;
+  inputRef: RefObject<HTMLInputElement | null>;
   onActivate: () => void;
   onClose: () => void;
   onQueryChange: (value: string) => void;
@@ -23,7 +23,7 @@ export function QuickSearch({
   onClose,
   onQueryChange,
 }: QuickSearchProps) {
-  React.useEffect(() => {
+  useEffect(() => {
     if (active) inputRef.current?.focus();
   }, [active, inputRef]);
 

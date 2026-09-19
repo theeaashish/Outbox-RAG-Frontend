@@ -1,4 +1,4 @@
-import { ApiError } from "./errors";
+import { ApiError, getErrorMessage } from "./errors";
 
 export interface RequestOptions extends Omit<RequestInit, "body"> {
   params?: Record<string, string | number | boolean | undefined | null>;
@@ -77,6 +77,32 @@ export class ApiClient {
   }
 
   async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+    const response = await this.fetchResponse(path, options);
+
+    if (response.status === 204) {
+      return undefined as T;
+    }
+
+    const contentType = response.headers.get("content-type");
+    if (contentType?.includes("application/json")) {
+      return (await response.json()) as T;
+    }
+
+    return (await response.text()) as T;
+  }
+
+  async stream(
+    path: string,
+    body?: unknown,
+    options: Omit<RequestOptions, "body"> = {}
+  ): Promise<Response> {
+    return this.fetchResponse(path, { ...options, method: "POST", body });
+  }
+
+  private async fetchResponse(
+    path: string,
+    options: RequestOptions = {}
+  ): Promise<Response> {
     const { params, body, token, headers: customHeaders, ...init } = options;
 
     const url = this.buildUrl(path, params);
@@ -146,16 +172,7 @@ export class ApiClient {
       });
     }
 
-    if (response.status === 204) {
-      return undefined as T;
-    }
-
-    const contentType = response.headers.get("content-type");
-    if (contentType?.includes("application/json")) {
-      return (await response.json()) as T;
-    }
-
-    return (await response.text()) as T;
+    return response;
   }
 
   get<T>(path: string, options?: Omit<RequestOptions, "body">): Promise<T> {
@@ -189,35 +206,6 @@ export class ApiClient {
   delete<T>(path: string, options?: Omit<RequestOptions, "body">): Promise<T> {
     return this.request<T>(path, { ...options, method: "DELETE" });
   }
-}
-
-function getErrorMessage(data: unknown): string | undefined {
-  if (typeof data === "string" && data.trim()) return data;
-  if (typeof data !== "object" || data === null) return undefined;
-
-  const record = data as Record<string, unknown>;
-  if (typeof record.message === "string") return record.message;
-  if (typeof record.detail === "string") return record.detail;
-  if (Array.isArray(record.detail)) {
-    const messages = record.detail
-      .map((item) => {
-        if (typeof item === "string") return item;
-        if (typeof item === "object" && item !== null) {
-          const message = (item as Record<string, unknown>).msg;
-          return typeof message === "string" ? message : undefined;
-        }
-        return undefined;
-      })
-      .filter((message): message is string => Boolean(message));
-    if (messages.length > 0) return messages.join("; ");
-  }
-
-  if (typeof record.error === "object" && record.error !== null) {
-    const error = record.error as Record<string, unknown>;
-    if (typeof error.message === "string") return error.message;
-  }
-
-  return undefined;
 }
 
 export const apiClient = new ApiClient();

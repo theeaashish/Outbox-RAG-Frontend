@@ -131,7 +131,9 @@ export function ProjectNode({
         >
           <FolderIcon className="size-4 shrink-0 text-zinc-500" aria-hidden />
           <SidebarCollapsible collapsed={collapsed} className="max-w-full">
-            <span className="truncate">{project.name}</span>
+            <span className="flex min-w-0 items-center gap-1.5">
+              <span className="truncate">{project.name}</span>
+            </span>
           </SidebarCollapsible>
         </button>
 

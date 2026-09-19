@@ -10,27 +10,32 @@ import {
   DashboardHeader,
   HeaderAction,
 } from "@/app/(dashboard)/_components/dashboard-header";
-import {
-  MOCK_PROJECT_ID,
-  MOCK_PROJECT_NAME,
-  MOCK_PROMPT,
-  MOCK_SCENARIO_NAME,
-} from "@/app/(dashboard)/_components/fixtures";
-import { UserMessage } from "@/app/(dashboard)/_components/transcript";
+import { ConversationTranscript } from "@/app/(dashboard)/_components/transcript";
 import { useChatComposer } from "@/app/(dashboard)/_hooks/use-chat-composer";
+import { useDashboardProjects } from "@/app/(dashboard)/_components/sidebar/sidebar-data-provider";
 
 export default function DashboardPage() {
-  const composer = useChatComposer();
+  const { projects, activeSessionId } = useDashboardProjects();
+  const activeProject = projects.find((project) =>
+    project.sessions?.some((session) => session.id === activeSessionId)
+  );
+  const activeSession = activeProject?.sessions?.find(
+    (session) => session.id === activeSessionId
+  );
+  const composer = useChatComposer(activeSessionId ?? undefined);
+
+  const projectName = activeProject?.name ?? "Workspace";
+  const sessionName = activeSession?.title ?? "Select a chat";
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <DashboardHeader
         items={[
           {
-            label: MOCK_PROJECT_NAME,
+            label: projectName,
             icon: <RiFolder6Line className="size-4 text-zinc-400" />,
           },
-          { label: MOCK_SCENARIO_NAME, current: true },
+          { label: sessionName, current: true },
         ]}
         actions={
           <>
@@ -46,7 +51,10 @@ export default function DashboardPage() {
 
       <div className="relative flex flex-1 flex-col justify-between overflow-y-auto px-4 py-4 sm:px-8">
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 pt-4">
-          <UserMessage>{MOCK_PROMPT}</UserMessage>
+          <ConversationTranscript
+            messages={composer.messages}
+            sources={composer.sources}
+          />
         </div>
 
         <div className="mx-auto w-full max-w-2xl pb-2 pt-4">
@@ -59,12 +67,20 @@ export default function DashboardPage() {
             onEffortChange={composer.setEffort}
             mode={composer.mode}
             onModeChange={composer.setMode}
+            modelSelectorDisabled
+            effortSelectorDisabled
+            modeSelectorDisabled
             status={composer.status}
             onSubmit={composer.submit}
             onCancel={composer.cancel}
             branch={{ id: "main", name: "Main" }}
-            project={{ id: MOCK_PROJECT_ID, name: MOCK_PROJECT_NAME }}
-            contextUsage={57}
+            project={
+              activeProject
+                ? { id: activeProject.id, name: activeProject.name }
+                : undefined
+            }
+            contextUsage={undefined}
+            disabled={!activeSessionId}
           />
         </div>
       </div>

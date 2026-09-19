@@ -5,10 +5,11 @@ export const MOCK_PROJECT_ID = "vibl";
 export const MOCK_SCENARIO_NAME = "coding scenario";
 
 export const MOCK_PROJECTS: ProjectItem[] = [
-  { id: "boardui", name: "boardui" },
+  { id: "boardui", name: "boardui", knowledgeBaseId: "kb-boardui" },
   {
     id: MOCK_PROJECT_ID,
     name: MOCK_PROJECT_NAME,
+    knowledgeBaseId: "kb-vibl",
     expanded: true,
     sessions: [
       { id: "landing", title: "landing page design", time: "34m" },
@@ -18,8 +19,16 @@ export const MOCK_PROJECTS: ProjectItem[] = [
       { id: "refactor", title: "code refactor dropd...", time: "10h" },
     ],
   },
-  { id: "strider", name: "strider landing page work" },
-  { id: "pirate", name: "pirate mini game iOS" },
+  {
+    id: "strider",
+    name: "strider landing page work",
+    knowledgeBaseId: "kb-strider",
+  },
+  {
+    id: "pirate",
+    name: "pirate mini game iOS",
+    knowledgeBaseId: "kb-pirate",
+  },
 ];
 
 export const MOCK_ACTIVE_SESSION_ID = "coding";

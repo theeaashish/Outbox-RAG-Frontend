@@ -1,13 +1,20 @@
 "use client";
 
-import * as React from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
 
 /**
  * Isomorphic layout effect: measurement must happen before paint on the client,
  * but useLayoutEffect warns during SSR — fall back to useEffect there.
  */
 const useIsomorphicLayoutEffect =
-  typeof window !== "undefined" ? React.useLayoutEffect : React.useEffect;
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 /** Hard cap: past this the textarea stops growing and scrolls internally. */
 const TEXTAREA_MAX_HEIGHT_PX = 180;
@@ -38,11 +45,11 @@ const MIN_TEXTAREA_WIDTH_PX = 120;
 
 export interface ComposerAutosize {
   isMultiline: boolean;
-  containerRef: React.RefObject<HTMLDivElement | null>;
-  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
-  ghostRef: React.RefObject<HTMLDivElement | null>;
-  addMenuRef: React.RefObject<HTMLDivElement | null>;
-  actionsRef: React.RefObject<HTMLDivElement | null>;
+  containerRef: RefObject<HTMLDivElement | null>;
+  textareaRef: RefObject<HTMLTextAreaElement | null>;
+  ghostRef: RefObject<HTMLDivElement | null>;
+  addMenuRef: RefObject<HTMLDivElement | null>;
+  actionsRef: RefObject<HTMLDivElement | null>;
   /** Width the ghost should render at (pill-mode text width once measured). */
   ghostWidth: number;
 }
@@ -52,17 +59,17 @@ export interface ComposerAutosize {
  * detection via an offscreen ghost, and textarea auto-grow.
  */
 export function useComposerAutosize(value: string): ComposerAutosize {
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
-  const ghostRef = React.useRef<HTMLDivElement>(null);
-  const addMenuRef = React.useRef<HTMLDivElement>(null);
-  const actionsRef = React.useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const ghostRef = useRef<HTMLDivElement>(null);
+  const addMenuRef = useRef<HTMLDivElement>(null);
+  const actionsRef = useRef<HTMLDivElement>(null);
 
-  const [isMultiline, setIsMultiline] = React.useState(false);
-  const [pillWidth, setPillWidth] = React.useState(0);
+  const [isMultiline, setIsMultiline] = useState(false);
+  const [pillWidth, setPillWidth] = useState(0);
 
   // Measure available textarea width in single-line pill mode.
-  const updatePillWidth = React.useCallback(() => {
+  const updatePillWidth = useCallback(() => {
     const container = containerRef.current;
     if (!container) return;
 

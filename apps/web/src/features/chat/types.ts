@@ -59,6 +59,10 @@ export interface ChatStreamError {
   message: string;
 }
 
+export interface ChatRequest {
+  content: string;
+}
+
 export type ChatStreamEvent =
   | { event: "metadata"; data: ChatStreamMetadata }
   | { event: "citations"; data: ChatSource[] }

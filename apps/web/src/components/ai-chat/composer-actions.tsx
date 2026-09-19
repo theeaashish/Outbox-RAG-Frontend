@@ -6,9 +6,11 @@ import type { Model } from "./constants";
 interface ComposerActionsProps {
   model: Model;
   effort: number;
-  onModelChange: (model: Model) => void;
-  onEffortChange: (effort: number) => void;
+  onModelChange?: (model: Model) => void;
+  onEffortChange?: (effort: number) => void;
   disabled: boolean;
+  modelSelectorDisabled?: boolean;
+  effortSelectorDisabled?: boolean;
   isGenerating: boolean;
   sendDisabled: boolean;
   onVoiceClick?: () => void;
@@ -21,6 +23,8 @@ export function ComposerActions({
   onModelChange,
   onEffortChange,
   disabled,
+  modelSelectorDisabled = false,
+  effortSelectorDisabled = false,
   isGenerating,
   sendDisabled,
   onVoiceClick,
@@ -33,6 +37,8 @@ export function ComposerActions({
         onModelChange={onModelChange}
         onEffortChange={onEffortChange}
         disabled={disabled}
+        modelSelectorDisabled={modelSelectorDisabled}
+        effortSelectorDisabled={effortSelectorDisabled}
       />
 
       {onVoiceClick && (

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Badge, BoardButtonLink } from "@repo/ui";
@@ -5,7 +6,7 @@ import { RiArrowRightLine, RiGithubFill } from "@remixicon/react";
 import { LogoStrip } from "./logo-strip";
 
 export interface HeroProps {
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
 export function Hero({ children }: HeroProps) {
