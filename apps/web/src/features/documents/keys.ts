@@ -3,4 +3,3 @@ export const documentKeys = {
   list: (knowledgeBaseId: string) =>
     [...documentKeys.all, "list", knowledgeBaseId] as const,
 };
-

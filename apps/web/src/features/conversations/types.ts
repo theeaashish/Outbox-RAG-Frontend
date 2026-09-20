@@ -21,4 +21,3 @@ export interface Message {
 }
 
 export type MessageCursorPage = CursorPage<Message>;
-

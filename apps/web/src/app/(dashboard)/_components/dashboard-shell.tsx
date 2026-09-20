@@ -25,8 +25,9 @@ interface DashboardShellContextValue {
   openMobileSidebar: () => void;
 }
 
-const DashboardShellContext =
-  createContext<DashboardShellContextValue | null>(null);
+const DashboardShellContext = createContext<DashboardShellContextValue | null>(
+  null
+);
 
 export function useDashboardShell() {
   return useContext(DashboardShellContext);
@@ -34,14 +35,8 @@ export function useDashboardShell() {
 
 export function DashboardShell({ children }: DashboardShellProps) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const openMobileSidebar = useCallback(
-    () => setMobileSidebarOpen(true),
-    []
-  );
-  const closeMobileSidebar = useCallback(
-    () => setMobileSidebarOpen(false),
-    []
-  );
+  const openMobileSidebar = useCallback(() => setMobileSidebarOpen(true), []);
+  const closeMobileSidebar = useCallback(() => setMobileSidebarOpen(false), []);
   const contextValue = useMemo(
     () => ({ openMobileSidebar }),
     [openMobileSidebar]

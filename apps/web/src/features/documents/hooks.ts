@@ -27,8 +27,13 @@ export function useUploadDocument() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ knowledgeBaseId, file }: { knowledgeBaseId: string; file: File }) =>
-      uploadDocument(knowledgeBaseId, file),
+    mutationFn: ({
+      knowledgeBaseId,
+      file,
+    }: {
+      knowledgeBaseId: string;
+      file: File;
+    }) => uploadDocument(knowledgeBaseId, file),
     onSuccess: async (_, variables) => {
       await queryClient.invalidateQueries({
         queryKey: documentKeys.list(variables.knowledgeBaseId),
@@ -36,4 +41,3 @@ export function useUploadDocument() {
     },
   });
 }
-

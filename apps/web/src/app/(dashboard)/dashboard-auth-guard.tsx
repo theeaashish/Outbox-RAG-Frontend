@@ -60,4 +60,3 @@ export function DashboardAuthGuard({ children }: { children: ReactNode }) {
 
   return null;
 }
-

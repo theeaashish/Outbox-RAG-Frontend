@@ -64,16 +64,13 @@ export function NewProjectDialog({
   >({});
   const [isUploading, setIsUploading] = useState(false);
   const [projectId, setProjectId] = useState<string | null>(null);
-  const [knowledgeBaseId, setKnowledgeBaseId] = useState<string | null>(
-    null
-  );
+  const [knowledgeBaseId, setKnowledgeBaseId] = useState<string | null>(null);
   const lastSavedValuesRef = useRef<{
     name: string;
     description: string | null;
   } | null>(null);
 
-  const isBusy =
-    createProjectPending || updateProjectPending || isUploading;
+  const isBusy = createProjectPending || updateProjectPending || isUploading;
 
   const {
     register,

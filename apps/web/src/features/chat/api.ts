@@ -29,7 +29,9 @@ export async function* streamChat(
       throw new Error("Received malformed data from the chat stream");
     }
 
-    yield { event: event.event as ChatStreamEvent["event"], data } as ChatStreamEvent;
+    yield {
+      event: event.event as ChatStreamEvent["event"],
+      data,
+    } as ChatStreamEvent;
   }
 }
-

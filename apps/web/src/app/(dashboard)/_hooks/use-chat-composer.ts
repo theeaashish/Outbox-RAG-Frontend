@@ -1,16 +1,7 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import {
-  useChat,
-  type UIMessage,
-} from "@tanstack/ai-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useChat, type UIMessage } from "@tanstack/ai-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -21,10 +12,7 @@ import {
   type ComposerSubmitData,
   type Model,
 } from "@/components/ai-chat";
-import {
-  conversationKeys,
-  type Message,
-} from "@/features/conversations";
+import { conversationKeys, type Message } from "@/features/conversations";
 import {
   classifyChatFailure,
   createAgUiChatConnection,
@@ -71,8 +59,7 @@ export function useChatComposer({
   const [mode, setMode] = useState<ComposerMode>("agent");
   const [sources, setSources] = useState<ChatSource[]>([]);
   const [failure, setFailure] = useState<ChatFailure | null>(null);
-  const [settlement, setSettlement] =
-    useState<SettlementPhase>("idle");
+  const [settlement, setSettlement] = useState<SettlementPhase>("idle");
   const [syncBlocked, setSyncBlocked] = useState(false);
   const epochRef = useRef(0);
   const activeRunRef = useRef<ActiveRun | null>(null);
@@ -87,16 +74,19 @@ export function useChatComposer({
     );
   }, []);
 
-  const stopForProtocolFailure = useCallback((run: ActiveRun) => {
-    if (!isCurrentRun(run)) return;
+  const stopForProtocolFailure = useCallback(
+    (run: ActiveRun) => {
+      if (!isCurrentRun(run)) return;
 
-    run.phase = "stopping";
-    run.terminal = { type: "error", code: "PROTOCOL_ERROR" };
-    run.error = new Error("Invalid AG-UI protocol event");
-    setSources([]);
-    setSettlement("reconciling");
-    stopRef.current();
-  }, [isCurrentRun]);
+      run.phase = "stopping";
+      run.terminal = { type: "error", code: "PROTOCOL_ERROR" };
+      run.error = new Error("Invalid AG-UI protocol event");
+      setSources([]);
+      setSettlement("reconciling");
+      stopRef.current();
+    },
+    [isCurrentRun]
+  );
 
   const handleChunk = useCallback(
     (chunk: ChatStreamChunk) => {

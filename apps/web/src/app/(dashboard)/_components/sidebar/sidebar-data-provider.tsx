@@ -53,15 +53,11 @@ export function DashboardProjectsProvider({
   } = useProjects();
   const projectsList = useMemo(() => rawProjects ?? [], [rawProjects]);
 
-  const [expandedProjectIds, setExpandedProjectIds] = useState<
-    Set<string>
-  >(() => new Set());
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(
-    null
+  const [expandedProjectIds, setExpandedProjectIds] = useState<Set<string>>(
+    () => new Set()
   );
-  const [activeProjectId, setActiveProjectId] = useState<string | null>(
-    null
-  );
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
 
   const createConversationMutation = useCreateProjectConversation();
   const deleteConversationMutation = useDeleteConversation();
@@ -70,9 +66,9 @@ export function DashboardProjectsProvider({
     if (activeProjectId) return activeProjectId;
     if (!activeSessionId) return null;
     const found = projectsList.find((p) => {
-      const cached = queryClient.getQueryData<{ items?: Array<{ id: string }> }>(
-        conversationKeys.list(p.knowledge_base_id)
-      );
+      const cached = queryClient.getQueryData<{
+        items?: Array<{ id: string }>;
+      }>(conversationKeys.list(p.knowledge_base_id));
       return cached?.items?.some((item) => item.id === activeSessionId);
     });
     return found?.id ?? null;

@@ -18,4 +18,3 @@ export interface Document {
 export interface DocumentListResponse {
   results: Document[];
 }
-
