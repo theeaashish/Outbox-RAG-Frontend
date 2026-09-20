@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createProjectConversation,
   deleteConversation,
+  listConversationChatHistory,
   listConversations,
   listMessages,
 } from "./api";
@@ -26,6 +27,16 @@ export function useConversationMessages(conversationId: string | undefined) {
       : conversationKeys.all,
     queryFn: ({ signal }) => listMessages(conversationId!, { signal }),
     enabled: Boolean(conversationId),
+  });
+}
+
+export function useConversationChatHistory(conversationId: string) {
+  return useQuery({
+    queryKey: conversationKeys.chatHistory(conversationId),
+    queryFn: ({ signal }) =>
+      listConversationChatHistory(conversationId, { signal }),
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 }
 
@@ -59,4 +70,3 @@ export function useDeleteConversation() {
     },
   });
 }
-

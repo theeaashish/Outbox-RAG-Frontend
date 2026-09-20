@@ -7,5 +7,6 @@ export const conversationKeys = {
     [...conversationKeys.all, "detail", conversationId] as const,
   messages: (conversationId: string) =>
     [...conversationKeys.detail(conversationId), "messages"] as const,
+  chatHistory: (conversationId: string) =>
+    [...conversationKeys.messages(conversationId), "chat-history"] as const,
 };
-

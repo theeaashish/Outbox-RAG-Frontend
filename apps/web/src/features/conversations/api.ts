@@ -2,6 +2,7 @@ import { apiClient } from "@/lib/api";
 import type {
   Conversation,
   ConversationCursorPage,
+  Message,
   MessageCursorPage,
 } from "./types";
 
@@ -74,6 +75,44 @@ export function listMessages(
   );
 }
 
+export async function listConversationChatHistory(
+  conversationId: string,
+  options: { signal?: AbortSignal } = {}
+): Promise<Message[]> {
+  const newestFirst: Message[] = [];
+  const seenCursors = new Set<string>();
+  let after: string | null = null;
+
+  while (true) {
+    const page = await listMessages(conversationId, {
+      signal: options.signal,
+      pageSize: 100,
+      after,
+    });
+
+    newestFirst.push(...page.items);
+
+    const { has_next_page: hasNextPage, next_cursor: nextCursor } =
+      page.page_info;
+
+    if (!hasNextPage) {
+      if (nextCursor !== null) {
+        throw new Error("Message history returned an unexpected next cursor");
+      }
+      break;
+    }
+
+    if (!nextCursor || seenCursors.has(nextCursor)) {
+      throw new Error("Message history cursor did not advance");
+    }
+
+    seenCursors.add(nextCursor);
+    after = nextCursor;
+  }
+
+  return newestFirst.reverse();
+}
+
 export function deleteConversation(
   conversationId: string,
   options: { signal?: AbortSignal } = {}
@@ -83,4 +122,3 @@ export function deleteConversation(
     options
   );
 }
-
