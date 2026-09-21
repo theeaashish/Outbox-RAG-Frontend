@@ -4,11 +4,13 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
-import { useQueries, useQueryClient } from "@tanstack/react-query";
+import { usePathname, useRouter } from "next/navigation";
+import { useQueries } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { formatRelativeTime } from "@/utils";
 import type { ChatSession, ProjectItem } from "./sidebar-data";
@@ -19,6 +21,10 @@ import {
   useCreateProjectConversation,
   useDeleteConversation,
 } from "@/features/conversations";
+import {
+  dashboardConversationPath,
+  parseDashboardConversationPath,
+} from "@/app/(dashboard)/_lib/conversation-path";
 
 interface DashboardProjectsContextValue {
   projects: ProjectItem[];
@@ -26,10 +32,10 @@ interface DashboardProjectsContextValue {
   projectsError: Error | null;
   retryProjects: () => void;
   activeSessionId: string | null;
+  activeProjectId: string | null;
   toggleProject: (projectId: string) => void;
   createChat: (projectId: string) => Promise<void>;
   deleteChat: (projectId: string, sessionId: string) => Promise<void>;
-  selectSession: (sessionId: string | null) => void;
 }
 
 const DashboardProjectsContext =
@@ -37,14 +43,20 @@ const DashboardProjectsContext =
 
 interface DashboardProjectsProviderProps {
   children: ReactNode;
-  onSelectSession?: (sessionId: string | null) => void;
 }
 
 export function DashboardProjectsProvider({
   children,
-  onSelectSession,
 }: DashboardProjectsProviderProps) {
-  const queryClient = useQueryClient();
+  const router = useRouter();
+  const pathname = usePathname();
+  const routeIds = useMemo(
+    () => parseDashboardConversationPath(pathname),
+    [pathname]
+  );
+  const activeSessionId = routeIds?.conversationId ?? null;
+  const activeProjectId = routeIds?.projectId ?? null;
+
   const {
     data: rawProjects,
     isLoading: projectsLoading,
@@ -56,28 +68,23 @@ export function DashboardProjectsProvider({
   const [expandedProjectIds, setExpandedProjectIds] = useState<Set<string>>(
     () => new Set()
   );
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
-  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
+
+  // Auto-expand the project that owns the URL conversation.
+  useEffect(() => {
+    if (!activeProjectId) return;
+    setExpandedProjectIds((prev) => {
+      if (prev.has(activeProjectId)) return prev;
+      return new Set(prev).add(activeProjectId);
+    });
+  }, [activeProjectId]);
 
   const createConversationMutation = useCreateProjectConversation();
   const deleteConversationMutation = useDeleteConversation();
 
-  const resolvedActiveProjectId = useMemo(() => {
-    if (activeProjectId) return activeProjectId;
-    if (!activeSessionId) return null;
-    const found = projectsList.find((p) => {
-      const cached = queryClient.getQueryData<{
-        items?: Array<{ id: string }>;
-      }>(conversationKeys.list(p.knowledge_base_id));
-      return cached?.items?.some((item) => item.id === activeSessionId);
-    });
-    return found?.id ?? null;
-  }, [activeProjectId, activeSessionId, projectsList, queryClient]);
-
   const conversationQueries = useQueries({
     queries: projectsList.map((project) => {
       const isExpanded = expandedProjectIds.has(project.id);
-      const isActive = project.id === resolvedActiveProjectId;
+      const isActive = project.id === activeProjectId;
       return {
         queryKey: conversationKeys.list(project.knowledge_base_id),
         queryFn: ({ signal }: { signal: AbortSignal }) =>
@@ -107,6 +114,7 @@ export function DashboardProjectsProvider({
           id: conversation.id,
           title: "New chat",
           time: formatRelativeTime(conversation.created_at),
+          href: dashboardConversationPath(project.id, conversation.id),
         })
       );
 
@@ -126,16 +134,15 @@ export function DashboardProjectsProvider({
       try {
         const conversation =
           await createConversationMutation.mutateAsync(projectId);
-        setActiveSessionId(conversation.id);
-        setActiveProjectId(projectId);
         setExpandedProjectIds((prev) => new Set(prev).add(projectId));
+        router.push(dashboardConversationPath(projectId, conversation.id));
       } catch (error) {
         toast.error(
           error instanceof Error ? error.message : "Unable to create chat"
         );
       }
     },
-    [createConversationMutation]
+    [createConversationMutation, router]
   );
 
   const deleteChat = useCallback(
@@ -149,42 +156,16 @@ export function DashboardProjectsProvider({
           conversationId: sessionId,
           knowledgeBaseId,
         });
-        setActiveSessionId((current) =>
-          current === sessionId ? null : current
-        );
-        setActiveProjectId((current) =>
-          current === projectId && activeSessionId === sessionId
-            ? null
-            : current
-        );
+        if (activeSessionId === sessionId) {
+          router.replace("/dashboard");
+        }
       } catch (error) {
         toast.error(
           error instanceof Error ? error.message : "Unable to delete chat"
         );
       }
     },
-    [projectsList, deleteConversationMutation, activeSessionId]
-  );
-
-  const selectSession = useCallback(
-    (sessionId: string | null) => {
-      setActiveSessionId(sessionId);
-      if (!sessionId) {
-        setActiveProjectId(null);
-      } else {
-        const owner = projectsList.find((p) => {
-          const cached = queryClient.getQueryData<{
-            items?: Array<{ id: string }>;
-          }>(conversationKeys.list(p.knowledge_base_id));
-          return cached?.items?.some((item) => item.id === sessionId);
-        });
-        if (owner) {
-          setActiveProjectId(owner.id);
-        }
-      }
-      onSelectSession?.(sessionId);
-    },
-    [projectsList, queryClient, onSelectSession]
+    [projectsList, deleteConversationMutation, activeSessionId, router]
   );
 
   const value = useMemo<DashboardProjectsContextValue>(
@@ -197,10 +178,10 @@ export function DashboardProjectsProvider({
         void refetchProjects();
       },
       activeSessionId,
+      activeProjectId,
       toggleProject,
       createChat,
       deleteChat,
-      selectSession,
     }),
     [
       projects,
@@ -208,10 +189,10 @@ export function DashboardProjectsProvider({
       projectsQueryError,
       refetchProjects,
       activeSessionId,
+      activeProjectId,
       toggleProject,
       createChat,
       deleteChat,
-      selectSession,
     ]
   );
 

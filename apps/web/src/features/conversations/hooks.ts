@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createProjectConversation,
   deleteConversation,
+  getConversation,
   listConversationChatHistory,
   listConversations,
   listMessages,
@@ -17,6 +18,16 @@ export function useConversations(knowledgeBaseId: string | undefined) {
       : conversationKeys.lists(),
     queryFn: ({ signal }) => listConversations(knowledgeBaseId!, { signal }),
     enabled: Boolean(knowledgeBaseId),
+  });
+}
+
+export function useConversation(conversationId: string | undefined) {
+  return useQuery({
+    queryKey: conversationId
+      ? conversationKeys.detail(conversationId)
+      : conversationKeys.all,
+    queryFn: ({ signal }) => getConversation(conversationId!, { signal }),
+    enabled: Boolean(conversationId),
   });
 }
 

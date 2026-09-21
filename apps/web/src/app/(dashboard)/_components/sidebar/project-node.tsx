@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   RiAddLine,
   RiDeleteBinLine,
@@ -18,21 +19,24 @@ import type { ChatSession, ProjectItem } from "./sidebar-data";
 interface SessionRowProps {
   session: ChatSession;
   selected: boolean;
-  onSelect: (sessionId: string) => void;
+  onNavigate?: () => void;
   onDelete: (sessionId: string) => void;
 }
 
 function SessionRow({
   session,
   selected,
-  onSelect,
+  onNavigate,
   onDelete,
 }: SessionRowProps) {
+  const href = session.href;
+  if (!href) return null;
+
   return (
     <div className="group/chat relative flex items-center">
-      <button
-        type="button"
-        onClick={() => onSelect(session.id)}
+      <Link
+        href={href}
+        onClick={onNavigate}
         aria-current={selected ? "page" : undefined}
         className={cx(
           "flex h-7 w-full cursor-pointer items-center justify-between rounded-lg px-2 text-left text-xs transition-colors",
@@ -54,7 +58,7 @@ function SessionRow({
         >
           {session.time}
         </span>
-      </button>
+      </Link>
 
       <div className="pointer-events-none absolute inset-y-0 right-1 flex items-center opacity-0 transition-opacity duration-150 group-focus-within/chat:pointer-events-auto group-focus-within/chat:opacity-100 group-hover/chat:pointer-events-auto group-hover/chat:opacity-100">
         <DropdownMenu>
@@ -91,7 +95,7 @@ interface ProjectNodeProps {
   activeSessionId: string | null;
   onToggle: (projectId: string) => void;
   onNewChat: (projectId: string) => void;
-  onSelectSession: (sessionId: string | null) => void;
+  onNavigateSession?: () => void;
   onDeleteSession: (projectId: string, sessionId: string) => void;
 }
 
@@ -101,7 +105,7 @@ export function ProjectNode({
   activeSessionId,
   onToggle,
   onNewChat,
-  onSelectSession,
+  onNavigateSession,
   onDeleteSession,
 }: ProjectNodeProps) {
   const sessions = project.sessions ?? [];
@@ -159,7 +163,7 @@ export function ProjectNode({
               key={session.id}
               session={session}
               selected={session.id === activeSessionId}
-              onSelect={onSelectSession}
+              onNavigate={onNavigateSession}
               onDelete={(sessionId) => onDeleteSession(project.id, sessionId)}
             />
           ))}

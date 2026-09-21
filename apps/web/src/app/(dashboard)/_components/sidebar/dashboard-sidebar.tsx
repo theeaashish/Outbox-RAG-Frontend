@@ -48,7 +48,6 @@ export function DashboardSidebar({
     toggleProject,
     createChat,
     deleteChat,
-    selectSession,
   } = useDashboardProjects();
 
   const [collapsedState, setCollapsedState] = useState(false);
@@ -92,13 +91,9 @@ export function DashboardSidebar({
   );
 
   // Close the mobile drawer after picking a chat — expected drawer UX.
-  const handleSelectSession = useCallback(
-    (sessionId: string | null) => {
-      selectSession(sessionId);
-      if (mobile) onClose?.();
-    },
-    [selectSession, mobile, onClose]
-  );
+  const handleNavigateSession = useCallback(() => {
+    if (mobile) onClose?.();
+  }, [mobile, onClose]);
 
   const visibleProjects = useMemo(
     () => filterProjects(projects, query),
@@ -262,7 +257,7 @@ export function DashboardSidebar({
                   activeSessionId={activeSessionId}
                   onToggle={toggleProject}
                   onNewChat={createChat}
-                  onSelectSession={handleSelectSession}
+                  onNavigateSession={handleNavigateSession}
                   onDeleteSession={deleteChat}
                 />
               ))}
