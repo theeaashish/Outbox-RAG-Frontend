@@ -1,4 +1,6 @@
+import { memo } from "react";
 import type { ChatMessage, ChatSource } from "@/features/chat";
+import { ChatMarkdown } from "./chat-markdown";
 
 export function ConversationTranscript({
   messages,
@@ -16,7 +18,7 @@ export function ConversationTranscript({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       {messages.map((message) => (
         <MessageBubble key={message.id} message={message} />
       ))}
@@ -38,19 +40,39 @@ export function ConversationTranscript({
   );
 }
 
-function MessageBubble({ message }: { message: ChatMessage }) {
-  const assistant = message.role === "assistant";
-  return (
-    <div className={assistant ? "flex justify-start" : "flex justify-end"}>
-      <p
-        className={
-          assistant
-            ? "max-w-[85%] whitespace-pre-wrap rounded-2xl border border-zinc-200/80 bg-white px-4 py-3 text-xs leading-relaxed text-zinc-800 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200"
-            : "max-w-[85%] whitespace-pre-wrap rounded-2xl bg-zinc-100/90 px-4 py-3 text-xs leading-relaxed text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
-        }
-      >
-        {message.content || (message.status === "streaming" ? "..." : "")}
-      </p>
-    </div>
-  );
-}
+const MessageBubble = memo(
+  function MessageBubble({ message }: { message: ChatMessage }) {
+    const assistant = message.role === "assistant";
+    const isStreaming = message.status === "streaming";
+
+    return (
+      <div className={assistant ? "w-full" : "flex justify-end"}>
+        {assistant ? (
+          <div className="w-full text-sm leading-relaxed text-zinc-800 dark:text-zinc-200">
+            {message.content ? (
+              <ChatMarkdown
+                content={message.content}
+                isStreaming={isStreaming}
+              />
+            ) : isStreaming ? (
+              <span className="inline-flex items-center gap-1 py-1 text-zinc-400 dark:text-zinc-500">
+                <span className="size-1.5 animate-pulse rounded-full bg-current" />
+                <span className="size-1.5 animate-pulse rounded-full bg-current [animation-delay:200ms]" />
+                <span className="size-1.5 animate-pulse rounded-full bg-current [animation-delay:400ms]" />
+              </span>
+            ) : null}
+          </div>
+        ) : (
+          <div className="max-w-[80%] whitespace-pre-wrap rounded-3xl bg-zinc-100/90 px-4 py-2.5 text-sm leading-relaxed text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100">
+            {message.content}
+          </div>
+        )}
+      </div>
+    );
+  },
+  (prev, next) =>
+    prev.message.id === next.message.id &&
+    prev.message.content === next.message.content &&
+    prev.message.status === next.message.status &&
+    prev.message.role === next.message.role
+);

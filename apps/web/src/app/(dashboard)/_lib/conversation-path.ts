@@ -10,8 +10,7 @@ export interface DashboardConversationPath {
   conversationId: string;
 }
 
-const CONVERSATION_PATH_RE =
-  /^\/dashboard\/([^/]+)\/c\/([^/]+)\/?$/;
+const CONVERSATION_PATH_RE = /^\/dashboard\/([^/]+)\/c\/([^/]+)\/?$/;
 
 export function parseDashboardConversationPath(
   pathname: string

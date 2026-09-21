@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  memo,
   useCallback,
   useState,
   type FormEvent,
@@ -86,7 +87,7 @@ const MODES: { value: ComposerMode; label: string }[] = [
   { value: "agent", label: "Agent" },
 ];
 
-export function AiChatComposer({
+export const AiChatComposer = memo(function AiChatComposer({
   value,
   onChange,
   model,
@@ -410,4 +411,6 @@ export function AiChatComposer({
       </form>
     </div>
   );
-}
+});
+
+AiChatComposer.displayName = "AiChatComposer";

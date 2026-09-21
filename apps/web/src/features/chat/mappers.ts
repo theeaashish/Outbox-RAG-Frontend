@@ -15,7 +15,8 @@ export function mapBackendMessagesToUiMessages(
 
 export function mapUiMessagesToChatMessages(
   messages: readonly UIMessage[],
-  conversationId: string
+  conversationId: string,
+  activeAssistantId?: string | null
 ): ChatMessage[] {
   return messages.flatMap((message) => {
     const content = message.parts
@@ -23,9 +24,14 @@ export function mapUiMessagesToChatMessages(
       .map((part) => part.content)
       .join("");
 
-    // TanStack creates an empty runtime assistant on a pre-token RUN_ERROR.
-    // It is not an application message and must never reach presentation.
-    if (message.role === "assistant" && content.length === 0) {
+    const isStreaming = Boolean(
+      activeAssistantId && message.id === activeAssistantId
+    );
+
+    // TanStack creates an empty runtime assistant before tokens arrive.
+    // If it is actively streaming, keep it so presentation can render typing dots.
+    // If it is not streaming and empty (e.g. pre-token error), filter it out.
+    if (message.role === "assistant" && content.length === 0 && !isStreaming) {
       return [];
     }
 
@@ -35,7 +41,7 @@ export function mapUiMessagesToChatMessages(
         role: message.role,
         content,
         createdAt: (message.createdAt ?? new Date()).toISOString(),
-        status: "complete" as const,
+        status: isStreaming ? ("streaming" as const) : ("complete" as const),
         conversationId,
       },
     ];

@@ -61,6 +61,9 @@ export function useChatComposer({
   const [failure, setFailure] = useState<ChatFailure | null>(null);
   const [settlement, setSettlement] = useState<SettlementPhase>("idle");
   const [syncBlocked, setSyncBlocked] = useState(false);
+  const [activeAssistantId, setActiveAssistantId] = useState<string | null>(
+    null
+  );
   const epochRef = useRef(0);
   const activeRunRef = useRef<ActiveRun | null>(null);
   const mountedRef = useRef(true);
@@ -82,6 +85,7 @@ export function useChatComposer({
       run.terminal = { type: "error", code: "PROTOCOL_ERROR" };
       run.error = new Error("Invalid AG-UI protocol event");
       setSources([]);
+      setActiveAssistantId(null);
       setSettlement("reconciling");
       stopRef.current();
     },
@@ -92,6 +96,10 @@ export function useChatComposer({
     (chunk: ChatStreamChunk) => {
       const run = activeRunRef.current;
       if (!run || run.conversationId !== conversationId) return;
+
+      if ("messageId" in chunk && typeof chunk.messageId === "string") {
+        setActiveAssistantId(chunk.messageId);
+      }
 
       if (observeRunEvent(run, chunk) === "protocol-error") {
         stopForProtocolFailure(run);
@@ -171,6 +179,7 @@ export function useChatComposer({
       if (runFailure && !runFailure.reconcile) {
         setMessages(run.baseMessages);
         activeRunRef.current = null;
+        setActiveAssistantId(null);
         setSettlement("idle");
         return;
       }
@@ -183,6 +192,7 @@ export function useChatComposer({
 
         setMessages(mapBackendMessagesToUiMessages(canonicalHistory));
         activeRunRef.current = null;
+        setActiveAssistantId(null);
         setSettlement("idle");
 
         void queryClient.invalidateQueries({
@@ -194,6 +204,7 @@ export function useChatComposer({
         if (!isCurrentRun(run) || !mountedRef.current) return;
 
         activeRunRef.current = null;
+        setActiveAssistantId(null);
         setSyncBlocked(true);
         setFailure({
           kind: "transport",
@@ -232,6 +243,7 @@ export function useChatComposer({
       activeRunRef.current = run;
       setDraft("");
       setSources([]);
+      setActiveAssistantId(null);
       setFailure(null);
 
       try {
@@ -259,6 +271,7 @@ export function useChatComposer({
     run.stopRequested = true;
     run.phase = "stopping";
     setSources([]);
+    setActiveAssistantId(null);
     setSettlement("stopping");
     stop();
   }, [stop]);
@@ -270,6 +283,7 @@ export function useChatComposer({
       mountedRef.current = false;
       epochRef.current += 1;
       activeRunRef.current = null;
+      setActiveAssistantId(null);
       stop();
       void queryClient.invalidateQueries({
         queryKey: conversationKeys.chatHistory(conversationId),
@@ -292,9 +306,24 @@ export function useChatComposer({
               ? "error"
               : "idle";
 
+  const computedActiveAssistantId = useMemo(() => {
+    if (!activeRunRef.current || settlement !== "idle") return null;
+    if (activeAssistantId) return activeAssistantId;
+    const baseIds = new Set(activeRunRef.current.baseMessages.map((m) => m.id));
+    return (
+      uiMessages.find((m) => m.role === "assistant" && !baseIds.has(m.id))
+        ?.id ?? null
+    );
+  }, [activeAssistantId, settlement, uiMessages]);
+
   const messages = useMemo(
-    () => mapUiMessagesToChatMessages(uiMessages, conversationId),
-    [conversationId, uiMessages]
+    () =>
+      mapUiMessagesToChatMessages(
+        uiMessages,
+        conversationId,
+        computedActiveAssistantId
+      ),
+    [computedActiveAssistantId, conversationId, uiMessages]
   );
 
   return {

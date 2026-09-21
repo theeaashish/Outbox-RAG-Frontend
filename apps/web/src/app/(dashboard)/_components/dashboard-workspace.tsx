@@ -28,7 +28,8 @@ export function DashboardWorkspace({
   sessionTitle,
 }: DashboardWorkspaceProps) {
   const projectName = project?.name ?? "Workspace";
-  const sessionName = sessionTitle ?? (conversationId ? "New chat" : "Select a chat");
+  const sessionName =
+    sessionTitle ?? (conversationId ? "New chat" : "Select a chat");
 
   return (
     <div className="flex h-full flex-col overflow-hidden">

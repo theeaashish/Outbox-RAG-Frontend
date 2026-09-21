@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { ArrowDown } from "lucide-react";
+import { cx } from "@repo/ui";
 import { toast } from "sonner";
 import {
   AiChatComposer,
@@ -13,6 +15,7 @@ import {
 } from "@/components/ai-chat";
 import { ConversationTranscript } from "@/app/(dashboard)/_components/transcript";
 import { useChatComposer } from "@/app/(dashboard)/_hooks/use-chat-composer";
+import { useChatScroll } from "@/app/(dashboard)/_hooks/use-chat-scroll";
 import {
   useConversationChatHistory,
   type Message,
@@ -49,6 +52,7 @@ interface ChatSurfaceComposer {
 }
 
 const noop = () => undefined;
+const DEFAULT_BRANCH = { id: "main", name: "Main" } as const;
 const inactiveComposer: ChatSurfaceComposer = {
   draft: "",
   setDraft: noop,
@@ -193,33 +197,75 @@ function ChatSurface({
   composer: ChatSurfaceComposer;
   project?: ProjectSummary;
 }) {
+  const { scrollContainerRef, contentRef, scrollToBottom, isAtBottom } =
+    useChatScroll();
+
+  const handleSubmit = useCallback(
+    (data: ComposerSubmitData) => {
+      composer.submit(data);
+      requestAnimationFrame(() => {
+        scrollToBottom("smooth");
+      });
+    },
+    [composer, scrollToBottom]
+  );
+
   return (
-    <div className="relative flex flex-1 flex-col justify-between overflow-y-auto px-4 py-4 sm:px-8">
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 pt-4">
-        <ConversationTranscript messages={messages} sources={sources} />
+    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+      {/* Scrollable messages container */}
+      <div
+        ref={scrollContainerRef}
+        className="scrollbar-thin flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-4 sm:px-8"
+      >
+        <div
+          ref={contentRef}
+          className={cx(
+            "mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 pt-4 pb-6",
+            messages.length === 0 ? "justify-center" : "justify-start"
+          )}
+        >
+          <ConversationTranscript messages={messages} sources={sources} />
+        </div>
       </div>
 
-      <div className="mx-auto w-full max-w-2xl pb-2 pt-4">
-        <AiChatComposer
-          value={composer.draft}
-          onChange={composer.setDraft}
-          model={composer.model}
-          effort={composer.effort}
-          onModelChange={composer.setModel}
-          onEffortChange={composer.setEffort}
-          mode={composer.mode}
-          onModeChange={composer.setMode}
-          modelSelectorDisabled
-          effortSelectorDisabled
-          modeSelectorDisabled
-          status={composer.status}
-          onSubmit={composer.submit}
-          onCancel={composer.cancel}
-          branch={{ id: "main", name: "Main" }}
-          project={project}
-          contextUsage={undefined}
-          disabled={composer.disabled}
-        />
+      {/* Fixed bottom composer area with anchored scroll button */}
+      <div className="relative shrink-0 px-4 pb-4 pt-2 sm:px-8">
+        {/* Floating Scroll to Bottom Button anchored directly above composer */}
+        {!isAtBottom && messages.length > 0 && (
+          <div className="pointer-events-none absolute bottom-full left-0 right-0 z-10 flex justify-center pb-3">
+            <button
+              type="button"
+              onClick={() => scrollToBottom("smooth")}
+              className="pointer-events-auto flex size-8 items-center justify-center rounded-full border border-zinc-200/80 bg-white/95 text-zinc-600 shadow-md backdrop-blur-sm transition-all hover:bg-white hover:text-zinc-900 hover:scale-105 active:scale-95 dark:border-zinc-700/80 dark:bg-zinc-800/95 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+              aria-label="Scroll to bottom"
+            >
+              <ArrowDown className="size-4" />
+            </button>
+          </div>
+        )}
+
+        <div className="mx-auto w-full max-w-2xl">
+          <AiChatComposer
+            value={composer.draft}
+            onChange={composer.setDraft}
+            model={composer.model}
+            effort={composer.effort}
+            onModelChange={composer.setModel}
+            onEffortChange={composer.setEffort}
+            mode={composer.mode}
+            onModeChange={composer.setMode}
+            modelSelectorDisabled
+            effortSelectorDisabled
+            modeSelectorDisabled
+            status={composer.status}
+            onSubmit={handleSubmit}
+            onCancel={composer.cancel}
+            branch={DEFAULT_BRANCH}
+            project={project}
+            contextUsage={undefined}
+            disabled={composer.disabled}
+          />
+        </div>
       </div>
     </div>
   );
