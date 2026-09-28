@@ -69,7 +69,8 @@ export function useDeleteProject() {
       projectId: string;
       signal?: AbortSignal;
     }) => deleteProject(projectId, { signal }),
-    onSuccess: async () => {
+    onSuccess: async (_data, { projectId }) => {
+      queryClient.removeQueries({ queryKey: projectKeys.detail(projectId) });
       await queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
     },
   });

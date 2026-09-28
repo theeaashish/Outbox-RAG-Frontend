@@ -14,7 +14,7 @@ import { useQueries } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { formatRelativeTime } from "@/utils";
 import type { ChatSession, ProjectItem } from "./sidebar-data";
-import { useProjects } from "@/features/projects";
+import { useDeleteProject, useProjects } from "@/features/projects";
 import {
   conversationKeys,
   listConversations,
@@ -36,6 +36,7 @@ interface DashboardProjectsContextValue {
   toggleProject: (projectId: string) => void;
   createChat: (projectId: string) => Promise<void>;
   deleteChat: (projectId: string, sessionId: string) => Promise<void>;
+  deleteProject: (projectId: string) => Promise<void>;
 }
 
 const DashboardProjectsContext =
@@ -80,6 +81,7 @@ export function DashboardProjectsProvider({
 
   const createConversationMutation = useCreateProjectConversation();
   const deleteConversationMutation = useDeleteConversation();
+  const deleteProjectMutation = useDeleteProject();
 
   const conversationQueries = useQueries({
     queries: projectsList.map((project) => {
@@ -168,6 +170,24 @@ export function DashboardProjectsProvider({
     [projectsList, deleteConversationMutation, activeSessionId, router]
   );
 
+  const deleteProject = useCallback(
+    async (projectId: string) => {
+      try {
+        await deleteProjectMutation.mutateAsync({ projectId });
+        toast.success("Project deleted successfully");
+        if (activeProjectId === projectId) {
+          router.replace("/dashboard");
+        }
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Unable to delete project"
+        );
+        throw error;
+      }
+    },
+    [deleteProjectMutation, activeProjectId, router]
+  );
+
   const value = useMemo<DashboardProjectsContextValue>(
     () => ({
       projects,
@@ -182,6 +202,7 @@ export function DashboardProjectsProvider({
       toggleProject,
       createChat,
       deleteChat,
+      deleteProject,
     }),
     [
       projects,
@@ -193,6 +214,7 @@ export function DashboardProjectsProvider({
       toggleProject,
       createChat,
       deleteChat,
+      deleteProject,
     ]
   );
 

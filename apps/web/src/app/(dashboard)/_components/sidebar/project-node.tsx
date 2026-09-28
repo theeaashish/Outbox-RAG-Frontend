@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import {
   RiAddLine,
@@ -7,6 +10,7 @@ import {
   RiMoreFill,
 } from "@remixicon/react";
 import {
+  ActionDialog,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -97,6 +101,7 @@ interface ProjectNodeProps {
   onNewChat: (projectId: string) => void;
   onNavigateSession?: () => void;
   onDeleteSession: (projectId: string, sessionId: string) => void;
+  onDeleteProject?: (projectId: string) => Promise<void>;
 }
 
 export function ProjectNode({
@@ -107,11 +112,28 @@ export function ProjectNode({
   onNewChat,
   onNavigateSession,
   onDeleteSession,
+  onDeleteProject,
 }: ProjectNodeProps) {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const sessions = project.sessions ?? [];
   const showSessions =
     !collapsed && Boolean(project.expanded) && sessions.length > 0;
   const FolderIcon = project.expanded ? RiFolderOpenLine : RiFolder6Line;
+
+  const handleDelete = async () => {
+    if (!onDeleteProject) return;
+    try {
+      setIsDeleting(true);
+      await onDeleteProject(project.id);
+      setDeleteDialogOpen(false);
+    } catch {
+      // Handled in provider toast
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div
@@ -130,7 +152,9 @@ export function ProjectNode({
           title={collapsed ? project.name : undefined}
           className={cx(
             "flex cursor-pointer items-center rounded-xl text-left text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800/60",
-            collapsed ? "size-9 justify-center p-0" : "h-8 w-full gap-2 px-2"
+            collapsed
+              ? "size-9 justify-center p-0"
+              : "h-8 w-full gap-2 pl-2 pr-13"
           )}
         >
           <FolderIcon className="size-4 shrink-0 text-zinc-500" aria-hidden />
@@ -142,19 +166,76 @@ export function ProjectNode({
         </button>
 
         {!collapsed && (
-          <button
-            type="button"
-            aria-label={`New chat in ${project.name}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              onNewChat(project.id);
-            }}
-            className="pointer-events-none absolute right-1.5 top-1/2 flex size-5 -translate-y-1/2 cursor-pointer items-center justify-center rounded text-zinc-400 opacity-0 transition-opacity duration-150 hover:bg-zinc-200/80 hover:text-zinc-700 focus-visible:opacity-100 group-focus-within/project:pointer-events-auto group-focus-within/project:opacity-100 group-hover/project:pointer-events-auto group-hover/project:opacity-100 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
-          >
-            <RiAddLine className="size-3.5" aria-hidden />
-          </button>
+          <div className="pointer-events-none absolute right-1 top-1/2 flex -translate-y-1/2 items-center gap-0.5 opacity-0 transition-opacity duration-150 group-focus-within/project:pointer-events-auto group-focus-within/project:opacity-100 group-hover/project:pointer-events-auto group-hover/project:opacity-100">
+            <button
+              type="button"
+              aria-label={`New chat in ${project.name}`}
+              title="New chat"
+              onClick={(e) => {
+                e.stopPropagation();
+                onNewChat(project.id);
+              }}
+              className="flex size-5 cursor-pointer items-center justify-center rounded text-zinc-400 transition-colors hover:bg-zinc-200/80 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+            >
+              <RiAddLine className="size-3.5" aria-hidden />
+            </button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <button
+                    type="button"
+                    aria-label={`Options for ${project.name}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex size-5 cursor-pointer items-center justify-center rounded text-zinc-400 transition-colors hover:bg-zinc-200/80 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+                  >
+                    <RiMoreFill className="size-3.5" aria-hidden />
+                  </button>
+                }
+              />
+              <DropdownMenuContent
+                align="end"
+                side="right"
+                className="min-w-36"
+              >
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={() => setDeleteDialogOpen(true)}
+                  className="cursor-pointer gap-2 text-xs text-red-600 focus:bg-red-50 focus:text-red-700 dark:focus:bg-red-950/50 dark:focus:text-red-400"
+                >
+                  <RiDeleteBinLine className="size-3.5" aria-hidden />
+                  <span>Delete</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         )}
       </div>
+
+      <ActionDialog
+        open={deleteDialogOpen}
+        onOpenChange={(nextOpen) => {
+          if (!isDeleting) setDeleteDialogOpen(nextOpen);
+        }}
+        title="Delete project"
+        description={
+          <>
+            Are you sure you want to delete{" "}
+            <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+              {project.name}
+            </span>
+            ? This action cannot be undone and will permanently remove this
+            project along with all its chats and uploaded documents.
+          </>
+        }
+        icon={RiDeleteBinLine}
+        iconVariant="destructive"
+        confirmText="Delete project"
+        confirmVariant="danger"
+        loadingText="Deleting..."
+        isLoading={isDeleting}
+        onConfirm={handleDelete}
+      />
 
       {showSessions && (
         <div className="ml-4 mt-0.5 flex flex-col gap-0.5 border-l border-zinc-200 pl-2 dark:border-zinc-800">

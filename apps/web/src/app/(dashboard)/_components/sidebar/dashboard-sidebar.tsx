@@ -48,6 +48,7 @@ export function DashboardSidebar({
     toggleProject,
     createChat,
     deleteChat,
+    deleteProject,
   } = useDashboardProjects();
 
   const [collapsedState, setCollapsedState] = useState(false);
@@ -259,6 +260,7 @@ export function DashboardSidebar({
                   onNewChat={createChat}
                   onNavigateSession={handleNavigateSession}
                   onDeleteSession={deleteChat}
+                  onDeleteProject={deleteProject}
                 />
               ))}
             {!collapsed &&
