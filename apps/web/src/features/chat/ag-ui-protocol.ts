@@ -4,13 +4,19 @@ import { isApiError } from "@/lib/api";
 
 const citationSourceSchema = z
   .object({
+    id: z.string().uuid().optional(),
     citation: z.number().int().positive(),
-    document_id: z.string().uuid(),
+    is_cited: z.boolean().optional(),
+    source_order: z.number().int().nonnegative().optional(),
+    document_id: z.string().uuid().nullable().optional(),
+    document_chunk_id: z.string().uuid().nullable().optional(),
     document_name: z.string(),
     chunk_index: z.number().int().nonnegative(),
     score: z.number(),
+    page_start: z.number().int().nullable().optional(),
+    page_end: z.number().int().nullable().optional(),
   })
-  .strict();
+  .passthrough();
 
 const metadataSchema = z
   .object({
@@ -218,6 +224,13 @@ export function classifyChatFailure(options: {
       return {
         kind: "persistence",
         message: "The assistant response could not be saved.",
+        reconcile: true,
+      };
+    case "VALIDATION_ERROR":
+      return {
+        kind: "validation",
+        message:
+          "The assistant response could not be verified against the source documents. Please try again.",
         reconcile: true,
       };
     case "conversation_not_found":

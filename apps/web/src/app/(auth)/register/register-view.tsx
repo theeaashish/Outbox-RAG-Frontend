@@ -1,10 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { AuthCard, AuthMediaCarousel, type SocialProvider } from "@repo/ui";
+import { AuthCard, type SocialProvider } from "@repo/ui";
 import { toast } from "sonner";
 import { parseRegisterFormData, useRegister } from "@/features/auth";
-import { authCarouselSlides } from "../_components/auth-slides";
 
 export function RegisterView() {
   const router = useRouter();
@@ -47,15 +46,13 @@ export function RegisterView() {
   return (
     <AuthCard
       mode="signup"
-      confirmPassword
       title="Create your account"
-      description="Start searching, organizing, and indexing your documents with Basic RAG."
+      description="Start searching, organizing, and indexing your documents with Outbox."
       switchHref="/login"
       providers={["google", "github"]}
       isSubmitting={registerMutation.isPending}
       onSubmit={handleSubmit}
       onProvider={handleProvider}
-      media={<AuthMediaCarousel slides={authCarouselSlides} />}
     />
   );
 }

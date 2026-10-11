@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ArrowDown } from "lucide-react";
 import { cx } from "@repo/ui";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ import {
   type ComposerSubmitData,
   type Model,
 } from "@/components/ai-chat";
+import { promptForRetry } from "@/app/(dashboard)/_components/assistant-turn";
 import { ConversationTranscript } from "@/app/(dashboard)/_components/transcript";
 import { useChatComposer } from "@/app/(dashboard)/_hooks/use-chat-composer";
 import { useChatScroll } from "@/app/(dashboard)/_hooks/use-chat-scroll";
@@ -20,11 +21,7 @@ import {
   useConversationChatHistory,
   type Message,
 } from "@/features/conversations";
-import {
-  mapBackendMessagesToUiMessages,
-  type ChatMessage,
-  type ChatSource,
-} from "@/features/chat";
+import type { ChatMessage } from "@/features/chat";
 
 interface ProjectSummary {
   id: string;
@@ -76,7 +73,6 @@ export function ConversationChat({
     return (
       <ChatSurface
         messages={[]}
-        sources={[]}
         composer={inactiveComposer}
         project={project}
       />
@@ -137,7 +133,6 @@ function ConversationHistoryGate({
     return (
       <ChatSurface
         messages={[]}
-        sources={[]}
         composer={inactiveComposer}
         project={project}
       />
@@ -148,7 +143,7 @@ function ConversationHistoryGate({
     <ConversationChatRuntime
       key={conversationId}
       conversationId={conversationId}
-      initialHistory={initialHistory}
+      history={historyQuery.data ?? initialHistory}
       reconcileHistory={reconcileHistory}
       project={project}
     />
@@ -157,29 +152,25 @@ function ConversationHistoryGate({
 
 function ConversationChatRuntime({
   conversationId,
-  initialHistory,
+  history,
   reconcileHistory,
   project,
 }: {
   conversationId: string;
-  initialHistory: Message[];
+  history: Message[];
   reconcileHistory: () => Promise<Message[]>;
   project?: ProjectSummary;
 }) {
-  const initialMessages = useMemo(
-    () => mapBackendMessagesToUiMessages(initialHistory),
-    [initialHistory]
-  );
   const composer = useChatComposer({
     conversationId,
-    initialMessages,
+    history,
     reconcileHistory,
   });
 
   return (
     <ChatSurface
+      conversationId={conversationId}
       messages={composer.messages}
-      sources={composer.sources}
       composer={composer}
       project={project}
     />
@@ -187,13 +178,13 @@ function ConversationChatRuntime({
 }
 
 function ChatSurface({
+  conversationId,
   messages,
-  sources,
   composer,
   project,
 }: {
+  conversationId?: string;
   messages: ChatMessage[];
-  sources: ChatSource[];
   composer: ChatSurfaceComposer;
   project?: ProjectSummary;
 }) {
@@ -210,6 +201,37 @@ function ChatSurface({
     [composer, scrollToBottom]
   );
 
+  const runInFlight =
+    composer.status === "submitting" ||
+    composer.status === "streaming" ||
+    composer.status === "cancelling";
+
+  const handleRetry = useCallback(
+    (messageId: string) => {
+      if (composer.disabled || runInFlight) return;
+
+      const text = promptForRetry(messages, messageId);
+      if (!text) return;
+
+      handleSubmit({
+        text,
+        model: composer.model,
+        effort: composer.effort,
+        mode: composer.mode,
+        attachments: [],
+      });
+    },
+    [
+      messages,
+      composer.disabled,
+      composer.model,
+      composer.effort,
+      composer.mode,
+      runInFlight,
+      handleSubmit,
+    ]
+  );
+
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
       {/* Scrollable messages container */}
@@ -224,7 +246,12 @@ function ChatSurface({
             messages.length === 0 ? "justify-center" : "justify-start"
           )}
         >
-          <ConversationTranscript messages={messages} sources={sources} />
+          <ConversationTranscript
+            conversationId={conversationId}
+            messages={messages}
+            runInFlight={runInFlight}
+            onRetry={composer.disabled || runInFlight ? undefined : handleRetry}
+          />
         </div>
       </div>
 

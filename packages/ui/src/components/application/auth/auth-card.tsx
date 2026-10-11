@@ -4,7 +4,6 @@ import type { FormEvent, ReactNode } from "react";
 import { useState } from "react";
 import { RiMailCheckLine } from "@remixicon/react";
 import { Button } from "../../base/buttons/button";
-import { Checkbox } from "../../base/checkbox/checkbox";
 import { Divider } from "../../base/divider/divider";
 import { Input } from "../../base/input/input";
 import { InputOtp } from "../../base/input-otp/input-otp";
@@ -96,20 +95,22 @@ export interface AuthCardProps {
   isSubmitting?: boolean;
   /** Footer link target, e.g. to the opposite mode. */
   switchHref?: string;
+  /** Sign-in only: destination for the forgot-password action. */
+  forgotPasswordHref?: string;
   className?: string;
 }
 
 const COPY = {
   signin: {
-    title: "Welcome back",
-    description: "Sign in to pick up where you left off.",
-    cta: "Sign in",
-    switchLead: "New here?",
-    switchAction: "Create an account",
+    title: "Log in to Outbox",
+    description: "Sign in to access your knowledge base and assistants.",
+    cta: "Log in",
+    switchLead: "Don't have an account?",
+    switchAction: "Sign up",
   },
   signup: {
     title: "Create your account",
-    description: "Start building with BoardUI in a couple of minutes.",
+    description: "Start searching, organizing, and indexing your documents.",
     cta: "Create account",
     switchLead: "Already have an account?",
     switchAction: "Sign in",
@@ -122,6 +123,9 @@ const COPY = {
     switchAction: "Send a new one",
   },
 } as const;
+
+const AUTH_FIELD_CLASS =
+  "border border-border-button-default bg-background-primary-default shadow-2xs";
 
 export function AuthCard({
   mode = "signin",
@@ -142,13 +146,14 @@ export function AuthCard({
   onProvider,
   isSubmitting = false,
   switchHref = "#",
+  forgotPasswordHref = "#",
   className,
 }: AuthCardProps) {
-  const [remember, setRemember] = useState(true);
   const [code, setCode] = useState("");
   const copy = COPY[mode];
   const signup = mode === "signup";
   const verify = mode === "verify";
+  const hasSocial = !verify && providers.length > 0;
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -184,11 +189,6 @@ export function AuthCard({
     </div>
   );
 
-  // The code step centres itself and carries a mark by default: it is a
-  // single-purpose screen, and the icon is what says at a glance which one.
-  // Left-aligned like the other two modes: a centred column with a hairline
-  // was the reference's shape, and this one should read as the same family
-  // as the sign-in card it follows, not as a different screen.
   const centerContent = centered;
   const mark =
     logo ??
@@ -204,7 +204,7 @@ export function AuthCard({
       {mark ? (
         <div
           className={cx(
-            "mb-5 flex",
+            "mb-4 flex",
             centerContent ? "justify-center" : "justify-start"
           )}
         >
@@ -213,9 +213,9 @@ export function AuthCard({
       ) : null}
 
       <div
-        className={cx("flex flex-col gap-1.5", centerContent && "text-center")}
+        className={cx("flex flex-col gap-1", centerContent && "text-center")}
       >
-        <h1 className="text-title-2-medium text-text-primary">
+        <h1 className="text-title-1-semibold tracking-tight text-text-primary">
           {title ?? copy.title}
         </h1>
         <p className="text-body-regular text-text-secondary">
@@ -234,9 +234,20 @@ export function AuthCard({
         </p>
       </div>
 
+      {hasSocial ? (
+        <div className="mt-6">
+          {social}
+          <div className="my-5">
+            <Divider contentClassName="text-caption-1-regular text-text-tertiary">
+              or use email
+            </Divider>
+          </div>
+        </div>
+      ) : null}
+
       <form
         onSubmit={submit}
-        className="mt-6 flex flex-col gap-4"
+        className={cx(hasSocial ? "mt-0" : "mt-6", "flex flex-col gap-3.5")}
         aria-busy={isSubmitting}
       >
         {verify ? (
@@ -262,6 +273,7 @@ export function AuthCard({
             label="Full name"
             placeholder="Ada Lovelace"
             autoComplete="name"
+            fieldClassName={AUTH_FIELD_CLASS}
           />
         ) : null}
 
@@ -271,20 +283,13 @@ export function AuthCard({
             type="email"
             label="Email"
             placeholder="you@company.com"
-            autoComplete="email"
-            hint={
-              signup
-                ? "We use this to contact you, and never share it."
-                : undefined
-            }
+            autoComplete={signup ? "email" : "username"}
+            fieldClassName={AUTH_FIELD_CLASS}
             isRequired
           />
         )}
 
         {verify ? null : signup && confirmPassword ? (
-          // Stacked, full width: a password field pair is easier to fill at
-          // full width than in two half-width columns, and it keeps the whole
-          // form on one rhythm.
           <>
             <Input
               name="password"
@@ -292,6 +297,7 @@ export function AuthCard({
               label="Password"
               placeholder="At least 12 characters"
               autoComplete="new-password"
+              fieldClassName={AUTH_FIELD_CLASS}
               isRequired
             />
             <Input
@@ -300,6 +306,7 @@ export function AuthCard({
               label="Confirm password"
               placeholder="Repeat your password"
               autoComplete="new-password"
+              fieldClassName={AUTH_FIELD_CLASS}
               isRequired
             />
           </>
@@ -312,85 +319,61 @@ export function AuthCard({
               signup ? "At least 12 characters" : "Enter your password"
             }
             autoComplete={signup ? "new-password" : "current-password"}
+            fieldClassName={AUTH_FIELD_CLASS}
             isRequired
           />
         )}
 
-        {signup || verify ? null : (
-          <div className="flex items-center justify-between">
-            <Checkbox size="sm" isSelected={remember} onChange={setRemember}>
-              Remember me
-            </Checkbox>
-            <LinkButton href="#">Forgot password?</LinkButton>
-          </div>
-        )}
-
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" className="mt-1.5 w-full" disabled={isSubmitting}>
           {copy.cta}
         </Button>
-
-        {/* The split layout carries its terms line under the card instead,
-            through `footnote`, so it does not crowd the CTA. */}
-        {signup && !footnote ? (
-          <p className="text-caption-1-regular text-text-tertiary">
-            By creating an account you agree to our Terms of Service and Privacy
-            Policy.
-          </p>
-        ) : null}
       </form>
 
-      {/* Providers always follow the form, in every layout: the email fields
-          are the path this card is built around, and a bank of provider
-          buttons above them buries the thing people came to fill in. The
-          code step shows none — the visitor has already picked a method. */}
-      {!verify && providers.length > 0 ? (
-        <>
-          <div className="my-5">
-            <Divider>or continue with</Divider>
-          </div>
-          {social}
-        </>
-      ) : null}
-
-      {/* Resend is an action, not a destination, so on the code step the
-          footer is a button. `LinkButton` renders one when given no href. */}
-      {verify ? (
-        <p className="mt-6 text-center text-body-regular text-text-secondary">
-          {copy.switchLead}{" "}
-          <LinkButton onClick={onResend}>{copy.switchAction}</LinkButton>
-        </p>
-      ) : (
-        <p className="mt-6 text-center text-body-regular text-text-secondary">
-          {copy.switchLead}{" "}
-          <LinkButton href={switchHref} disabled={isSubmitting}>
-            {copy.switchAction}
+      <div className="mt-5 flex flex-col items-center gap-2.5 text-center">
+        {!signup && !verify ? (
+          <LinkButton
+            href={forgotPasswordHref}
+            variant="secondary"
+            size="small"
+            disabled={isSubmitting}
+          >
+            Forgot your password?
           </LinkButton>
-        </p>
-      )}
+        ) : null}
+
+        {verify ? (
+          <p className="text-body-2-regular text-text-secondary">
+            {copy.switchLead}{" "}
+            <LinkButton size="small" onClick={onResend}>
+              {copy.switchAction}
+            </LinkButton>
+          </p>
+        ) : (
+          <p className="text-body-2-regular text-text-secondary">
+            {copy.switchLead}{" "}
+            <LinkButton href={switchHref} size="small" disabled={isSubmitting}>
+              {copy.switchAction}
+            </LinkButton>
+          </p>
+        )}
+      </div>
     </>
   );
 
   const card = media ? (
     <div
       className={cx(
-        "grid w-full max-w-[880px] overflow-hidden rounded-3xl border border-border-button-default bg-background-primary-default shadow-xs md:grid-cols-2 dark:bg-background-secondary-default",
+        "grid w-full max-w-[960px] overflow-hidden rounded-3xl border border-border-button-default bg-background-primary-default shadow-xs md:grid-cols-2 dark:bg-background-secondary-default",
         className
       )}
     >
-      <div className="flex flex-col p-6 sm:p-8">{body}</div>
-      {/* Hidden rather than stacked below `md`: a tall image above the fields
-          pushes the form off a phone screen for no gain. */}
+      <div className="flex flex-col justify-center p-6 sm:p-10">{body}</div>
       <div className="relative hidden bg-background-secondary-default md:block">
         {media}
       </div>
     </div>
   ) : (
-    <div
-      className={cx(
-        "flex w-full max-w-[400px] flex-col rounded-3xl border border-border-button-default bg-background-primary-default p-6 shadow-xs sm:p-8 dark:bg-background-secondary-default",
-        className
-      )}
-    >
+    <div className={cx("flex w-full max-w-[380px] flex-col", className)}>
       {body}
     </div>
   );

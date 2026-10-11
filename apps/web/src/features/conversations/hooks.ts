@@ -1,15 +1,19 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   createProjectConversation,
   deleteConversation,
+  deleteMessageFeedback,
   getConversation,
   listConversationChatHistory,
   listConversations,
   listMessages,
+  setMessageFeedback,
 } from "./api";
 import { conversationKeys } from "./keys";
+import type { FeedbackRating, Message } from "./types";
 
 export function useConversations(knowledgeBaseId: string | undefined) {
   return useQuery({
@@ -78,6 +82,47 @@ export function useDeleteConversation() {
       await queryClient.invalidateQueries({
         queryKey: conversationKeys.list(variables.knowledgeBaseId),
       });
+    },
+  });
+}
+
+export function useMessageFeedback(
+  conversationId: string | undefined,
+  messageId: string
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (rating: FeedbackRating | null) => {
+      if (rating === null) {
+        await deleteMessageFeedback(messageId);
+        return null;
+      }
+      return setMessageFeedback(messageId, rating);
+    },
+    onSuccess: (feedback) => {
+      if (!conversationId) return;
+
+      queryClient.setQueryData<Message[]>(
+        conversationKeys.chatHistory(conversationId),
+        (history) =>
+          history?.map((message) =>
+            message.id === messageId
+              ? { ...message, feedback: feedback?.rating ?? null }
+              : message
+          )
+      );
+    },
+    onError: () => {
+      toast.error("Failed to update feedback. Please try again.");
+    },
+    onSettled: () => {
+      if (conversationId) {
+        void queryClient.invalidateQueries({
+          queryKey: conversationKeys.messages(conversationId),
+          refetchType: "none",
+        });
+      }
     },
   });
 }

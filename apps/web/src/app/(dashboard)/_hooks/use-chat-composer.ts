@@ -36,7 +36,7 @@ interface ActiveRun extends AgUiRunFence {
 
 interface UseChatComposerOptions {
   conversationId: string;
-  initialMessages: UIMessage[];
+  history: Message[];
   reconcileHistory: () => Promise<Message[]>;
 }
 
@@ -45,7 +45,7 @@ const HISTORY_SYNC_ERROR =
 
 export function useChatComposer({
   conversationId,
-  initialMessages,
+  history,
   reconcileHistory,
 }: UseChatComposerOptions) {
   const queryClient = useQueryClient();
@@ -53,11 +53,20 @@ export function useChatComposer({
     () => createAgUiChatConnection(conversationId),
     [conversationId]
   );
+  const [initialMessages] = useState(() =>
+    mapBackendMessagesToUiMessages(history)
+  );
+  const historyByMessageId = useMemo(
+    () => new Map(history.map((message) => [message.id, message])),
+    [history]
+  );
+
   const [draft, setDraft] = useState("");
   const [model, setModel] = useState<Model>(DEFAULT_MODEL);
   const [effort, setEffort] = useState(DEFAULT_EFFORT);
   const [mode, setMode] = useState<ComposerMode>("agent");
   const [sources, setSources] = useState<ChatSource[]>([]);
+
   const [failure, setFailure] = useState<ChatFailure | null>(null);
   const [settlement, setSettlement] = useState<SettlementPhase>("idle");
   const [syncBlocked, setSyncBlocked] = useState(false);
@@ -97,12 +106,17 @@ export function useChatComposer({
       const run = activeRunRef.current;
       if (!run || run.conversationId !== conversationId) return;
 
-      if ("messageId" in chunk && typeof chunk.messageId === "string") {
-        setActiveAssistantId(chunk.messageId);
-      }
-
       if (observeRunEvent(run, chunk) === "protocol-error") {
         stopForProtocolFailure(run);
+        return;
+      }
+
+      if (
+        run.phase === "active" &&
+        chunk.type === "TEXT_MESSAGE_START" &&
+        chunk.role === "assistant"
+      ) {
+        setActiveAssistantId(chunk.messageId);
       }
     },
     [conversationId, stopForProtocolFailure]
@@ -191,6 +205,7 @@ export function useChatComposer({
         if (!isCurrentRun(run) || !mountedRef.current) return;
 
         setMessages(mapBackendMessagesToUiMessages(canonicalHistory));
+        setSources([]);
         activeRunRef.current = null;
         setActiveAssistantId(null);
         setSettlement("idle");
@@ -205,6 +220,7 @@ export function useChatComposer({
 
         activeRunRef.current = null;
         setActiveAssistantId(null);
+        setSources([]);
         setSyncBlocked(true);
         setFailure({
           kind: "transport",
@@ -283,7 +299,6 @@ export function useChatComposer({
       mountedRef.current = false;
       epochRef.current += 1;
       activeRunRef.current = null;
-      setActiveAssistantId(null);
       stop();
       void queryClient.invalidateQueries({
         queryKey: conversationKeys.chatHistory(conversationId),
@@ -318,12 +333,18 @@ export function useChatComposer({
 
   const messages = useMemo(
     () =>
-      mapUiMessagesToChatMessages(
-        uiMessages,
-        conversationId,
-        computedActiveAssistantId
-      ),
-    [computedActiveAssistantId, conversationId, uiMessages]
+      mapUiMessagesToChatMessages(uiMessages, conversationId, {
+        activeAssistantId: computedActiveAssistantId,
+        activeSources: sources,
+        historyByMessageId,
+      }),
+    [
+      computedActiveAssistantId,
+      conversationId,
+      historyByMessageId,
+      sources,
+      uiMessages,
+    ]
   );
 
   return {
@@ -339,7 +360,6 @@ export function useChatComposer({
     submit,
     cancel,
     messages,
-    sources,
     disabled: syncBlocked || settlement !== "idle",
   };
 }

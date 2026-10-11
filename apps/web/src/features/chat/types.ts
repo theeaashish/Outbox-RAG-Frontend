@@ -1,3 +1,10 @@
+import type {
+  FeedbackRating,
+  MessageSource,
+} from "@/features/conversations/types";
+
+export type { FeedbackRating };
+
 export type MessageRole = "user" | "assistant" | "system";
 
 export type MessageStatus =
@@ -7,12 +14,16 @@ export type MessageStatus =
   | "cancelled"
   | "error";
 
+export type ChatSource = MessageSource;
+
 export interface MessageResponse {
   id: string;
   role: MessageRole;
   content: string;
   created_at: string;
   updated_at: string;
+  sources: ChatSource[];
+  feedback: FeedbackRating | null;
 }
 
 export interface ChatMessage {
@@ -22,14 +33,9 @@ export interface ChatMessage {
   createdAt: string;
   status?: MessageStatus;
   conversationId?: string;
-}
-
-export interface ChatSource {
-  citation: number;
-  document_id: string;
-  document_name: string;
-  chunk_index: number;
-  score: number;
+  sources: ChatSource[];
+  /** Undefined until the message appears in saved history. */
+  feedback?: FeedbackRating | null;
 }
 
 export interface ChatUsage {

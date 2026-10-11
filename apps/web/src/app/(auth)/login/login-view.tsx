@@ -1,10 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { AuthCard, AuthMediaCarousel, type SocialProvider } from "@repo/ui";
+import { AuthCard, type SocialProvider } from "@repo/ui";
 import { toast } from "sonner";
 import { parseLoginFormData, useLogin } from "@/features/auth";
-import { authCarouselSlides } from "../_components/auth-slides";
 
 export function LoginView() {
   const router = useRouter();
@@ -48,7 +47,6 @@ export function LoginView() {
       isSubmitting={loginMutation.isPending}
       onSubmit={handleSubmit}
       onProvider={handleProvider}
-      media={<AuthMediaCarousel slides={authCarouselSlides} />}
     />
   );
 }

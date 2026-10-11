@@ -2,13 +2,16 @@ import { apiClient } from "@/lib/api";
 import type {
   Conversation,
   ConversationCursorPage,
+  FeedbackRating,
   Message,
   MessageCursorPage,
+  MessageFeedbackResponse,
 } from "./types";
 
 const V1_CONVERSATIONS_PATH = "/api/v1/conversations";
 const V2_CONVERSATIONS_PATH = "/api/v2/knowledge-bases";
 const V2_MESSAGES_PATH = "/api/v2/conversations";
+const V2_FEEDBACK_PATH = "/api/v2/messages";
 
 export function createProjectConversation(
   projectId: string,
@@ -119,6 +122,28 @@ export function deleteConversation(
 ): Promise<void> {
   return apiClient.delete<void>(
     `${V1_CONVERSATIONS_PATH}/${conversationId}`,
+    options
+  );
+}
+
+export function setMessageFeedback(
+  messageId: string,
+  rating: FeedbackRating,
+  options: { signal?: AbortSignal } = {}
+): Promise<MessageFeedbackResponse> {
+  return apiClient.put<MessageFeedbackResponse>(
+    `${V2_FEEDBACK_PATH}/${messageId}/feedback`,
+    { rating },
+    options
+  );
+}
+
+export function deleteMessageFeedback(
+  messageId: string,
+  options: { signal?: AbortSignal } = {}
+): Promise<void> {
+  return apiClient.delete<void>(
+    `${V2_FEEDBACK_PATH}/${messageId}/feedback`,
     options
   );
 }

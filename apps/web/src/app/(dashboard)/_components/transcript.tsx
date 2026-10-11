@@ -1,14 +1,30 @@
-import { memo } from "react";
-import type { ChatMessage, ChatSource } from "@/features/chat";
+"use client";
+
+import { memo, useCallback, useState } from "react";
+import type { ChatMessage } from "@/features/chat";
+import { retryableAssistantMessageId } from "./assistant-turn";
 import { ChatMarkdown } from "./chat-markdown";
+import { MessageActions } from "./message-actions";
+import { SourcesDrawer } from "./sources-drawer";
+
+interface ConversationTranscriptProps {
+  conversationId?: string;
+  messages: ChatMessage[];
+  /** True while a turn is being submitted, streamed, or cancelled. */
+  runInFlight: boolean;
+  /**
+   * Called with the latest assistant message id.
+   * Omitted when the composer cannot accept another turn.
+   */
+  onRetry?: (messageId: string) => void;
+}
 
 export function ConversationTranscript({
+  conversationId,
   messages,
-  sources,
-}: {
-  messages: ChatMessage[];
-  sources: ChatSource[];
-}) {
+  runInFlight,
+  onRetry,
+}: ConversationTranscriptProps) {
   if (messages.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-zinc-200 p-8 text-center text-xs text-zinc-400 dark:border-zinc-800 dark:text-zinc-500">
@@ -17,33 +33,47 @@ export function ConversationTranscript({
     );
   }
 
+  const retryMessageId =
+    onRetry && !runInFlight ? retryableAssistantMessageId(messages) : null;
+
   return (
     <div className="flex flex-col gap-6">
       {messages.map((message) => (
-        <MessageBubble key={message.id} message={message} />
+        <MessageBubble
+          key={message.id}
+          conversationId={conversationId}
+          message={message}
+          onRetry={message.id === retryMessageId ? onRetry : undefined}
+        />
       ))}
-      {sources.length > 0 && (
-        <div className="rounded-xl border border-zinc-200/80 bg-zinc-50/80 p-3 text-[11px] text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-400">
-          <p className="mb-1 font-medium text-zinc-700 dark:text-zinc-300">
-            Sources
-          </p>
-          <ul className="flex flex-col gap-1">
-            {sources.map((source) => (
-              <li key={`${source.document_id}-${source.chunk_index}`}>
-                [{source.citation}] {source.document_name}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </div>
   );
 }
 
+interface MessageBubbleProps {
+  conversationId?: string;
+  message: ChatMessage;
+  onRetry?: (messageId: string) => void;
+}
+
 const MessageBubble = memo(
-  function MessageBubble({ message }: { message: ChatMessage }) {
+  function MessageBubble({
+    conversationId,
+    message,
+    onRetry,
+  }: MessageBubbleProps) {
     const assistant = message.role === "assistant";
     const isStreaming = message.status === "streaming";
+    const sources = message.sources;
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [highlightedCitation, setHighlightedCitation] = useState<
+      number | null
+    >(null);
+
+    const handleSelectSource = useCallback((citation: number) => {
+      setDrawerOpen(true);
+      setHighlightedCitation(citation);
+    }, []);
 
     return (
       <div className={assistant ? "w-full" : "flex justify-end"}>
@@ -52,7 +82,9 @@ const MessageBubble = memo(
             {message.content ? (
               <ChatMarkdown
                 content={message.content}
+                sources={sources}
                 isStreaming={isStreaming}
+                onSelectSource={handleSelectSource}
               />
             ) : isStreaming ? (
               <span className="inline-flex items-center gap-1 py-1 text-zinc-400 dark:text-zinc-500">
@@ -60,6 +92,26 @@ const MessageBubble = memo(
                 <span className="size-1.5 animate-pulse rounded-full bg-current [animation-delay:200ms]" />
                 <span className="size-1.5 animate-pulse rounded-full bg-current [animation-delay:400ms]" />
               </span>
+            ) : null}
+
+            {sources.length > 0 ? (
+              <SourcesDrawer
+                messageId={message.id}
+                sources={sources}
+                open={drawerOpen}
+                onOpenChange={setDrawerOpen}
+                highlightedCitation={highlightedCitation}
+              />
+            ) : null}
+
+            {!isStreaming && message.content ? (
+              <MessageActions
+                messageId={message.id}
+                conversationId={conversationId}
+                rating={message.feedback}
+                content={message.content}
+                onRetry={onRetry ? () => onRetry(message.id) : undefined}
+              />
             ) : null}
           </div>
         ) : (
@@ -71,8 +123,12 @@ const MessageBubble = memo(
     );
   },
   (prev, next) =>
+    prev.conversationId === next.conversationId &&
     prev.message.id === next.message.id &&
     prev.message.content === next.message.content &&
     prev.message.status === next.message.status &&
-    prev.message.role === next.message.role
+    prev.message.role === next.message.role &&
+    prev.message.feedback === next.message.feedback &&
+    prev.message.sources === next.message.sources &&
+    prev.onRetry === next.onRetry
 );

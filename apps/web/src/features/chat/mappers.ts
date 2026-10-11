@@ -1,6 +1,8 @@
 import type { UIMessage } from "@tanstack/ai-react";
 import type { Message } from "@/features/conversations/types";
-import type { ChatMessage } from "./types";
+import type { ChatMessage, ChatSource } from "./types";
+
+const NO_SOURCES: ChatSource[] = [];
 
 export function mapBackendMessagesToUiMessages(
   messages: readonly Message[]
@@ -16,7 +18,15 @@ export function mapBackendMessagesToUiMessages(
 export function mapUiMessagesToChatMessages(
   messages: readonly UIMessage[],
   conversationId: string,
-  activeAssistantId?: string | null
+  {
+    activeAssistantId,
+    activeSources,
+    historyByMessageId,
+  }: {
+    activeAssistantId: string | null;
+    activeSources: ChatSource[];
+    historyByMessageId: ReadonlyMap<string, Message>;
+  }
 ): ChatMessage[] {
   return messages.flatMap((message) => {
     const content = message.parts
@@ -43,6 +53,10 @@ export function mapUiMessagesToChatMessages(
         createdAt: (message.createdAt ?? new Date()).toISOString(),
         status: isStreaming ? ("streaming" as const) : ("complete" as const),
         conversationId,
+        sources: isStreaming
+          ? activeSources
+          : (historyByMessageId.get(message.id)?.sources ?? NO_SOURCES),
+        feedback: historyByMessageId.get(message.id)?.feedback,
       },
     ];
   });
