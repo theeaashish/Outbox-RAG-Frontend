@@ -94,7 +94,7 @@ const MessageBubble = memo(
               </span>
             ) : null}
 
-            {sources.length > 0 ? (
+            {sources.some((s) => Boolean(s.is_cited)) ? (
               <SourcesDrawer
                 messageId={message.id}
                 sources={sources}

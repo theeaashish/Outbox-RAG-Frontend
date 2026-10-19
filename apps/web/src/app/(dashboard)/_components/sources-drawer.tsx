@@ -35,15 +35,11 @@ export function SourcesDrawer({
     return () => cancelAnimationFrame(raf);
   }, [highlightedCitation, messageId, open]);
 
-  if (sources.length === 0) return null;
+  const citedSources = sources.filter((s) => Boolean(s.is_cited));
+  if (citedSources.length === 0) return null;
 
-  const citedCount = sources.filter((s) => s.is_cited).length;
   const label =
-    citedCount > 0 && citedCount < sources.length
-      ? `${citedCount} cited · ${sources.length} sources`
-      : sources.length === 1
-        ? "1 source"
-        : `${sources.length} sources`;
+    citedSources.length === 1 ? "1 source" : `${citedSources.length} sources`;
 
   return (
     <div className={cx("mt-2 flex flex-col items-start text-xs", className)}>
@@ -80,7 +76,7 @@ export function SourcesDrawer({
       >
         <div className="overflow-hidden">
           <ul className="mt-2 flex flex-col gap-1 rounded-xl border border-zinc-200/80 bg-zinc-50/60 p-2 dark:border-zinc-800 dark:bg-zinc-900/50">
-            {sources.map((source) => (
+            {citedSources.map((source) => (
               <SourceRow
                 key={`${source.citation}-${source.document_id ?? source.document_name}-${source.chunk_index}`}
                 messageId={messageId}

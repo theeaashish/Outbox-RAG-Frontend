@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { UseChatOptions } from "@tanstack/ai-react";
 import { isApiError } from "@/lib/api";
+import type { ChatSource } from "./types";
 
 const citationSourceSchema = z
   .object({
@@ -31,8 +32,46 @@ const citationsSchema = z
   })
   .strict();
 
+const sourcesFinalSourceSchema = z
+  .object({
+    id: z.string().uuid().optional(),
+    citation: z.number().int().positive(),
+    documentId: z.string().uuid().nullable().optional(),
+    document_id: z.string().uuid().nullable().optional(),
+    documentName: z.string().optional(),
+    document_name: z.string().optional(),
+    chunkIndex: z.number().int().nonnegative().optional(),
+    chunk_index: z.number().int().nonnegative().optional(),
+    score: z.number(),
+    isCited: z.boolean().optional(),
+    is_cited: z.boolean().optional(),
+    page_start: z.number().int().nullable().optional(),
+    page_end: z.number().int().nullable().optional(),
+  })
+  .passthrough()
+  .transform(
+    (item): ChatSource => ({
+      id: item.id,
+      citation: item.citation,
+      document_id: item.document_id ?? item.documentId ?? null,
+      document_name: item.document_name ?? item.documentName ?? "",
+      chunk_index: item.chunk_index ?? item.chunkIndex ?? 0,
+      score: item.score,
+      is_cited: item.is_cited ?? item.isCited ?? false,
+      page_start: item.page_start ?? null,
+      page_end: item.page_end ?? null,
+    })
+  );
+
+const sourcesFinalSchema = z
+  .object({
+    sources: z.array(sourcesFinalSourceSchema),
+  })
+  .strict();
+
 export type ChatMetadataEvent = z.infer<typeof metadataSchema>;
 export type ChatCitationsEvent = z.infer<typeof citationsSchema>;
+export type ChatSourcesFinalEvent = z.infer<typeof sourcesFinalSchema>;
 export type ChatStreamChunk = Parameters<
   NonNullable<UseChatOptions["onChunk"]>
 >[0];
@@ -62,6 +101,7 @@ export type RunEventResult = "accepted" | "ignored" | "protocol-error";
 export type CustomEventResult =
   | { type: "accepted" }
   | { type: "citations"; sources: ChatCitationsEvent["sources"] }
+  | { type: "sources.final"; sources: ChatSource[] }
   | { type: "protocol-error" };
 
 export type ChatFailureKind =
@@ -90,6 +130,10 @@ export function parseMetadataEvent(data: unknown) {
 
 export function parseCitationsEvent(data: unknown) {
   return citationsSchema.safeParse(data);
+}
+
+export function parseSourcesFinalEvent(data: unknown) {
+  return sourcesFinalSchema.safeParse(data);
 }
 
 export function observeRunEvent(
@@ -181,6 +225,15 @@ export function observeCustomEvent(
 
     run.citationsSeen = true;
     return { type: "citations", sources: parsed.data.sources };
+  }
+
+  if (eventType === "sources.final") {
+    const parsed = parseSourcesFinalEvent(data);
+    if (!parsed.success || !run.metadataSeen || !run.citationsSeen) {
+      return { type: "protocol-error" };
+    }
+
+    return { type: "sources.final", sources: parsed.data.sources };
   }
 
   return { type: "protocol-error" };

@@ -135,6 +135,7 @@ export function useChatComposer({
 
       const result = observeCustomEvent(run, eventType, data);
       if (result.type === "citations") setSources(result.sources);
+      if (result.type === "sources.final") setSources(result.sources);
       if (result.type === "protocol-error") stopForProtocolFailure(run);
     },
     [conversationId, stopForProtocolFailure]
