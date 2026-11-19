@@ -65,8 +65,28 @@ export interface ChatStreamError {
   message: string;
 }
 
+export interface ChatModelInfo {
+  id: string;
+  name: string;
+  provider: string;
+  is_default: boolean;
+}
+
+export interface ChatModelOption {
+  id: string;
+  label: string;
+  shortLabel?: string;
+  description?: string;
+}
+
+export interface ChatModelsResponse {
+  default_model: string;
+  models: ChatModelInfo[];
+}
+
 export interface ChatRequest {
   content: string;
+  model?: string;
 }
 
 export type ChatStreamEvent =

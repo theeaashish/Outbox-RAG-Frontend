@@ -6,10 +6,9 @@ export { ContextMeter } from "./context-meter";
 export { MenuRow, PluginIcon, Radio } from "./menu-items";
 export {
   EFFORT_LEVELS,
-  MODELS,
   DEFAULT_EFFORT,
-  DEFAULT_MODEL,
   type Model,
+  type ChatModelOption,
 } from "./constants";
 export {
   type ComposerStatus,

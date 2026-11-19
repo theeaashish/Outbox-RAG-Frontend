@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   RiAddLine,
   RiDeleteBinLine,
+  RiFilePdfLine,
   RiFolder6Line,
   RiFolderOpenLine,
   RiMoreFill,
@@ -18,6 +19,7 @@ import {
   SidebarCollapsible,
   cx,
 } from "@repo/ui";
+import { useDashboardProjects } from "./sidebar-data-provider";
 import type { ChatSession, ProjectItem } from "./sidebar-data";
 
 interface SessionRowProps {
@@ -114,6 +116,7 @@ export function ProjectNode({
   onDeleteSession,
   onDeleteProject,
 }: ProjectNodeProps) {
+  const { openKnowledgeBase } = useDashboardProjects();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -198,6 +201,26 @@ export function ProjectNode({
                 side="right"
                 className="min-w-36"
               >
+                {Boolean(project.knowledgeBaseId) && (
+                  <DropdownMenuItem
+                    onClick={() => {
+                      const kbId = project.knowledgeBaseId;
+                      if (!kbId) return;
+                      openKnowledgeBase({
+                        name: project.name,
+                        knowledgeBaseId: kbId,
+                        projectId: project.id,
+                      });
+                    }}
+                    className="cursor-pointer gap-2 text-xs text-zinc-700 focus:bg-zinc-100 dark:text-zinc-300 dark:focus:bg-zinc-800"
+                  >
+                    <RiFilePdfLine
+                      className="size-3.5 text-rose-500"
+                      aria-hidden
+                    />
+                    <span>Knowledge Base</span>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem
                   variant="destructive"
                   onClick={() => setDeleteDialogOpen(true)}

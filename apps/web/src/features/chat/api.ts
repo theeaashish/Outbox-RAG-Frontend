@@ -1,8 +1,15 @@
 import { apiClient } from "@/lib/api";
 import { parseSseStream } from "@/lib/sse";
-import type { ChatRequest, ChatStreamEvent } from "./types";
+import type { ChatModelsResponse, ChatRequest, ChatStreamEvent } from "./types";
 
 const CHAT_PATH = "/api/v1/conversations";
+const MODELS_PATH = "/api/v1/chat/models";
+
+export async function getChatModels(
+  signal?: AbortSignal
+): Promise<ChatModelsResponse> {
+  return apiClient.get<ChatModelsResponse>(MODELS_PATH, { signal });
+}
 
 export async function* streamChat(
   conversationId: string,

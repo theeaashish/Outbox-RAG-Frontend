@@ -1,4 +1,9 @@
-export type DocumentStatus = "pending" | "processing" | "ready" | "failed";
+export type DocumentStatus =
+  | "uploading"
+  | "pending"
+  | "processing"
+  | "ready"
+  | "failed";
 
 export interface Document {
   id: string;
@@ -18,3 +23,37 @@ export interface Document {
 export interface DocumentListResponse {
   results: Document[];
 }
+
+export interface UploadAuthorization {
+  url: string;
+  method: string;
+  expires_in: number;
+  headers: Record<string, string>;
+  form_fields: Record<string, string>;
+}
+
+export interface InitiateDocumentUploadRequest {
+  filename: string;
+  content_type: string;
+  file_size: number;
+}
+
+// Returned by both /upload/initiate and /upload/refresh
+export interface DocumentUploadSession {
+  document_id: string;
+  upload: UploadAuthorization;
+}
+
+export type InitiateDocumentUploadResponse = DocumentUploadSession;
+export type RefreshUploadAuthorizationResponse = DocumentUploadSession;
+export type CompleteDocumentUploadResponse = Document;
+
+export type UploadPhase =
+  | "idle"
+  | "selected"
+  | "initiating"
+  | "uploading"
+  | "finalizing"
+  | "processing"
+  | "completed"
+  | "error";

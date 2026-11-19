@@ -1,11 +1,6 @@
-export const MODELS = [
-  "Composer 2.5",
-  "GPT-5.6 Sol",
-  "Fable 5",
-  "Sonnet 5",
-] as const;
+export type Model = string;
 
-export type Model = (typeof MODELS)[number];
+export type { ChatModelOption } from "@/features/chat/types";
 
 export const EFFORT_LEVELS = [
   "Low",
@@ -15,8 +10,6 @@ export const EFFORT_LEVELS = [
   "Expert",
   "Max",
 ] as const;
-
-export const DEFAULT_MODEL: Model = "Fable 5";
 
 /** Index into EFFORT_LEVELS — "Medium". */
 export const DEFAULT_EFFORT = 1;

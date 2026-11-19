@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import {
   AiChatComposer,
   DEFAULT_EFFORT,
-  DEFAULT_MODEL,
+  type ChatModelOption,
   type ComposerMode,
   type ComposerStatus,
   type ComposerSubmitData,
@@ -21,7 +21,12 @@ import {
   useConversationChatHistory,
   type Message,
 } from "@/features/conversations";
-import type { ChatMessage } from "@/features/chat";
+import {
+  DEFAULT_MODEL,
+  FALLBACK_CHAT_MODELS,
+  formatChatModelOption,
+  type ChatMessage,
+} from "@/features/chat";
 
 interface ProjectSummary {
   id: string;
@@ -46,6 +51,8 @@ interface ChatSurfaceComposer {
   submit: (data: ComposerSubmitData) => void;
   cancel: () => void;
   disabled: boolean;
+  availableModels?: readonly ChatModelOption[];
+  isLoadingModels?: boolean;
 }
 
 const noop = () => undefined;
@@ -63,6 +70,8 @@ const inactiveComposer: ChatSurfaceComposer = {
   submit: noop,
   cancel: noop,
   disabled: true,
+  availableModels: FALLBACK_CHAT_MODELS.map(formatChatModelOption),
+  isLoadingModels: false,
 };
 
 export function ConversationChat({
@@ -281,7 +290,10 @@ function ChatSurface({
             onEffortChange={composer.setEffort}
             mode={composer.mode}
             onModeChange={composer.setMode}
-            modelSelectorDisabled
+            models={composer.availableModels}
+            modelSelectorDisabled={
+              composer.disabled || composer.isLoadingModels
+            }
             effortSelectorDisabled
             modeSelectorDisabled
             status={composer.status}

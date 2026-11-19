@@ -1,7 +1,7 @@
 import { ArrowUp, Mic, Square } from "lucide-react";
 import { BoardButton } from "@repo/ui";
 import { ModelMenu } from "./model-menu";
-import type { Model } from "./constants";
+import type { ChatModelOption, Model } from "./constants";
 
 interface ComposerActionsProps {
   model: Model;
@@ -14,6 +14,7 @@ interface ComposerActionsProps {
   isGenerating: boolean;
   sendDisabled: boolean;
   onVoiceClick?: () => void;
+  models?: readonly ChatModelOption[];
 }
 
 // Model picker + voice + send/stop — identical in both composer layouts.
@@ -28,6 +29,7 @@ export function ComposerActions({
   isGenerating,
   sendDisabled,
   onVoiceClick,
+  models,
 }: ComposerActionsProps) {
   return (
     <div className="flex shrink-0 items-center gap-1.5">
@@ -39,6 +41,7 @@ export function ComposerActions({
         disabled={disabled}
         modelSelectorDisabled={modelSelectorDisabled}
         effortSelectorDisabled={effortSelectorDisabled}
+        models={models}
       />
 
       {onVoiceClick && (
@@ -46,10 +49,10 @@ export function ComposerActions({
           variant="ghost"
           size="small"
           iconOnly
-          disabled={disabled}
-          aria-label="Voice input"
+          disabled={disabled || isGenerating}
           onClick={onVoiceClick}
-          className="rounded-full text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-200 outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+          aria-label="Voice input"
+          className="rounded-full text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
         >
           <Mic className="size-4" />
         </BoardButton>
@@ -59,15 +62,15 @@ export function ComposerActions({
         variant="primary"
         size="small"
         iconOnly
-        type="submit"
         disabled={sendDisabled}
+        type="submit"
         aria-label={isGenerating ? "Stop generation" : "Send message"}
-        className="rounded-full shadow-none outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+        className="size-8 rounded-full"
       >
         {isGenerating ? (
-          <Square className="size-3 fill-current" />
+          <Square className="size-3.5 fill-current" />
         ) : (
-          <ArrowUp className="size-4" strokeWidth={2.2} />
+          <ArrowUp className="size-4" />
         )}
       </BoardButton>
     </div>

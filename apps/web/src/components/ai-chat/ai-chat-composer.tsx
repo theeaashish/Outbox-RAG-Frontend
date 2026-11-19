@@ -23,7 +23,7 @@ import {
   menuHeadingClassName,
   popoverSurfaceClassName,
 } from "./popover-surface";
-import type { Model } from "./constants";
+import type { ChatModelOption, Model } from "./constants";
 import type {
   ComposerAttachment,
   ComposerMode,
@@ -51,6 +51,8 @@ export interface AiChatComposerProps extends AddMenuProps {
 
   onModelChange?: (model: Model) => void;
   onEffortChange?: (effort: number) => void;
+
+  models?: readonly ChatModelOption[];
 
   modelSelectorDisabled?: boolean;
   effortSelectorDisabled?: boolean;
@@ -94,6 +96,7 @@ export const AiChatComposer = memo(function AiChatComposer({
   effort,
   onModelChange,
   onEffortChange,
+  models,
   modelSelectorDisabled = false,
   effortSelectorDisabled = false,
   modeSelectorDisabled = false,
@@ -289,6 +292,7 @@ export const AiChatComposer = memo(function AiChatComposer({
                   isGenerating={isGenerating}
                   sendDisabled={isSendDisabled}
                   onVoiceClick={onVoiceClick}
+                  models={models}
                 />
               </div>
             </div>
@@ -305,6 +309,7 @@ export const AiChatComposer = memo(function AiChatComposer({
                 isGenerating={isGenerating}
                 sendDisabled={isSendDisabled}
                 onVoiceClick={onVoiceClick}
+                models={models}
               />
             </div>
           )}

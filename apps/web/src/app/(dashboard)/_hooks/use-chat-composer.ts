@@ -1,12 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { useChat, type UIMessage } from "@tanstack/ai-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   DEFAULT_EFFORT,
-  DEFAULT_MODEL,
+  type ChatModelOption,
   type ComposerMode,
   type ComposerStatus,
   type ComposerSubmitData,
@@ -16,15 +23,56 @@ import { conversationKeys, type Message } from "@/features/conversations";
 import {
   classifyChatFailure,
   createAgUiChatConnection,
+  DEFAULT_MODEL,
+  FALLBACK_CHAT_MODELS,
+  formatChatModelOption,
   mapBackendMessagesToUiMessages,
   mapUiMessagesToChatMessages,
   observeCustomEvent,
   observeRunEvent,
+  useChatModels,
   type AgUiRunFence,
   type ChatFailure,
+  type ChatModelInfo,
   type ChatSource,
   type ChatStreamChunk,
 } from "@/features/chat";
+
+const MODEL_STORAGE_KEY = "preferred_chat_model";
+const MODEL_STORAGE_EVENT = "preferred-chat-model-change";
+let memoryModelPreference: string | null = null;
+
+function subscribeModelPreference(callback: () => void) {
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === null || event.key === MODEL_STORAGE_KEY) callback();
+  };
+  window.addEventListener("storage", onStorage);
+  window.addEventListener(MODEL_STORAGE_EVENT, callback);
+  return () => {
+    window.removeEventListener("storage", onStorage);
+    window.removeEventListener(MODEL_STORAGE_EVENT, callback);
+  };
+}
+
+function getStoredModelPreference(): string | null {
+  try {
+    return (
+      window.localStorage.getItem(MODEL_STORAGE_KEY) ?? memoryModelPreference
+    );
+  } catch {
+    return memoryModelPreference;
+  }
+}
+
+function setStoredModelPreference(modelId: string) {
+  memoryModelPreference = modelId;
+  try {
+    window.localStorage.setItem(MODEL_STORAGE_KEY, modelId);
+  } catch {
+    // Restricted storage context; in-memory fallback preserves selection
+  }
+  window.dispatchEvent(new Event(MODEL_STORAGE_EVENT));
+}
 
 type SettlementPhase = "idle" | "stopping" | "reconciling";
 
@@ -61,8 +109,44 @@ export function useChatComposer({
     [history]
   );
 
+  const { data: modelsData, isLoading: isLoadingModels } = useChatModels();
+  const availableModels: ChatModelInfo[] = useMemo(() => {
+    return modelsData?.models && modelsData.models.length > 0
+      ? modelsData.models
+      : FALLBACK_CHAT_MODELS;
+  }, [modelsData]);
+
   const [draft, setDraft] = useState("");
-  const [model, setModel] = useState<Model>(DEFAULT_MODEL);
+
+  const preferredModel = useSyncExternalStore(
+    subscribeModelPreference,
+    getStoredModelPreference,
+    () => null
+  );
+
+  const model = useMemo(() => {
+    if (
+      preferredModel &&
+      availableModels.some((m) => m.id === preferredModel)
+    ) {
+      return preferredModel;
+    }
+    const defaultModel = modelsData?.default_model;
+    if (defaultModel && availableModels.some((m) => m.id === defaultModel)) {
+      return defaultModel;
+    }
+    return availableModels[0]?.id ?? DEFAULT_MODEL;
+  }, [preferredModel, availableModels, modelsData?.default_model]);
+
+  const setModel = useCallback((nextModel: Model) => {
+    setStoredModelPreference(nextModel);
+  }, []);
+
+  const modelOptions: ChatModelOption[] = useMemo(
+    () => availableModels.map(formatChatModelOption),
+    [availableModels]
+  );
+
   const [effort, setEffort] = useState(DEFAULT_EFFORT);
   const [mode, setMode] = useState<ComposerMode>("agent");
   const [sources, setSources] = useState<ChatSource[]>([]);
@@ -263,8 +347,15 @@ export function useChatComposer({
       setActiveAssistantId(null);
       setFailure(null);
 
+      const shouldSendModel = Boolean(preferredModel || modelsData);
+      const requestBody =
+        shouldSendModel && data.model ? { model: data.model } : undefined;
+
       try {
-        await sendMessage(data.text, { whenBusy: "drop" });
+        await sendMessage(data.text, {
+          whenBusy: "drop",
+          body: requestBody,
+        });
       } catch (error) {
         run.error = error;
       }
@@ -274,6 +365,8 @@ export function useChatComposer({
     [
       chatStatus,
       conversationId,
+      modelsData,
+      preferredModel,
       sendMessage,
       settleRun,
       settlement,
@@ -362,5 +455,7 @@ export function useChatComposer({
     cancel,
     messages,
     disabled: syncBlocked || settlement !== "idle",
+    availableModels: modelOptions,
+    isLoadingModels,
   };
 }

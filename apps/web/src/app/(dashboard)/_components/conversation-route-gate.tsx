@@ -151,7 +151,11 @@ export function ConversationRouteGate({
   return (
     <DashboardWorkspace
       conversationId={conversationId}
-      project={{ id: project.id, name: project.name }}
+      project={{
+        id: project.id,
+        name: project.name,
+        knowledgeBaseId: project.knowledge_base_id,
+      }}
       sessionTitle="New chat"
     />
   );

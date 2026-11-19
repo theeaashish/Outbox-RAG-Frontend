@@ -25,6 +25,13 @@ import {
   dashboardConversationPath,
   parseDashboardConversationPath,
 } from "@/app/(dashboard)/_lib/conversation-path";
+import { KnowledgeBaseDialog } from "@/components/documents";
+
+export interface KnowledgeBaseDialogTarget {
+  name: string;
+  knowledgeBaseId: string;
+  projectId?: string;
+}
 
 interface DashboardProjectsContextValue {
   projects: ProjectItem[];
@@ -37,6 +44,7 @@ interface DashboardProjectsContextValue {
   createChat: (projectId: string) => Promise<void>;
   deleteChat: (projectId: string, sessionId: string) => Promise<void>;
   deleteProject: (projectId: string) => Promise<void>;
+  openKnowledgeBase: (target: KnowledgeBaseDialogTarget) => void;
 }
 
 const DashboardProjectsContext =
@@ -188,6 +196,35 @@ export function DashboardProjectsProvider({
     [deleteProjectMutation, activeProjectId, router]
   );
 
+  const [isKbOpen, setIsKbOpen] = useState(false);
+  const [kbTarget, setKbTarget] = useState<KnowledgeBaseDialogTarget | null>(
+    null
+  );
+
+  const openKnowledgeBase = useCallback((target: KnowledgeBaseDialogTarget) => {
+    setKbTarget(target);
+    setIsKbOpen(true);
+  }, []);
+
+  const handleKbOpenChange = useCallback((open: boolean) => {
+    setIsKbOpen(open);
+  }, []);
+
+  const resolvedKbTarget = useMemo(() => {
+    if (!kbTarget) return null;
+    if (kbTarget.projectId) {
+      const match = projectsList.find((p) => p.id === kbTarget.projectId);
+      if (match) {
+        return {
+          name: match.name,
+          knowledgeBaseId: match.knowledge_base_id,
+          projectId: match.id,
+        };
+      }
+    }
+    return kbTarget;
+  }, [kbTarget, projectsList]);
+
   const value = useMemo<DashboardProjectsContextValue>(
     () => ({
       projects,
@@ -203,6 +240,7 @@ export function DashboardProjectsProvider({
       createChat,
       deleteChat,
       deleteProject,
+      openKnowledgeBase,
     }),
     [
       projects,
@@ -215,12 +253,22 @@ export function DashboardProjectsProvider({
       createChat,
       deleteChat,
       deleteProject,
+      openKnowledgeBase,
     ]
   );
 
   return (
     <DashboardProjectsContext.Provider value={value}>
       {children}
+      {resolvedKbTarget && (
+        <KnowledgeBaseDialog
+          key={resolvedKbTarget.knowledgeBaseId}
+          open={isKbOpen}
+          onOpenChange={handleKbOpenChange}
+          projectName={resolvedKbTarget.name}
+          knowledgeBaseId={resolvedKbTarget.knowledgeBaseId}
+        />
+      )}
     </DashboardProjectsContext.Provider>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import {
   BoardButton,
@@ -9,7 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@repo/ui";
-import { EFFORT_LEVELS, MODELS, type Model } from "./constants";
+import { EFFORT_LEVELS, type ChatModelOption, type Model } from "./constants";
 import { EffortSlider } from "./effort-slider";
 import { MenuDivider } from "./menu-items";
 import { MenuRadioGroup } from "./menu-radio-group";
@@ -26,9 +26,9 @@ export interface ModelMenuProps {
   disabled?: boolean;
   modelSelectorDisabled?: boolean;
   effortSelectorDisabled?: boolean;
+  models?: readonly ChatModelOption[];
 }
 
-const MODEL_OPTIONS = MODELS.map((model) => ({ value: model, label: model }));
 const MAX_EFFORT_INDEX = EFFORT_LEVELS.length - 1;
 
 export function ModelMenu({
@@ -39,12 +39,31 @@ export function ModelMenu({
   disabled = false,
   modelSelectorDisabled = false,
   effortSelectorDisabled = false,
+  models = [],
 }: ModelMenuProps) {
   const [open, setOpen] = useState(false);
 
   // Defensive clamp — effort arrives from props and drives a display lookup.
   const safeEffort = Math.min(Math.max(effort, 0), MAX_EFFORT_INDEX);
   const isModelDisabled = disabled || modelSelectorDisabled;
+
+  const selectedModel = useMemo(
+    () => models.find((m) => m.id === model),
+    [models, model]
+  );
+
+  const modelOptions = useMemo(
+    () =>
+      models.map((m) => ({
+        value: m.id,
+        label: m.label,
+        description: m.description,
+      })),
+    [models]
+  );
+
+  const displayLabel =
+    selectedModel?.shortLabel ?? selectedModel?.label ?? model;
 
   return (
     <Popover open={open && !isModelDisabled} onOpenChange={setOpen}>
@@ -57,7 +76,7 @@ export function ModelMenu({
             title={
               isModelDisabled
                 ? "Model selection is currently unavailable"
-                : undefined
+                : (selectedModel?.label ?? model)
             }
             className={cn(
               "rounded-full px-2.5 text-xs font-medium text-zinc-500 hover:text-zinc-900 outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 dark:text-zinc-400 dark:hover:text-zinc-100",
@@ -69,7 +88,7 @@ export function ModelMenu({
         }
       >
         <span className="inline-flex items-center gap-1">
-          <span>{model}</span>
+          <span className="max-w-32.5 truncate">{displayLabel}</span>
           <ChevronDown
             className={cn(
               "size-3 text-zinc-400 transition-transform duration-200 dark:text-zinc-500",
@@ -89,7 +108,7 @@ export function ModelMenu({
 
         <MenuRadioGroup
           label="Models"
-          options={MODEL_OPTIONS}
+          options={modelOptions}
           value={model}
           onChange={(next) => {
             if (isModelDisabled) return;

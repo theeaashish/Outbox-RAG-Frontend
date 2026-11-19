@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Hero } from "@/app/(marketing)/_components/hero";
 import {
   AiChatComposer,
-  DEFAULT_MODEL,
   DEFAULT_EFFORT,
   type Model,
   type ComposerMode,
@@ -12,6 +11,7 @@ import {
   type ComposerAttachment,
   type ComposerSubmitData,
 } from "@/components/ai-chat";
+import { DEFAULT_MODEL } from "@/features/chat";
 
 export default function Home() {
   const [draft, setDraft] = useState("");

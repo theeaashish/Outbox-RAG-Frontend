@@ -1,6 +1,39 @@
 import type { UIMessage } from "@tanstack/ai-react";
 import type { Message } from "@/features/conversations/types";
-import type { ChatMessage, ChatSource } from "./types";
+import type {
+  ChatMessage,
+  ChatModelInfo,
+  ChatModelOption,
+  ChatSource,
+} from "./types";
+
+const PROVIDER_LABELS: Record<string, string> = {
+  groq: "Groq",
+  gemini: "Google Gemini",
+  openai: "OpenAI",
+};
+
+export function formatChatModelOption(m: ChatModelInfo): ChatModelOption {
+  const providerKey = m.provider?.toLowerCase() ?? "";
+  const providerLabel =
+    PROVIDER_LABELS[providerKey] ??
+    (m.provider
+      ? m.provider.charAt(0).toUpperCase() + m.provider.slice(1)
+      : undefined);
+
+  // If the backend name is formatted as "Provider (model)", extract the model part
+  // for a clean label and use the provider label as description to avoid
+  // "Groq (openai/...) / Groq" redundancy.
+  const parenMatch = m.name.match(/^(.+?)\s*\((.+)\)$/);
+  const cleanLabel = parenMatch?.[2] || m.name;
+
+  return {
+    id: m.id,
+    label: cleanLabel,
+    shortLabel: cleanLabel.split("/").pop() ?? cleanLabel,
+    description: providerLabel,
+  };
+}
 
 const NO_SOURCES: ChatSource[] = [];
 

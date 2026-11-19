@@ -1,9 +1,14 @@
 import { createId } from "./id";
-import { formatFileSize, isPdf } from "./file";
+import {
+  formatFileSize,
+  isPdf,
+  MAX_DOCUMENT_FILE_SIZE_BYTES,
+  MAX_DOCUMENT_FILE_SIZE_MB,
+} from "./file";
 
 export const MAX_KB_FILES = 10;
-export const MAX_KB_FILE_SIZE_MB = 20;
-export const MAX_KB_FILE_SIZE_BYTES = MAX_KB_FILE_SIZE_MB * 1024 * 1024;
+export const MAX_KB_FILE_SIZE_MB = MAX_DOCUMENT_FILE_SIZE_MB;
+export const MAX_KB_FILE_SIZE_BYTES = MAX_DOCUMENT_FILE_SIZE_BYTES;
 
 /** Single source for the input's `accept` attribute AND validation. */
 export const KB_ACCEPT = "application/pdf,.pdf";

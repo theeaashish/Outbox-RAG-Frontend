@@ -3,7 +3,7 @@ import { Radio } from "./menu-items";
 
 interface MenuRadioGroupProps<T extends string> {
   label: string;
-  options: readonly { value: T; label: string }[];
+  options: readonly { value: T; label: string; description?: string }[];
   value: T;
   onChange: (value: T) => void;
   className?: string;
@@ -41,7 +41,14 @@ export function MenuRadioGroup<T extends string>({
               selected && "bg-zinc-100 font-medium dark:bg-zinc-800/80"
             )}
           >
-            <span>{option.label}</span>
+            <div className="flex flex-col gap-0.5 min-w-0 pr-2">
+              <span className="truncate">{option.label}</span>
+              {option.description ? (
+                <span className="text-xs text-zinc-400 dark:text-zinc-500 font-normal truncate">
+                  {option.description}
+                </span>
+              ) : null}
+            </div>
             <Radio checked={selected} />
           </button>
         );
