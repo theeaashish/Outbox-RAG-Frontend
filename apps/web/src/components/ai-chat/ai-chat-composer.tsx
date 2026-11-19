@@ -164,7 +164,11 @@ export const AiChatComposer = memo(function AiChatComposer({
     !hasUploadingAttachments &&
     !hasFailedAttachments;
 
-  const isSendDisabled = isCancelling ? true : isGenerating ? false : !canSubmit;
+  const isSendDisabled = isCancelling
+    ? true
+    : isGenerating
+      ? false
+      : !canSubmit;
   const currentModeLabel = MODES.find((m) => m.value === mode)?.label ?? "Chat";
 
   const addMenuProps: AddMenuProps = {
@@ -253,15 +257,11 @@ export const AiChatComposer = memo(function AiChatComposer({
       <div
         ref={ghostRef}
         aria-hidden="true"
-        className="pointer-events-none fixed top-0 -left-[9999px] invisible select-none whitespace-pre-wrap wrap-break-word text-sm leading-snug"
+        className="pointer-events-none fixed top-0 -left-2499.75 invisible select-none whitespace-pre-wrap wrap-break-word text-sm leading-snug"
         style={{ width: `${ghostWidth}px` }}
       />
 
-      <form
-        onSubmit={handleFormSubmit}
-        aria-busy={isBusy}
-        className="relative"
-      >
+      <form onSubmit={handleFormSubmit} aria-busy={isBusy} className="relative">
         {/* Single CSS Grid container: morphs cleanly between 1-row pill and 2-row
             card without unmounting AddMenu, textarea, or ComposerActions. */}
         <div
