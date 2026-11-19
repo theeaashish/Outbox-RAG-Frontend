@@ -1,7 +1,8 @@
-import { ArrowUp, Mic, Square } from "lucide-react";
+import { ArrowUp, Loader2, Mic, Square } from "lucide-react";
 import { BoardButton } from "@repo/ui";
 import { ModelMenu } from "./model-menu";
-import type { ChatModelOption, Model } from "./constants";
+import type { Model } from "./constants";
+import type { ChatModelOption } from "./types";
 
 interface ComposerActionsProps {
   model: Model;
@@ -12,12 +13,13 @@ interface ComposerActionsProps {
   modelSelectorDisabled?: boolean;
   effortSelectorDisabled?: boolean;
   isGenerating: boolean;
+  isCancelling: boolean;
   sendDisabled: boolean;
+  onCancel: () => void;
   onVoiceClick?: () => void;
   models?: readonly ChatModelOption[];
 }
 
-// Model picker + voice + send/stop — identical in both composer layouts.
 export function ComposerActions({
   model,
   effort,
@@ -27,10 +29,14 @@ export function ComposerActions({
   modelSelectorDisabled = false,
   effortSelectorDisabled = false,
   isGenerating,
+  isCancelling,
   sendDisabled,
+  onCancel,
   onVoiceClick,
   models,
 }: ComposerActionsProps) {
+  const isBusy = isGenerating || isCancelling;
+
   return (
     <div className="flex shrink-0 items-center gap-1.5">
       <ModelMenu
@@ -46,10 +52,11 @@ export function ComposerActions({
 
       {onVoiceClick && (
         <BoardButton
+          type="button"
           variant="ghost"
           size="small"
           iconOnly
-          disabled={disabled || isGenerating}
+          disabled={disabled || isBusy}
           onClick={onVoiceClick}
           aria-label="Voice input"
           className="rounded-full text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
@@ -62,15 +69,24 @@ export function ComposerActions({
         variant="primary"
         size="small"
         iconOnly
-        disabled={sendDisabled}
-        type="submit"
-        aria-label={isGenerating ? "Stop generation" : "Send message"}
+        type={isBusy ? "button" : "submit"}
+        disabled={isCancelling || (!isGenerating && sendDisabled)}
+        onClick={isGenerating ? onCancel : undefined}
+        aria-label={
+          isCancelling
+            ? "Stopping generation"
+            : isGenerating
+              ? "Stop generation"
+              : "Send message"
+        }
         className="size-8 rounded-full"
       >
-        {isGenerating ? (
-          <Square className="size-3.5 fill-current" />
+        {isCancelling ? (
+          <Loader2 className="size-3.5 animate-spin" />
+        ) : isGenerating ? (
+          <Square className="size-3 fill-current" />
         ) : (
-          <ArrowUp className="size-4" />
+          <ArrowUp className="size-4" strokeWidth={2.2} />
         )}
       </BoardButton>
     </div>

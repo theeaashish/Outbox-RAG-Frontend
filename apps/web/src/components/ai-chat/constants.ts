@@ -1,7 +1,5 @@
 export type Model = string;
 
-export type { ChatModelOption } from "@/features/chat/types";
-
 export const EFFORT_LEVELS = [
   "Low",
   "Medium",

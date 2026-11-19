@@ -1,5 +1,13 @@
 import type { Model } from "./constants";
 
+export interface ChatModelOption {
+  id: Model;
+  label: string;
+  shortLabel?: string;
+  description?: string;
+  disabled?: boolean;
+}
+
 export type ComposerStatus =
   | "idle"
   | "submitting"

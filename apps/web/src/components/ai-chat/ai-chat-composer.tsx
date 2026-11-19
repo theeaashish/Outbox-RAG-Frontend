@@ -3,9 +3,11 @@
 import {
   memo,
   useCallback,
+  useEffect,
   useState,
   type FormEvent,
   type KeyboardEvent,
+  type MouseEvent,
 } from "react";
 import {
   ChevronDown,
@@ -23,8 +25,9 @@ import {
   menuHeadingClassName,
   popoverSurfaceClassName,
 } from "./popover-surface";
-import type { ChatModelOption, Model } from "./constants";
+import type { Model } from "./constants";
 import type {
+  ChatModelOption,
   ComposerAttachment,
   ComposerMode,
   ComposerStatus,
@@ -83,7 +86,7 @@ export interface AiChatComposerProps extends AddMenuProps {
   className?: string;
 }
 
-const MODES: { value: ComposerMode; label: string }[] = [
+const MODES: readonly { value: ComposerMode; label: string }[] = [
   { value: "chat", label: "Chat" },
   { value: "plan", label: "Plan" },
   { value: "agent", label: "Agent" },
@@ -136,15 +139,32 @@ export const AiChatComposer = memo(function AiChatComposer({
   const [modeMenuOpen, setModeMenuOpen] = useState(false);
 
   const isGenerating = status === "submitting" || status === "streaming";
-  const controlsDisabled = disabled || isGenerating;
+  const isCancelling = status === "cancelling";
+  const isBusy = isGenerating || isCancelling;
+  const controlsDisabled = disabled || isBusy;
+
+  const isModeDisabled = controlsDisabled || modeSelectorDisabled;
+
+  useEffect(() => {
+    if (isModeDisabled) setModeMenuOpen(false);
+  }, [isModeDisabled]);
+
+  const isModeMenuOpen = modeMenuOpen && !isModeDisabled;
 
   const hasUploadingAttachments =
     attachments?.some((a) => a.status === "uploading") ?? false;
+  const hasFailedAttachments =
+    attachments?.some((a) => a.status === "error") ?? false;
+  const hasReadyAttachments =
+    attachments?.some((a) => a.status === "ready") ?? false;
 
   const canSubmit =
-    value.trim().length > 0 && !disabled && !hasUploadingAttachments;
+    (value.trim().length > 0 || hasReadyAttachments) &&
+    !controlsDisabled &&
+    !hasUploadingAttachments &&
+    !hasFailedAttachments;
 
-  const isSendDisabled = isGenerating ? false : !canSubmit;
+  const isSendDisabled = isCancelling ? true : isGenerating ? false : !canSubmit;
   const currentModeLabel = MODES.find((m) => m.value === mode)?.label ?? "Chat";
 
   const addMenuProps: AddMenuProps = {
@@ -159,25 +179,24 @@ export const AiChatComposer = memo(function AiChatComposer({
   };
 
   const handleSubmit = useCallback(() => {
+    if (isCancelling) return;
+
     if (isGenerating) {
       onCancel();
       return;
     }
 
-    if (!canSubmit) {
-      return;
-    }
+    if (!canSubmit) return;
 
-    const data: ComposerSubmitData = {
+    onSubmit({
       text: value.trim(),
       model,
       effort,
       mode,
       attachments: attachments ?? [],
-    };
-
-    onSubmit(data);
+    });
   }, [
+    isCancelling,
     isGenerating,
     canSubmit,
     value,
@@ -196,11 +215,29 @@ export const AiChatComposer = memo(function AiChatComposer({
 
   const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key !== "Enter") return;
-    if (event.shiftKey) return; // newline
-    if (event.nativeEvent.isComposing) return; // IME composition
+    if (event.shiftKey || event.altKey) return;
+    // Guard both standard and Safari/WebKit IME composition
+    if (event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229) {
+      return;
+    }
 
     event.preventDefault();
     handleSubmit();
+  };
+
+  const handleContainerMouseDown = (event: MouseEvent<HTMLDivElement>) => {
+    if (controlsDisabled) return;
+    const target = event.target as HTMLElement | null;
+    if (
+      !target ||
+      target.closest(
+        "button, a, input, textarea, select, [role='button'], [role='slider'], [role='radio']"
+      )
+    ) {
+      return;
+    }
+    event.preventDefault();
+    textareaRef.current?.focus();
   };
 
   const hasFooterItems =
@@ -216,45 +253,48 @@ export const AiChatComposer = memo(function AiChatComposer({
       <div
         ref={ghostRef}
         aria-hidden="true"
-        className="pointer-events-none fixed top-0 -left-2499.75 invisible select-none whitespace-pre-wrap wrap-break-word text-sm leading-snug"
+        className="pointer-events-none fixed top-0 -left-[9999px] invisible select-none whitespace-pre-wrap wrap-break-word text-sm leading-snug"
         style={{ width: `${ghostWidth}px` }}
       />
 
       <form
         onSubmit={handleFormSubmit}
-        aria-busy={isGenerating}
+        aria-busy={isBusy}
         className="relative"
       >
-        {/* Morphing container: single-line pill when short, 2-tier card when multiline.
-            NOTE: pill radius is 28px, NOT rounded-full. rounded-full = 9999px, and a
-            radius that large only stops looking capsule-shaped once it drops below
-            half the box height — so on a big paste (instant tall container) the
-            border renders as a giant blob for the whole transition. 28px renders
-            identically at pill heights (radius clamps to half-height) but actually
-            interpolates during the morph. */}
+        {/* Single CSS Grid container: morphs cleanly between 1-row pill and 2-row
+            card without unmounting AddMenu, textarea, or ComposerActions. */}
         <div
           ref={containerRef}
+          onMouseDown={handleContainerMouseDown}
           className={cn(
-            "relative transition-[border-color,box-shadow,border-radius,padding] duration-150 ease-out outline-none focus:outline-none focus-within:outline-none focus-visible:outline-none",
-            "bg-white/95 dark:bg-zinc-900/95 border border-zinc-200/80 dark:border-zinc-800",
+            "relative grid grid-cols-[auto_minmax(0,1fr)_auto] items-center transition-[border-color,box-shadow,border-radius,padding] duration-150 ease-out",
+            "border border-zinc-200/80 bg-white/95 dark:border-zinc-800 dark:bg-zinc-900/95",
             "shadow-[0_2px_8px_rgba(0,0,0,0.04),0_12px_24px_-8px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)]",
             "focus-within:border-zinc-300 dark:focus-within:border-zinc-700",
             isMultiline
-              ? "flex flex-col justify-between rounded-2xl p-2 sm:p-2.5"
-              : "flex items-center gap-1.5 rounded-[28px] p-1.5"
+              ? "gap-y-1 rounded-2xl p-2 sm:p-2.5"
+              : "gap-x-1.5 rounded-[28px] p-1.5"
           )}
         >
-          {!isMultiline && (
-            <div ref={addMenuRef} className="shrink-0">
-              <AddMenu {...addMenuProps} />
-            </div>
-          )}
+          <div
+            ref={addMenuRef}
+            className={cn(
+              "shrink-0 justify-self-start",
+              isMultiline
+                ? "col-start-1 row-start-2 pt-1"
+                : "col-start-1 row-start-1"
+            )}
+          >
+            <AddMenu {...addMenuProps} />
+          </div>
 
-          {/* Single continuous textarea */}
           <div
             className={cn(
               "min-w-0",
-              isMultiline ? "w-full px-2 pt-1 pb-1" : "flex-1 px-1"
+              isMultiline
+                ? "col-span-3 row-start-1 w-full px-2 pt-1 pb-1"
+                : "col-start-2 row-start-1 px-1"
             )}
           >
             <textarea
@@ -267,52 +307,39 @@ export const AiChatComposer = memo(function AiChatComposer({
               rows={1}
               disabled={controlsDisabled}
               className={cn(
-                "block w-full resize-none bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 scrollbar-none dark:text-zinc-100 dark:placeholder:text-zinc-500 [&::-webkit-scrollbar]:hidden",
+                "block w-full resize-none bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:outline-none focus:ring-0 scrollbar-none dark:text-zinc-100 dark:placeholder:text-zinc-500 [&::-webkit-scrollbar]:hidden",
                 isMultiline
                   ? "leading-relaxed"
-                  : "py-1 leading-snug overflow-hidden"
+                  : "overflow-hidden py-1 leading-snug"
               )}
             />
           </div>
 
-          {isMultiline ? (
-            <div className="flex items-center justify-between pt-1">
-              <div ref={addMenuRef}>
-                <AddMenu {...addMenuProps} />
-              </div>
-              <div ref={actionsRef}>
-                <ComposerActions
-                  model={model}
-                  effort={effort}
-                  onModelChange={onModelChange}
-                  onEffortChange={onEffortChange}
-                  disabled={controlsDisabled}
-                  modelSelectorDisabled={modelSelectorDisabled}
-                  effortSelectorDisabled={effortSelectorDisabled}
-                  isGenerating={isGenerating}
-                  sendDisabled={isSendDisabled}
-                  onVoiceClick={onVoiceClick}
-                  models={models}
-                />
-              </div>
-            </div>
-          ) : (
-            <div ref={actionsRef} className="shrink-0">
-              <ComposerActions
-                model={model}
-                effort={effort}
-                onModelChange={onModelChange}
-                onEffortChange={onEffortChange}
-                disabled={controlsDisabled}
-                modelSelectorDisabled={modelSelectorDisabled}
-                effortSelectorDisabled={effortSelectorDisabled}
-                isGenerating={isGenerating}
-                sendDisabled={isSendDisabled}
-                onVoiceClick={onVoiceClick}
-                models={models}
-              />
-            </div>
-          )}
+          <div
+            ref={actionsRef}
+            className={cn(
+              "shrink-0 justify-self-end",
+              isMultiline
+                ? "col-start-3 row-start-2 pt-1"
+                : "col-start-3 row-start-1"
+            )}
+          >
+            <ComposerActions
+              model={model}
+              effort={effort}
+              onModelChange={onModelChange}
+              onEffortChange={onEffortChange}
+              disabled={controlsDisabled}
+              modelSelectorDisabled={modelSelectorDisabled}
+              effortSelectorDisabled={effortSelectorDisabled}
+              isGenerating={isGenerating}
+              isCancelling={isCancelling}
+              sendDisabled={isSendDisabled}
+              onCancel={onCancel}
+              onVoiceClick={onVoiceClick}
+              models={models}
+            />
+          </div>
         </div>
 
         {/* Footer status row */}
@@ -324,7 +351,7 @@ export const AiChatComposer = memo(function AiChatComposer({
                   type="button"
                   onClick={onBranchClick}
                   disabled={disabled}
-                  className="flex cursor-pointer items-center gap-1.5 outline-none focus:outline-none focus-visible:outline-none transition-colors hover:text-zinc-900 disabled:opacity-50 dark:hover:text-zinc-100"
+                  className="flex cursor-pointer items-center gap-1.5 rounded-md transition-colors hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/70 disabled:opacity-50 dark:hover:text-zinc-100"
                 >
                   <GitBranch className="size-3.5 text-zinc-400" />
                   <span>{branch.name}</span>
@@ -336,7 +363,7 @@ export const AiChatComposer = memo(function AiChatComposer({
                   type="button"
                   onClick={onProjectClick}
                   disabled={disabled}
-                  className="flex cursor-pointer items-center gap-1.5 outline-none focus:outline-none focus-visible:outline-none transition-colors hover:text-zinc-900 disabled:opacity-50 dark:hover:text-zinc-100"
+                  className="flex cursor-pointer items-center gap-1.5 rounded-md transition-colors hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/70 disabled:opacity-50 dark:hover:text-zinc-100"
                 >
                   <Folder className="size-3.5 text-zinc-400" />
                   <span>{project.name}</span>
@@ -347,22 +374,28 @@ export const AiChatComposer = memo(function AiChatComposer({
 
             <div className="flex items-center gap-3">
               {!modeSelectorDisabled && onModeChange ? (
-                <Popover open={modeMenuOpen} onOpenChange={setModeMenuOpen}>
+                <Popover
+                  open={isModeMenuOpen}
+                  onOpenChange={(next) =>
+                    setModeMenuOpen(isModeDisabled ? false : next)
+                  }
+                >
                   <PopoverTrigger
                     render={
                       <button
                         type="button"
-                        disabled={controlsDisabled}
-                        className="flex cursor-pointer items-center gap-1.5 outline-none focus:outline-none focus-visible:outline-none transition-colors hover:text-zinc-900 disabled:opacity-50 dark:hover:text-zinc-100"
+                        disabled={isModeDisabled}
+                        className="flex cursor-pointer items-center gap-1.5 rounded-md transition-colors hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/70 disabled:opacity-50 dark:hover:text-zinc-100"
                       />
                     }
                   >
                     <InfinityIcon className="size-3.5 text-zinc-400" />
                     <span>{currentModeLabel}</span>
                     <ChevronDown
+                      aria-hidden="true"
                       className={cn(
                         "size-3 text-zinc-400 transition-transform duration-200",
-                        modeMenuOpen && "rotate-180"
+                        isModeMenuOpen && "rotate-180"
                       )}
                     />
                   </PopoverTrigger>
@@ -379,7 +412,7 @@ export const AiChatComposer = memo(function AiChatComposer({
                       options={MODES}
                       value={mode}
                       onChange={(next) => {
-                        onModeChange(next);
+                        if (next !== mode) onModeChange(next);
                         setModeMenuOpen(false);
                       }}
                     />
@@ -400,7 +433,7 @@ export const AiChatComposer = memo(function AiChatComposer({
                   <InfinityIcon className="size-3.5 text-zinc-400" />
                   <span>{currentModeLabel}</span>
                   {modeSelectorDisabled && (
-                    <span className="text-[10px] text-zinc-400 font-normal">
+                    <span className="text-[10px] font-normal text-zinc-400">
                       (Unavailable)
                     </span>
                   )}

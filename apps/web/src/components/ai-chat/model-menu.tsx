@@ -1,15 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
-import {
-  BoardButton,
-  cn,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@repo/ui";
-import { EFFORT_LEVELS, type ChatModelOption, type Model } from "./constants";
+import { cn, Popover, PopoverContent, PopoverTrigger } from "@repo/ui";
+import { EFFORT_LEVELS, type Model } from "./constants";
+import type { ChatModelOption } from "./types";
 import { EffortSlider } from "./effort-slider";
 import { MenuDivider } from "./menu-items";
 import { MenuRadioGroup } from "./menu-radio-group";
@@ -43,9 +38,27 @@ export function ModelMenu({
 }: ModelMenuProps) {
   const [open, setOpen] = useState(false);
 
-  // Defensive clamp — effort arrives from props and drives a display lookup.
-  const safeEffort = Math.min(Math.max(effort, 0), MAX_EFFORT_INDEX);
-  const isModelDisabled = disabled || modelSelectorDisabled;
+  const safeEffort = Number.isFinite(effort)
+    ? Math.min(Math.max(Math.round(effort), 0), MAX_EFFORT_INDEX)
+    : 0;
+
+  const canSelectModel =
+    !disabled && !modelSelectorDisabled && models.length > 0;
+  const canSelectEffort = !disabled && !effortSelectorDisabled;
+  const isTriggerDisabled = disabled || (!canSelectModel && !canSelectEffort);
+
+  useEffect(() => {
+    if (isTriggerDisabled) setOpen(false);
+  }, [isTriggerDisabled]);
+
+  const isOpen = open && !isTriggerDisabled;
+
+  const handleOpenChange = useCallback(
+    (nextOpen: boolean) => {
+      setOpen(isTriggerDisabled ? false : nextOpen);
+    },
+    [isTriggerDisabled]
+  );
 
   const selectedModel = useMemo(
     () => models.find((m) => m.id === model),
@@ -58,6 +71,7 @@ export function ModelMenu({
         value: m.id,
         label: m.label,
         description: m.description,
+        disabled: m.disabled,
       })),
     [models]
   );
@@ -65,34 +79,36 @@ export function ModelMenu({
   const displayLabel =
     selectedModel?.shortLabel ?? selectedModel?.label ?? model;
 
+  const triggerTitle = disabled
+    ? (selectedModel?.label ?? model)
+    : isTriggerDisabled
+      ? "Model selection is currently unavailable"
+      : (selectedModel?.label ?? model);
+
   return (
-    <Popover open={open && !isModelDisabled} onOpenChange={setOpen}>
+    <Popover open={isOpen} onOpenChange={handleOpenChange}>
       <PopoverTrigger
         render={
-          <BoardButton
-            variant="ghost"
-            size="small"
-            disabled={isModelDisabled}
-            title={
-              isModelDisabled
-                ? "Model selection is currently unavailable"
-                : (selectedModel?.label ?? model)
-            }
+          <button
+            type="button"
+            disabled={isTriggerDisabled}
+            title={triggerTitle}
+            aria-label={`Model: ${selectedModel?.label ?? model}`}
             className={cn(
-              "rounded-full px-2.5 text-xs font-medium text-zinc-500 hover:text-zinc-900 outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 dark:text-zinc-400 dark:hover:text-zinc-100",
-              isModelDisabled && "cursor-not-allowed opacity-50",
-              open &&
+              "inline-flex h-8 cursor-pointer items-center rounded-full px-2.5 text-xs font-medium text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/70 disabled:cursor-not-allowed disabled:opacity-50 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 dark:focus-visible:ring-zinc-500/70",
+              isOpen &&
                 "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
             )}
           />
         }
       >
         <span className="inline-flex items-center gap-1">
-          <span className="max-w-32.5 truncate">{displayLabel}</span>
+          <span className="max-w-36 truncate">{displayLabel}</span>
           <ChevronDown
+            aria-hidden="true"
             className={cn(
               "size-3 text-zinc-400 transition-transform duration-200 dark:text-zinc-500",
-              open && "rotate-180"
+              isOpen && "rotate-180"
             )}
           />
         </span>
@@ -110,9 +126,11 @@ export function ModelMenu({
           label="Models"
           options={modelOptions}
           value={model}
+          disabled={!canSelectModel}
+          emptyLabel="No models available"
           onChange={(next) => {
-            if (isModelDisabled) return;
-            onModelChange?.(next);
+            if (!canSelectModel) return;
+            if (next !== model) onModelChange?.(next);
             setOpen(false);
           }}
         />
@@ -142,9 +160,9 @@ export function ModelMenu({
           <EffortSlider
             className="mt-1"
             value={safeEffort}
-            disabled={disabled || effortSelectorDisabled}
+            disabled={!canSelectEffort}
             onChange={(next) => {
-              if (disabled || effortSelectorDisabled) return;
+              if (!canSelectEffort) return;
               onEffortChange?.(next);
             }}
           />

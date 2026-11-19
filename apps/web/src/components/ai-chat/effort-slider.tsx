@@ -2,6 +2,7 @@
 
 import {
   useCallback,
+  useEffect,
   useRef,
   useState,
   type KeyboardEvent,
@@ -27,20 +28,13 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 function getPercentage(value: number): number {
-  if (MAX_INDEX === 0) {
-    return 0;
-  }
-
+  if (MAX_INDEX === 0) return 0;
   return (value / MAX_INDEX) * 100;
 }
 
 function getStepFromPointer(clientX: number, rect: DOMRect): number {
-  if (rect.width <= 0) {
-    return 0;
-  }
-
+  if (rect.width <= 0) return 0;
   const ratio = clamp((clientX - rect.left) / rect.width, 0, 1);
-
   return Math.round(ratio * MAX_INDEX);
 }
 
@@ -53,8 +47,13 @@ export function EffortSlider({
   const trackRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  // Defensive normalization because this is a controlled component.
-  const safeValue = clamp(value, 0, MAX_INDEX);
+  useEffect(() => {
+    if (disabled) setIsDragging(false);
+  }, [disabled]);
+
+  const safeValue = Number.isFinite(value)
+    ? clamp(Math.round(value), 0, MAX_INDEX)
+    : 0;
   const percentage = getPercentage(safeValue);
   const isMax = safeValue === MAX_INDEX;
 
@@ -62,16 +61,12 @@ export function EffortSlider({
     (clientX: number) => {
       if (disabled) return;
       const track = trackRef.current;
-
-      if (!track) {
-        return;
-      }
+      if (!track) return;
 
       const nextValue = getStepFromPointer(
         clientX,
         track.getBoundingClientRect()
       );
-
       if (nextValue !== safeValue) {
         onChange(nextValue);
       }
@@ -80,30 +75,24 @@ export function EffortSlider({
   );
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    // Ignore non-primary pointers such as additional mouse buttons or when disabled.
-    if (disabled || !event.isPrimary) {
-      return;
+    if (disabled || !event.isPrimary) return;
+
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      // Synthetic or inactive pointer
     }
-
-    event.currentTarget.setPointerCapture(event.pointerId);
     setIsDragging(true);
-
     updateFromPointer(event.clientX);
   };
 
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (disabled || !isDragging || !event.isPrimary) {
-      return;
-    }
-
+    if (disabled || !isDragging || !event.isPrimary) return;
     updateFromPointer(event.clientX);
   };
 
   const endDragging = (event: PointerEvent<HTMLDivElement>) => {
-    if (!isDragging) {
-      return;
-    }
-
+    if (!isDragging) return;
     setIsDragging(false);
 
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
@@ -120,26 +109,27 @@ export function EffortSlider({
       case "ArrowDown":
         nextValue = clamp(safeValue - 1, 0, MAX_INDEX);
         break;
-
       case "ArrowRight":
       case "ArrowUp":
         nextValue = clamp(safeValue + 1, 0, MAX_INDEX);
         break;
-
+      case "PageDown":
+        nextValue = clamp(safeValue - 2, 0, MAX_INDEX);
+        break;
+      case "PageUp":
+        nextValue = clamp(safeValue + 2, 0, MAX_INDEX);
+        break;
       case "Home":
         nextValue = 0;
         break;
-
       case "End":
         nextValue = MAX_INDEX;
         break;
-
       default:
         return;
     }
 
     event.preventDefault();
-
     if (nextValue !== safeValue) {
       onChange(nextValue);
     }
@@ -162,6 +152,7 @@ export function EffortSlider({
       onPointerMove={handlePointerMove}
       onPointerUp={endDragging}
       onPointerCancel={endDragging}
+      onLostPointerCapture={() => setIsDragging(false)}
       className={cn(
         "relative h-8 select-none touch-none rounded-lg outline-none",
         disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer",
@@ -177,7 +168,7 @@ export function EffortSlider({
           "absolute inset-x-0 top-1/2 h-7 -translate-y-1/2 overflow-hidden rounded-lg transition-colors duration-200",
           isMax
             ? "bg-linear-to-r from-[#2B7CF6] via-[#52A3FE] to-[#CBE6FF] shadow-xs"
-            : "bg-zinc-200/70 dark:bg-zinc-800 ring-1 ring-black/4 dark:ring-white/10"
+            : "bg-zinc-200/70 ring-1 ring-black/4 dark:bg-zinc-800 dark:ring-white/10"
         )}
       >
         {!isMax && (
