@@ -1,24 +1,33 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   RiAddLine,
   RiCloseLine,
-  RiCustomerServiceLine,
+  RiExpandUpDownLine,
+  RiLogoutBoxRLine,
   RiMagicLine,
   RiRobot2Line,
   RiSettings4Line,
   RiSideBarFill,
 } from "@remixicon/react";
 import {
-  DashboardTeamMenu,
-  DashboardUserMenu,
+  BoardAvatar,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  LogoIcon,
   SettingsModal,
   SidebarCollapsible,
   ThemeToggle,
   cx,
   useMediaQuery,
 } from "@repo/ui";
+import { toast } from "sonner";
 import { panelSurfaceClassName } from "../panel";
 import { filterProjects } from "./sidebar-data";
 import { useDashboardProjects } from "./sidebar-data-provider";
@@ -27,6 +36,19 @@ import { ProjectNode } from "./project-node";
 import { QuickSearch } from "./quick-search";
 import { useHotkey } from "@/app/(dashboard)/_hooks/use-hotkey";
 import { NewProjectDialog } from "@/app/(dashboard)/_components/new-project/new-project-dialog";
+import { useCurrentUser, useLogout } from "@/features/auth";
+
+function getUserDisplay(user: { name: string | null; email: string } | null) {
+  const name = user?.name?.trim() || user?.email?.split("@")[0] || "Account";
+  const email = user?.email ?? "";
+  const parts = name.split(/\s+/).filter(Boolean);
+  const initials =
+    parts.length >= 2
+      ? `${parts[0]![0]}${parts[1]![0]}`.toUpperCase()
+      : name.slice(0, 2).toUpperCase();
+
+  return { name, email, initials };
+}
 
 export interface DashboardSidebarProps {
   mobile?: boolean;
@@ -50,6 +72,15 @@ export function DashboardSidebar({
     deleteChat,
     deleteProject,
   } = useDashboardProjects();
+
+  const router = useRouter();
+  const { user } = useCurrentUser();
+  const logoutMutation = useLogout();
+  const {
+    name: userName,
+    email: userEmail,
+    initials: userInitials,
+  } = getUserDisplay(user);
 
   const [collapsedState, setCollapsedState] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -112,13 +143,23 @@ export function DashboardSidebar({
   ];
 
   const secondaryActions: NavAction[] = [
-    { label: "Support", icon: RiCustomerServiceLine },
     {
       label: "Settings",
       icon: RiSettings4Line,
       onClick: () => setSettingsOpen(true),
     },
   ];
+
+  const handleSignOut = useCallback(async () => {
+    try {
+      await logoutMutation.mutateAsync();
+      router.replace("/login");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to sign out"
+      );
+    }
+  }, [logoutMutation, router]);
 
   return (
     <aside
@@ -149,10 +190,21 @@ export function DashboardSidebar({
               collapsed ? "flex w-9 items-center justify-center" : "flex-1"
             )}
           >
-            <DashboardUserMenu
-              collapsed={collapsed}
-              avatarClassName="bg-accent-100 font-semibold text-accent-700 dark:bg-accent-950 dark:text-accent-300"
-            />
+            <Link
+              href="/dashboard"
+              aria-label="Outbox Home"
+              className={cx(
+                "inline-flex items-center rounded-lg transition-colors hover:opacity-90",
+                collapsed ? "justify-center p-1" : "gap-2 px-1 py-0.5"
+              )}
+            >
+              <LogoIcon className="size-6 shrink-0" aria-hidden />
+              <SidebarCollapsible collapsed={collapsed}>
+                <span className="whitespace-nowrap text-[15px] font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+                  Outbox
+                </span>
+              </SidebarCollapsible>
+            </Link>
           </div>
 
           {mobile ? (
@@ -302,7 +354,92 @@ export function DashboardSidebar({
           ))}
         </nav>
 
-        <DashboardTeamMenu collapsed={collapsed} />
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <button
+                type="button"
+                aria-label={userName}
+                title={collapsed ? userName : undefined}
+                className={cx(
+                  "flex cursor-pointer items-center overflow-hidden outline-none transition-colors",
+                  "focus-visible:ring-2 focus-visible:ring-accent-500/60 focus-visible:ring-offset-2",
+                  collapsed
+                    ? "size-9 justify-center rounded-full"
+                    : "w-full justify-between gap-2 rounded-xl bg-zinc-100/80 px-2.5 py-2 hover:bg-zinc-200/60 dark:bg-zinc-800/60 dark:hover:bg-zinc-800"
+                )}
+              >
+                <span
+                  className={cx(
+                    "flex min-w-0 items-center",
+                    collapsed ? "justify-center" : "gap-2.5"
+                  )}
+                >
+                  <BoardAvatar
+                    size="md"
+                    color="blue"
+                    initials={userInitials}
+                    className="bg-linear-to-b from-accent-500 to-accent-600 text-xs font-semibold text-white"
+                  />
+                  <SidebarCollapsible collapsed={collapsed}>
+                    <span className="flex min-w-0 flex-col items-start text-left">
+                      <span className="max-w-36 truncate text-xs font-medium text-zinc-900 dark:text-zinc-100">
+                        {userName}
+                      </span>
+                      {userEmail && (
+                        <span className="max-w-36 truncate text-[11px] text-zinc-500 dark:text-zinc-400">
+                          {userEmail}
+                        </span>
+                      )}
+                    </span>
+                  </SidebarCollapsible>
+                </span>
+                <SidebarCollapsible collapsed={collapsed}>
+                  <RiExpandUpDownLine
+                    className="size-4 shrink-0 text-zinc-400"
+                    aria-hidden
+                  />
+                </SidebarCollapsible>
+              </button>
+            }
+          />
+          <DropdownMenuContent
+            align="end"
+            side={mobile || !isDesktopViewport ? "top" : "right"}
+            sideOffset={8}
+            className="w-56 min-w-52 rounded-xl border border-zinc-200/80 bg-white p-1.5 shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
+          >
+            <div className="px-2 py-1.5">
+              <p className="truncate text-xs font-medium text-zinc-900 dark:text-zinc-100">
+                {userName}
+              </p>
+              {userEmail && (
+                <p className="truncate text-[11px] text-zinc-500 dark:text-zinc-400">
+                  {userEmail}
+                </p>
+              )}
+            </div>
+            <DropdownMenuSeparator className="my-1" />
+            <DropdownMenuItem
+              onClick={() => setSettingsOpen(true)}
+              className="cursor-pointer gap-2 rounded-lg text-xs text-zinc-700 focus:bg-zinc-100 dark:text-zinc-300 dark:focus:bg-zinc-800"
+            >
+              <RiSettings4Line className="size-3.5" aria-hidden />
+              <span>Settings</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              variant="destructive"
+              disabled={logoutMutation.isPending}
+              onClick={() => void handleSignOut()}
+              className="cursor-pointer gap-2 rounded-lg text-xs text-red-600 focus:bg-red-50 focus:text-red-700 dark:focus:bg-red-950/50 dark:focus:text-red-400"
+            >
+              <RiLogoutBoxRLine className="size-3.5" aria-hidden />
+              <span>
+                {logoutMutation.isPending ? "Signing out..." : "Sign out"}
+              </span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <SettingsModal

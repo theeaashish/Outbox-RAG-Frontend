@@ -11,7 +11,13 @@ import {
   type ComposerAttachment,
   type ComposerSubmitData,
 } from "@/components/ai-chat";
-import { DEFAULT_MODEL } from "@/features/chat";
+import {
+  DEFAULT_MODEL,
+  FALLBACK_CHAT_MODELS,
+  formatChatModelOption,
+} from "@/features/chat";
+
+const MARKETING_MODELS = FALLBACK_CHAT_MODELS.map(formatChatModelOption);
 
 export default function Home() {
   const [draft, setDraft] = useState("");
@@ -39,6 +45,7 @@ export default function Home() {
           value={draft}
           onChange={setDraft}
           model={model}
+          models={MARKETING_MODELS}
           effort={effort}
           onModelChange={setModel}
           onEffortChange={setEffort}

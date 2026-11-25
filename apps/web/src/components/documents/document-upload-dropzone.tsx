@@ -6,7 +6,7 @@ import {
   RiCheckLine,
   RiCloseLine,
   RiErrorWarningLine,
-  RiFilePdfLine,
+  RiFileTextLine,
   RiLoader4Line,
   RiRefreshLine,
   RiUploadCloud2Line,
@@ -93,31 +93,31 @@ export function DocumentUploadDropzone({
         <div
           {...getRootProps()}
           className={cx(
-            "group relative flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed py-7 px-4 text-center transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500/60 dark:focus-visible:ring-accent-400/60",
+            "group relative flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed px-4 py-5 text-center transition-all duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500/60 dark:focus-visible:ring-accent-400/60",
             isDragReject
               ? "border-rose-400 bg-rose-50/50 dark:border-rose-800 dark:bg-rose-950/20"
               : isDragActive
                 ? "border-accent-500 bg-accent-50/70 ring-2 ring-accent-500/15 scale-[0.99] dark:border-accent-400 dark:bg-accent-950/40 dark:ring-accent-400/20"
-                : "border-zinc-200/90 bg-zinc-50/40 hover:border-zinc-400 hover:bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/20 dark:hover:border-zinc-600 dark:hover:bg-zinc-900/50"
+                : "border-zinc-200 bg-zinc-50/50 hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/30 dark:hover:border-zinc-700 dark:hover:bg-zinc-900/50"
           )}
         >
           <input {...getInputProps()} />
 
           <div
             className={cx(
-              "mb-2.5 flex size-10 items-center justify-center rounded-xl border shadow-2xs transition-transform duration-200 group-hover:scale-105",
+              "mb-2 flex size-9 items-center justify-center rounded-full transition-colors duration-150",
               isDragReject
-                ? "border-rose-200 bg-rose-100 text-rose-600 dark:border-rose-900/50 dark:bg-rose-950 dark:text-rose-400"
+                ? "bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-400"
                 : isDragActive
-                  ? "border-accent-200 bg-accent-100 text-accent-600 dark:border-accent-800 dark:bg-accent-950 dark:text-accent-400"
-                  : "border-zinc-200/80 bg-white text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400"
+                  ? "bg-accent-100 text-accent-600 dark:bg-accent-950 dark:text-accent-400"
+                  : "bg-zinc-100 text-zinc-500 group-hover:bg-accent-50 group-hover:text-accent-600 dark:bg-zinc-800 dark:text-zinc-400 dark:group-hover:bg-accent-950/60 dark:group-hover:text-accent-400"
             )}
           >
-            <RiUploadCloud2Line className="size-5" aria-hidden />
+            <RiUploadCloud2Line className="size-4.5" aria-hidden />
           </div>
 
           <div className="space-y-0.5">
-            <p className="text-xs sm:text-sm font-medium text-zinc-800 dark:text-zinc-200">
+            <p className="text-[13px] font-medium text-zinc-700 dark:text-zinc-200">
               {isDragReject ? (
                 <span className="text-rose-600 dark:text-rose-400">
                   Only PDF files are supported
@@ -127,54 +127,54 @@ export function DocumentUploadDropzone({
               ) : (
                 <>
                   Drop a PDF here, or{" "}
-                  <span className="font-semibold text-accent-600 underline underline-offset-2 dark:text-accent-400">
+                  <span className="font-medium text-accent-600 underline underline-offset-2 dark:text-accent-400">
                     browse
                   </span>
                 </>
               )}
             </p>
-            <p className="text-[11px] text-zinc-400 dark:text-zinc-500">
-              Single PDF document &bull; Up to {MAX_DOCUMENT_FILE_SIZE_MB} MB
+            <p className="text-[11px] tabular-nums text-zinc-400 dark:text-zinc-500">
+              PDF up to {MAX_DOCUMENT_FILE_SIZE_MB} MB
             </p>
           </div>
         </div>
       ) : (
         <div
           aria-live="polite"
-          className="flex w-full min-w-0 flex-col gap-3 rounded-xl border border-zinc-200/90 bg-zinc-50/60 p-4 transition-all dark:border-zinc-800 dark:bg-zinc-900/40"
+          className="flex w-full min-w-0 flex-col gap-3 rounded-xl border border-zinc-200/90 bg-zinc-50/50 p-4 transition-all dark:border-zinc-800 dark:bg-zinc-900/40"
         >
           {/* File Card Header */}
           <div className="flex w-full min-w-0 items-center justify-between gap-3">
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <div
                 className={cx(
-                  "flex size-10 shrink-0 items-center justify-center rounded-xl border shadow-2xs font-bold text-[10px] tracking-tight uppercase",
+                  "flex size-9 shrink-0 items-center justify-center rounded-lg",
                   phase === "completed"
-                    ? "border-emerald-200 bg-emerald-50 text-emerald-600 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-400"
+                    ? "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400"
                     : phase === "error"
-                      ? "border-rose-200 bg-rose-50 text-rose-600 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-400"
-                      : "border-rose-200/80 bg-rose-50/80 text-rose-600 dark:border-rose-900/40 dark:bg-rose-950/40 dark:text-rose-400"
+                      ? "bg-rose-500/10 text-rose-600 dark:bg-rose-500/15 dark:text-rose-400"
+                      : "bg-accent-500/10 text-accent-600 dark:bg-accent-500/15 dark:text-accent-400"
                 )}
               >
                 {phase === "completed" ? (
-                  <RiCheckLine className="size-5" aria-hidden />
+                  <RiCheckLine className="size-4.5" aria-hidden />
                 ) : phase === "error" ? (
-                  <RiErrorWarningLine className="size-5" aria-hidden />
+                  <RiErrorWarningLine className="size-4.5" aria-hidden />
                 ) : (
-                  <RiFilePdfLine className="size-5" aria-hidden />
+                  <RiFileTextLine className="size-4.5" aria-hidden />
                 )}
               </div>
 
               <div className="min-w-0 flex-1">
                 <p
-                  className="truncate text-xs sm:text-sm font-semibold text-zinc-900 dark:text-zinc-100"
+                  className="truncate text-[13px] font-medium text-zinc-900 dark:text-zinc-100"
                   title={displayFilename}
                 >
                   {displayFilename}
                 </p>
-                <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 dark:text-zinc-500">
+                <div className="flex items-center gap-1.5 text-[11px] tabular-nums text-zinc-400 dark:text-zinc-500">
                   <span>{displaySize}</span>
-                  <span>&bull;</span>
+                  <span>&middot;</span>
                   <span className="font-medium text-zinc-600 dark:text-zinc-300">
                     {phase === "selected" && "Ready to upload"}
                     {phase === "initiating" && "Preparing..."}

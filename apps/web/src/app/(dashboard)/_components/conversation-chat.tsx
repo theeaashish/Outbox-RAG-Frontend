@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { ArrowDown } from "lucide-react";
-import { cx } from "@repo/ui";
+import { LogoIcon, cx } from "@repo/ui";
 import { toast } from "sonner";
 import {
   AiChatComposer,
@@ -15,12 +15,14 @@ import {
 } from "@/components/ai-chat";
 import { promptForRetry } from "@/app/(dashboard)/_components/assistant-turn";
 import { ConversationTranscript } from "@/app/(dashboard)/_components/transcript";
+import { useDashboardProjects } from "@/app/(dashboard)/_components/sidebar/sidebar-data-provider";
 import { useChatComposer } from "@/app/(dashboard)/_hooks/use-chat-composer";
 import { useChatScroll } from "@/app/(dashboard)/_hooks/use-chat-scroll";
 import {
   useConversationChatHistory,
   type Message,
 } from "@/features/conversations";
+import { useKnowledgeBaseDocuments } from "@/features/documents";
 import {
   DEFAULT_MODEL,
   FALLBACK_CHAT_MODELS,
@@ -31,7 +33,14 @@ import {
 interface ProjectSummary {
   id: string;
   name: string;
+  knowledgeBaseId?: string;
 }
+
+const STARTER_PROMPTS = [
+  "Summarize the key concepts",
+  "What are the main takeaways?",
+  "List the key topics covered",
+] as const;
 
 interface ConversationChatProps {
   conversationId?: string;
@@ -56,7 +65,6 @@ interface ChatSurfaceComposer {
 }
 
 const noop = () => undefined;
-const DEFAULT_BRANCH = { id: "main", name: "Main" } as const;
 const inactiveComposer: ChatSurfaceComposer = {
   draft: "",
   setDraft: noop,
@@ -144,6 +152,7 @@ function ConversationHistoryGate({
         messages={[]}
         composer={inactiveComposer}
         project={project}
+        isLoadingHistory
       />
     );
   }
@@ -191,14 +200,18 @@ function ChatSurface({
   messages,
   composer,
   project,
+  isLoadingHistory = false,
 }: {
   conversationId?: string;
   messages: ChatMessage[];
   composer: ChatSurfaceComposer;
   project?: ProjectSummary;
+  isLoadingHistory?: boolean;
 }) {
   const { scrollContainerRef, contentRef, scrollToBottom, isAtBottom } =
     useChatScroll();
+  const { openKnowledgeBase } = useDashboardProjects();
+  const kbQuery = useKnowledgeBaseDocuments(project?.knowledgeBaseId);
 
   const handleSubmit = useCallback(
     (data: ComposerSubmitData) => {
@@ -208,6 +221,26 @@ function ChatSurface({
       });
     },
     [composer, scrollToBottom]
+  );
+
+  const handleStarterSelect = useCallback(
+    (prompt: string) => {
+      if (composer.disabled) return;
+      handleSubmit({
+        text: prompt,
+        model: composer.model,
+        effort: composer.effort,
+        mode: composer.mode,
+        attachments: [],
+      });
+    },
+    [
+      composer.disabled,
+      composer.effort,
+      composer.mode,
+      composer.model,
+      handleSubmit,
+    ]
   );
 
   const runInFlight =
@@ -241,6 +274,127 @@ function ChatSurface({
     ]
   );
 
+  const composerElement = (
+    <AiChatComposer
+      value={composer.draft}
+      onChange={composer.setDraft}
+      model={composer.model}
+      effort={composer.effort}
+      onModelChange={composer.setModel}
+      onEffortChange={composer.setEffort}
+      mode={composer.mode}
+      onModeChange={composer.setMode}
+      models={composer.availableModels}
+      modelSelectorDisabled={composer.disabled || composer.isLoadingModels}
+      effortSelectorDisabled
+      modeSelectorDisabled
+      status={composer.status}
+      onSubmit={handleSubmit}
+      onCancel={composer.cancel}
+      project={project}
+      contextUsage={undefined}
+      disabled={composer.disabled}
+    />
+  );
+
+  const showEmptyWelcome = !isLoadingHistory && messages.length === 0;
+
+  if (showEmptyWelcome) {
+    const documents = kbQuery.data?.results ?? [];
+    const readyCount = documents.filter((d) => d.status === "ready").length;
+    const hasKb = Boolean(project?.knowledgeBaseId);
+    const hasLoadedDocs = hasKb && kbQuery.isSuccess;
+
+    const openProjectKb = () => {
+      if (!project?.knowledgeBaseId) return;
+      openKnowledgeBase({
+        name: project.name,
+        knowledgeBaseId: project.knowledgeBaseId,
+        projectId: project.id,
+      });
+    };
+
+    const heading = !conversationId
+      ? "Select a chat to get started"
+      : project?.name
+        ? `Ask anything about ${project.name}`
+        : "What would you like to know?";
+
+    return (
+      <div className="scrollbar-thin flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-8 sm:px-8">
+        <div className="mx-auto my-auto flex w-full max-w-2xl flex-col items-center">
+          <LogoIcon className="mb-4 size-8" aria-hidden="true" />
+
+          <h1 className="text-center text-xl font-semibold tracking-tight text-zinc-900 sm:text-2xl dark:text-zinc-50">
+            {heading}
+          </h1>
+
+          <p className="mt-1.5 text-center text-xs text-zinc-500 dark:text-zinc-400">
+            {!conversationId ? (
+              "Pick a conversation from the sidebar or start a new chat."
+            ) : hasLoadedDocs && readyCount > 0 ? (
+              <>
+                <span className="tabular-nums">{readyCount}</span>{" "}
+                {readyCount === 1 ? "PDF indexed" : "PDFs indexed"} and ready
+                for citations.{" "}
+                <button
+                  type="button"
+                  onClick={openProjectKb}
+                  className="cursor-pointer font-medium text-accent-600 underline-offset-2 hover:underline dark:text-accent-400"
+                >
+                  Manage sources
+                </button>
+              </>
+            ) : hasLoadedDocs && documents.length > 0 ? (
+              <>
+                <span className="tabular-nums">{documents.length}</span>{" "}
+                {documents.length === 1 ? "document" : "documents"} in knowledge
+                base.{" "}
+                <button
+                  type="button"
+                  onClick={openProjectKb}
+                  className="cursor-pointer font-medium text-accent-600 underline-offset-2 hover:underline dark:text-accent-400"
+                >
+                  View status
+                </button>
+              </>
+            ) : hasLoadedDocs ? (
+              <>
+                No PDFs indexed yet.{" "}
+                <button
+                  type="button"
+                  onClick={openProjectKb}
+                  className="cursor-pointer font-medium text-accent-600 underline-offset-2 hover:underline dark:text-accent-400"
+                >
+                  Upload PDFs
+                </button>
+              </>
+            ) : (
+              "Ask questions grounded in your project documents."
+            )}
+          </p>
+
+          <div className="mt-6 w-full">{composerElement}</div>
+
+          {conversationId && !composer.disabled && (
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+              {STARTER_PROMPTS.map((prompt) => (
+                <button
+                  key={prompt}
+                  type="button"
+                  onClick={() => handleStarterSelect(prompt)}
+                  className="cursor-pointer rounded-full border border-zinc-200/90 bg-white px-3.5 py-1.5 text-xs font-medium text-zinc-600 shadow-2xs transition-colors hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-zinc-700 dark:hover:bg-zinc-800/80 dark:hover:text-zinc-100 dark:focus-visible:ring-zinc-700"
+                >
+                  {prompt}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
       {/* Scrollable messages container */}
@@ -252,15 +406,25 @@ function ChatSurface({
           ref={contentRef}
           className={cx(
             "mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 pt-4 pb-6",
-            messages.length === 0 ? "justify-center" : "justify-start"
+            isLoadingHistory ? "justify-center" : "justify-start"
           )}
         >
-          <ConversationTranscript
-            conversationId={conversationId}
-            messages={messages}
-            runInFlight={runInFlight}
-            onRetry={composer.disabled || runInFlight ? undefined : handleRetry}
-          />
+          {isLoadingHistory ? (
+            <div className="space-y-3 py-8" aria-label="Loading conversation">
+              <div className="ml-auto h-9 w-56 animate-pulse rounded-3xl bg-zinc-100 dark:bg-zinc-800/70" />
+              <div className="h-4 w-3/4 animate-pulse rounded bg-zinc-100 dark:bg-zinc-800/70" />
+              <div className="h-4 w-1/2 animate-pulse rounded bg-zinc-100 dark:bg-zinc-800/70" />
+            </div>
+          ) : (
+            <ConversationTranscript
+              conversationId={conversationId}
+              messages={messages}
+              runInFlight={runInFlight}
+              onRetry={
+                composer.disabled || runInFlight ? undefined : handleRetry
+              }
+            />
+          )}
         </div>
       </div>
 
@@ -280,31 +444,7 @@ function ChatSurface({
           </div>
         )}
 
-        <div className="mx-auto w-full max-w-2xl">
-          <AiChatComposer
-            value={composer.draft}
-            onChange={composer.setDraft}
-            model={composer.model}
-            effort={composer.effort}
-            onModelChange={composer.setModel}
-            onEffortChange={composer.setEffort}
-            mode={composer.mode}
-            onModeChange={composer.setMode}
-            models={composer.availableModels}
-            modelSelectorDisabled={
-              composer.disabled || composer.isLoadingModels
-            }
-            effortSelectorDisabled
-            modeSelectorDisabled
-            status={composer.status}
-            onSubmit={handleSubmit}
-            onCancel={composer.cancel}
-            branch={DEFAULT_BRANCH}
-            project={project}
-            contextUsage={undefined}
-            disabled={composer.disabled}
-          />
-        </div>
+        <div className="mx-auto w-full max-w-2xl">{composerElement}</div>
       </div>
     </div>
   );

@@ -27,9 +27,9 @@ export function ConversationTranscript({
 }: ConversationTranscriptProps) {
   if (messages.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-zinc-200 p-8 text-center text-xs text-zinc-400 dark:border-zinc-800 dark:text-zinc-500">
+      <p className="py-8 text-center text-xs text-zinc-400 dark:text-zinc-500">
         Send a message to start this conversation.
-      </div>
+      </p>
     );
   }
 

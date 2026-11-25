@@ -13,6 +13,42 @@ const PROVIDER_LABELS: Record<string, string> = {
   openai: "OpenAI",
 };
 
+const MODEL_DISPLAY_NAMES: Record<string, string> = {
+  "openai/gpt-oss-120b": "GPT-OSS 120B",
+  "gpt-oss-120b": "GPT-OSS 120B",
+  "gemini-3.5-flash-lite": "Gemini 3.5 Flash Lite",
+};
+
+const UPPERCASE_TOKENS = new Set(["gpt", "oss", "llm", "ai"]);
+
+/** Format raw API model identifiers (e.g. `openai/gpt-oss-120b`) into clean UI names. */
+export function formatModelDisplayName(rawName: string): string {
+  const trimmed = rawName.trim();
+  const slug = trimmed.split("/").pop()?.trim() ?? trimmed;
+
+  const known =
+    MODEL_DISPLAY_NAMES[trimmed.toLowerCase()] ??
+    MODEL_DISPLAY_NAMES[slug.toLowerCase()];
+  if (known) return known;
+
+  // Preserve already human-formatted names that contain spaces and no hyphens.
+  if (slug.includes(" ") && !slug.includes("-")) {
+    return slug;
+  }
+
+  return slug
+    .split(/[-_]+/)
+    .filter(Boolean)
+    .map((part) => {
+      const lower = part.toLowerCase();
+      if (UPPERCASE_TOKENS.has(lower)) return lower.toUpperCase();
+      if (/^\d+(\.\d+)?[bm]$/i.test(part)) return part.toUpperCase();
+      if (/^\d/.test(part)) return part;
+      return lower.charAt(0).toUpperCase() + lower.slice(1);
+    })
+    .join(" ");
+}
+
 export function formatChatModelOption(m: ChatModelInfo): ChatModelOption {
   const providerKey = m.provider?.toLowerCase() ?? "";
   const providerLabel =
@@ -25,12 +61,13 @@ export function formatChatModelOption(m: ChatModelInfo): ChatModelOption {
   // for a clean label and use the provider label as description to avoid
   // "Groq (openai/...) / Groq" redundancy.
   const parenMatch = m.name.match(/^(.+?)\s*\((.+)\)$/);
-  const cleanLabel = parenMatch?.[2] || m.name;
+  const rawModel = parenMatch?.[2] || m.name;
+  const displayName = formatModelDisplayName(rawModel);
 
   return {
     id: m.id,
-    label: cleanLabel,
-    shortLabel: cleanLabel.split("/").pop() ?? cleanLabel,
+    label: displayName,
+    shortLabel: displayName,
     description: providerLabel,
   };
 }

@@ -271,7 +271,7 @@ export const AiChatComposer = memo(function AiChatComposer({
             "relative grid grid-cols-[auto_minmax(0,1fr)_auto] items-center transition-[border-color,box-shadow,border-radius,padding] duration-150 ease-out",
             "border border-zinc-200/80 bg-white/95 dark:border-zinc-800 dark:bg-zinc-900/95",
             "shadow-[0_2px_8px_rgba(0,0,0,0.04),0_12px_24px_-8px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)]",
-            "focus-within:border-accent-500/50 focus-within:ring-2 focus-within:ring-accent-500/15 dark:focus-within:border-accent-400/50 dark:focus-within:ring-accent-400/15",
+            "focus-within:border-zinc-200/80 dark:focus-within:border-zinc-800",
             isMultiline
               ? "gap-y-1 rounded-2xl p-2 sm:p-2.5"
               : "gap-x-1.5 rounded-[28px] p-1.5"
@@ -307,7 +307,7 @@ export const AiChatComposer = memo(function AiChatComposer({
               rows={1}
               disabled={controlsDisabled}
               className={cn(
-                "block w-full resize-none bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:outline-none focus:ring-0 scrollbar-none dark:text-zinc-100 dark:placeholder:text-zinc-500 [&::-webkit-scrollbar]:hidden",
+                "block w-full resize-none bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 scrollbar-none dark:text-zinc-100 dark:placeholder:text-zinc-500 [&::-webkit-scrollbar]:hidden",
                 isMultiline
                   ? "leading-relaxed"
                   : "overflow-hidden py-1 leading-snug"

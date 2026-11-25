@@ -4,8 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   RiCloseLine,
   RiErrorWarningLine,
-  RiFileList3Line,
-  RiFilePdfLine,
+  RiFileTextLine,
   RiLoader4Line,
 } from "@remixicon/react";
 import {
@@ -33,34 +32,68 @@ function StatusBadge({ status }: { status: DocumentStatus }) {
   switch (status) {
     case "ready":
       return (
-        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20 dark:bg-emerald-950/40 dark:text-emerald-400 dark:ring-emerald-500/20">
-          <span className="size-1.5 rounded-full bg-emerald-500" />
+        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">
+          <span className="size-1.5 rounded-full bg-emerald-500" aria-hidden />
           Ready
         </span>
       );
     case "processing":
     case "pending":
       return (
-        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-0.5 text-[10px] font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20 dark:bg-amber-950/40 dark:text-amber-400 dark:ring-amber-500/20">
-          <RiLoader4Line className="size-3 animate-spin text-amber-600 dark:text-amber-400" />
+        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-500/15 dark:text-amber-400">
+          <RiLoader4Line
+            className="size-3 animate-spin text-amber-600 dark:text-amber-400"
+            aria-hidden
+          />
           {status === "pending" ? "Pending" : "Processing"}
         </span>
       );
     case "uploading":
       return (
-        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-sky-50 px-2.5 py-0.5 text-[10px] font-medium text-sky-700 ring-1 ring-inset ring-sky-600/20 dark:bg-sky-950/40 dark:text-sky-400 dark:ring-sky-500/20">
-          <RiLoader4Line className="size-3 animate-spin text-sky-600 dark:text-sky-400" />
+        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-accent-500/10 px-2 py-0.5 text-[11px] font-medium text-accent-700 dark:bg-accent-500/15 dark:text-accent-400">
+          <RiLoader4Line
+            className="size-3 animate-spin text-accent-600 dark:text-accent-400"
+            aria-hidden
+          />
           Uploading
         </span>
       );
     case "failed":
       return (
-        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-0.5 text-[10px] font-medium text-rose-700 ring-1 ring-inset ring-rose-600/20 dark:bg-rose-950/40 dark:text-rose-400 dark:ring-rose-500/20">
-          <RiErrorWarningLine className="size-3 text-rose-600 dark:text-rose-400" />
+        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-rose-500/10 px-2 py-0.5 text-[11px] font-medium text-rose-700 dark:bg-rose-500/15 dark:text-rose-400">
+          <RiErrorWarningLine
+            className="size-3 text-rose-600 dark:text-rose-400"
+            aria-hidden
+          />
           Failed
         </span>
       );
   }
+}
+
+function DocumentListSkeleton() {
+  return (
+    <ul
+      aria-label="Loading documents"
+      className="divide-y divide-zinc-100 dark:divide-zinc-800/70"
+    >
+      {[0, 1, 2].map((item) => (
+        <li
+          key={item}
+          className="flex items-center justify-between gap-3 py-2.5"
+        >
+          <div className="flex min-w-0 flex-1 items-center gap-2.5">
+            <div className="size-4 shrink-0 animate-pulse rounded bg-zinc-200/80 dark:bg-zinc-800" />
+            <div className="min-w-0 flex-1 space-y-1.5">
+              <div className="h-3.5 w-44 animate-pulse rounded bg-zinc-200/80 dark:bg-zinc-800" />
+              <div className="h-2.5 w-24 animate-pulse rounded bg-zinc-100 dark:bg-zinc-800/60" />
+            </div>
+          </div>
+          <div className="h-5 w-14 animate-pulse rounded-full bg-zinc-100 dark:bg-zinc-800" />
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 function DocumentList({ knowledgeBaseId }: { knowledgeBaseId: string }) {
@@ -69,24 +102,19 @@ function DocumentList({ knowledgeBaseId }: { knowledgeBaseId: string }) {
   const documents = data?.results ?? [];
 
   return (
-    <div className="w-full min-w-0 border-t border-zinc-200/80 pt-4 dark:border-zinc-800">
-      <div className="mb-2.5 flex w-full min-w-0 items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <h3 className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
-            Documents
-          </h3>
-          <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-medium tabular-nums text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+    <div className="w-full min-w-0">
+      <div className="mb-2 flex items-center gap-2">
+        <h3 className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+          Documents
+        </h3>
+        {!isLoading && !isError && (
+          <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-[11px] font-medium tabular-nums text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
             {documents.length}
           </span>
-        </div>
+        )}
       </div>
 
-      {isLoading && (
-        <div className="flex items-center justify-center py-8 text-xs text-zinc-400">
-          <RiLoader4Line className="mr-2 size-4 animate-spin" />
-          Loading documents...
-        </div>
-      )}
+      {isLoading && <DocumentListSkeleton />}
 
       {isError && (
         <div
@@ -100,7 +128,7 @@ function DocumentList({ knowledgeBaseId }: { knowledgeBaseId: string }) {
           <button
             type="button"
             onClick={() => void refetch()}
-            className="shrink-0 cursor-pointer font-medium underline hover:text-rose-900 dark:hover:text-rose-200"
+            className="shrink-0 cursor-pointer font-medium underline underline-offset-2 hover:text-rose-900 dark:hover:text-rose-200"
           >
             Retry
           </button>
@@ -108,47 +136,38 @@ function DocumentList({ knowledgeBaseId }: { knowledgeBaseId: string }) {
       )}
 
       {!isLoading && !isError && documents.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-zinc-200/80 py-8 text-center dark:border-zinc-800">
-          <div className="mb-2 flex size-8 items-center justify-center rounded-full bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500">
-            <RiFileList3Line className="size-4" aria-hidden />
-          </div>
-          <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
-            No documents in this knowledge base yet
-          </p>
-          <p className="mt-0.5 text-[11px] text-zinc-400 dark:text-zinc-500">
-            Select or drop a PDF above to stage and index it.
-          </p>
-        </div>
+        <p className="py-6 text-center text-xs text-zinc-400 dark:text-zinc-500">
+          No documents indexed yet.
+        </p>
       )}
 
       {!isLoading && !isError && documents.length > 0 && (
-        <ul className="max-h-64 sm:max-h-72 w-full min-w-0 divide-y divide-zinc-100 overflow-y-auto rounded-xl border border-zinc-200/80 bg-white dark:divide-zinc-800/60 dark:border-zinc-800 dark:bg-zinc-950/40">
+        <ul className="scrollbar-thin max-h-64 w-full min-w-0 divide-y divide-zinc-100 overflow-y-auto pr-1 sm:max-h-72 dark:divide-zinc-800/70">
           {documents.map((doc: Document) => {
             const relativeTime = formatRelativeTime(doc.created_at);
             const timeDisplay =
-              relativeTime === "now"
-                ? "Added just now"
-                : `Added ${relativeTime} ago`;
+              relativeTime === "now" ? "Just now" : `${relativeTime} ago`;
 
             return (
               <li
                 key={doc.id}
-                className="flex w-full min-w-0 flex-col gap-1 p-3 transition-colors hover:bg-zinc-50/80 dark:hover:bg-zinc-900/60"
+                className="flex w-full min-w-0 flex-col gap-1 py-2.5"
               >
                 <div className="flex w-full min-w-0 items-center justify-between gap-3">
                   <div className="flex min-w-0 flex-1 items-center gap-2.5">
-                    <div className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-rose-200/60 bg-rose-50 text-rose-600 dark:border-rose-900/40 dark:bg-rose-950/40 dark:text-rose-400">
-                      <RiFilePdfLine className="size-4" aria-hidden />
-                    </div>
+                    <RiFileTextLine
+                      className="size-4 shrink-0 text-zinc-400 dark:text-zinc-500"
+                      aria-hidden
+                    />
                     <div className="min-w-0 flex-1">
                       <p
-                        className="truncate text-xs font-medium text-zinc-800 dark:text-zinc-200"
+                        className="truncate text-[13px] font-medium text-zinc-900 dark:text-zinc-100"
                         title={doc.filename}
                       >
                         {doc.filename}
                       </p>
-                      <p className="truncate text-[11px] text-zinc-400 dark:text-zinc-500">
-                        {formatFileSize(doc.file_size)} &bull; {timeDisplay}
+                      <p className="truncate text-[11px] tabular-nums text-zinc-500 dark:text-zinc-400">
+                        {formatFileSize(doc.file_size)} &middot; {timeDisplay}
                       </p>
                     </div>
                   </div>
@@ -157,7 +176,7 @@ function DocumentList({ knowledgeBaseId }: { knowledgeBaseId: string }) {
                 </div>
 
                 {doc.last_error && doc.status === "failed" && (
-                  <p className="mt-1 pl-10.5 text-[11px] text-rose-600 wrap-anywhere dark:text-rose-400">
+                  <p className="pl-6.5 text-[11px] text-rose-600 wrap-anywhere dark:text-rose-400">
                     {doc.last_error}
                   </p>
                 )}
@@ -202,30 +221,20 @@ export function KnowledgeBaseDialog({
       <DialogContent
         showCloseButton={false}
         className={cx(
-          "max-h-[88vh] w-full max-w-xl overflow-x-hidden overflow-y-auto rounded-2xl border border-zinc-200/80 bg-white p-5 shadow-2xl outline-none sm:max-w-xl sm:p-6",
+          "max-h-[88vh] w-full max-w-lg overflow-x-hidden overflow-y-auto rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-xl outline-none sm:max-w-lg",
           "dark:border-zinc-800 dark:bg-zinc-900",
           "text-zinc-900 dark:text-zinc-100"
         )}
       >
         {/* Header */}
-        <div className="flex w-full min-w-0 items-start justify-between gap-3 border-b border-zinc-200/80 pb-3.5 dark:border-zinc-800">
-          <div className="flex min-w-0 flex-1 items-start gap-3">
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-rose-200/70 bg-rose-50 text-rose-600 dark:border-rose-900/40 dark:bg-rose-950/40 dark:text-rose-400">
-              <RiFilePdfLine className="size-4.5" aria-hidden />
-            </div>
-            <div className="min-w-0 flex-1 space-y-0.5">
-              <div className="flex items-center gap-2">
-                <DialogTitle className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                  Knowledge Base
-                </DialogTitle>
-                <span className="truncate text-xs font-normal text-zinc-400 dark:text-zinc-500">
-                  &mdash; {projectName}
-                </span>
-              </div>
-              <DialogDescription className="truncate text-xs text-zinc-500 dark:text-zinc-400">
-                Manage PDF reference documents for AI citations.
-              </DialogDescription>
-            </div>
+        <div className="flex w-full min-w-0 items-start justify-between gap-4">
+          <div className="min-w-0 flex-1 space-y-0.5">
+            <DialogTitle className="truncate text-[15px] font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+              Knowledge Base
+            </DialogTitle>
+            <DialogDescription className="truncate text-xs text-zinc-500 dark:text-zinc-400">
+              PDF sources for {projectName}
+            </DialogDescription>
           </div>
           <BoardButton
             variant="ghost"
@@ -233,7 +242,7 @@ export function KnowledgeBaseDialog({
             iconOnly
             aria-label="Close dialog"
             onClick={() => handleOpenChange(false)}
-            className="shrink-0 -mr-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+            className="-mr-1.5 -mt-1 shrink-0 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
           >
             <RiCloseLine className="size-4" />
           </BoardButton>
@@ -243,38 +252,39 @@ export function KnowledgeBaseDialog({
         {confirmingClose && (
           <div
             role="alert"
-            className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-900 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-200"
+            className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-900 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-200"
           >
             <div className="flex min-w-0 items-center gap-2">
-              <RiErrorWarningLine className="size-4 shrink-0 text-amber-600 dark:text-amber-400" />
-              <span className="truncate">
-                Upload in progress. Closing will cancel the upload.
-              </span>
+              <RiErrorWarningLine
+                className="size-4 shrink-0 text-amber-600 dark:text-amber-400"
+                aria-hidden
+              />
+              <span>Upload in progress. Closing will cancel the upload.</span>
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              <button
-                type="button"
+              <BoardButton
+                variant="ghost"
+                size="xs"
                 onClick={() => setConfirmingClose(false)}
-                className="cursor-pointer rounded-lg px-2.5 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-200/60 dark:text-zinc-300 dark:hover:bg-zinc-800"
               >
                 Keep uploading
-              </button>
-              <button
-                type="button"
+              </BoardButton>
+              <BoardButton
+                variant="danger"
+                size="xs"
                 onClick={() => {
                   setConfirmingClose(false);
                   onOpenChange(false);
                 }}
-                className="cursor-pointer rounded-lg bg-rose-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-rose-700 dark:bg-rose-600 dark:hover:bg-rose-700"
               >
-                Cancel upload &amp; close
-              </button>
+                Cancel &amp; close
+              </BoardButton>
             </div>
           </div>
         )}
 
         {/* Content */}
-        <div className="mt-4 w-full min-w-0 space-y-4">
+        <div className="mt-5 w-full min-w-0 space-y-6">
           <DocumentUploadDropzone
             knowledgeBaseId={knowledgeBaseId}
             onUploadingChange={setIsUploading}
