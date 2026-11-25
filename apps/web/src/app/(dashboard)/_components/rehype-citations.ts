@@ -3,10 +3,11 @@ import type { ExtraProps } from "streamdown";
 type HtmlElement = NonNullable<ExtraProps["node"]>;
 type HtmlParent = Pick<HtmlElement, "children">;
 
-const CITATION_PATTERN = /(?<!\[)\[([1-9]\d*)\](?!\])/g;
+const CITATION_PATTERN =
+  /(?<!\[)\[([1-9]\d*)\](?!\])|【([1-9]\d*)】|［([1-9]\d*)］/g;
 const LITERAL_ELEMENTS = new Set(["a", "code", "pre"]);
 
-/** Turn the backend's [n] citation syntax into links after Markdown is parsed. */
+/** Turn the backend's [n] (or fullwidth 【n】) citation syntax into links after Markdown is parsed. */
 export function rehypeCitations() {
   return transformChildren;
 }
@@ -28,7 +29,7 @@ function citationNodes(text: string): HtmlElement["children"] {
   let offset = 0;
 
   for (const match of text.matchAll(CITATION_PATTERN)) {
-    const label = match[1];
+    const label = match[1] ?? match[2] ?? match[3];
     const citation = Number(label);
     if (!label || !Number.isSafeInteger(citation)) continue;
 
