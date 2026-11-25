@@ -50,7 +50,7 @@ export const ChatMarkdown = memo(function ChatMarkdown({
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-medium text-zinc-900 underline underline-offset-4 hover:text-zinc-700 dark:text-zinc-100 dark:hover:text-zinc-300"
+            className="font-medium text-accent-600 underline underline-offset-4 hover:text-accent-700 dark:text-accent-400 dark:hover:text-accent-300"
             {...props}
           >
             {children}

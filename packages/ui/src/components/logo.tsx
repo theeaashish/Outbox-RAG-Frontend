@@ -20,7 +20,7 @@ export const LogoIcon = ({
       <g filter="url(#filter0_i_467_3401)">
         <path
           d="M1 9.8584C1 4.61169 5.25329 0.358398 10.5 0.358398H35.5C40.7467 0.358398 45 4.61169 45 9.8584V34.8584C45 40.1051 40.7467 44.3584 35.5 44.3584H10.5C5.25329 44.3584 1 40.1051 1 34.8584V9.8584Z"
-          fill="#1F2123"
+          fill="url(#paint0_bg_467_3401)"
         />
         <path
           d="M1.91667 9.8584C1.91667 5.11795 5.75956 1.27507 10.5 1.27507H35.5C40.2404 1.27507 44.0833 5.11795 44.0833 9.8584V34.8584C44.0833 39.5988 40.2404 43.4417 35.5 43.4417H10.5C5.75956 43.4417 1.91667 39.5988 1.91667 34.8584V9.8584Z"
@@ -41,8 +41,8 @@ export const LogoIcon = ({
       width="44.1375"
       height="44.1375"
       rx="9.56875"
-      stroke="black"
-      strokeOpacity="0.6"
+      stroke="#155DFC"
+      strokeOpacity="0.45"
       strokeWidth="0.1375"
     />
     <defs>
@@ -73,7 +73,7 @@ export const LogoIcon = ({
         <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
         <feColorMatrix
           type="matrix"
-          values="0 0 0 0 0.133333 0 0 0 0 0.141176 0 0 0 0 0.14902 0 0 0 0.2 0"
+          values="0 0 0 0 0.08 0 0 0 0 0.36 0 0 0 0 0.99 0 0 0 0.2 0"
         />
         <feBlend
           mode="normal"
@@ -82,6 +82,17 @@ export const LogoIcon = ({
         />
       </filter>
       <linearGradient
+        id="paint0_bg_467_3401"
+        x1="23"
+        y1="0.358398"
+        x2="23"
+        y2="44.3584"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop stopColor="#2B7FFF" />
+        <stop offset="1" stopColor="#155DFC" />
+      </linearGradient>
+      <linearGradient
         id="paint0_linear_467_3401"
         x1="23"
         y1="0.358398"
@@ -89,8 +100,8 @@ export const LogoIcon = ({
         y2="44.3584"
         gradientUnits="userSpaceOnUse"
       >
-        <stop stopColor="#2B2D2F" />
-        <stop offset="1" stopColor="#131517" />
+        <stop stopColor="#5CA6FF" />
+        <stop offset="1" stopColor="#1447E6" />
       </linearGradient>
       <clipPath id="clip0_467_3401">
         <rect x="1" y="0.358398" width="44" height="44" rx="9.5" fill="white" />

@@ -5,7 +5,7 @@ import { authCarouselSlides } from "./_components/auth-slides";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="grid h-dvh w-full overflow-hidden bg-background-full text-foreground antialiased selection:bg-zinc-900 selection:text-white md:grid-cols-2 dark:selection:bg-zinc-100 dark:selection:text-zinc-900">
+    <div className="grid h-dvh w-full overflow-hidden bg-background-full text-foreground antialiased selection:bg-accent-600 selection:text-white md:grid-cols-2 dark:selection:bg-accent-500 dark:selection:text-white">
       {/* Left 50%: Auth form column with top header and bottom footer */}
       <div className="flex h-full min-h-0 flex-col justify-between overflow-y-auto px-6 py-5 sm:px-10 sm:py-6">
         <header className="flex shrink-0 items-center justify-between">

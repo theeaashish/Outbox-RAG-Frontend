@@ -47,7 +47,7 @@ function SessionRow({
         className={cx(
           "flex h-7 w-full cursor-pointer items-center justify-between rounded-lg px-2 text-left text-xs transition-colors",
           selected
-            ? "bg-zinc-100 font-medium text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50"
+            ? "bg-linear-to-b from-accent-500 to-accent-600 font-medium text-white shadow-nav-selected"
             : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800/40 dark:hover:text-zinc-200"
         )}
       >
@@ -57,9 +57,7 @@ function SessionRow({
         <span
           className={cx(
             "shrink-0 text-[10px] tabular-nums transition-opacity duration-150 group-focus-within/chat:opacity-0 group-hover/chat:opacity-0",
-            selected
-              ? "font-medium text-zinc-700 dark:text-zinc-300"
-              : "text-zinc-400"
+            selected ? "font-medium text-white/80" : "text-zinc-400"
           )}
         >
           {session.time}
@@ -73,7 +71,12 @@ function SessionRow({
               <button
                 type="button"
                 aria-label={`Options for ${session.title}`}
-                className="flex size-5 cursor-pointer items-center justify-center rounded text-zinc-400 transition-colors hover:bg-zinc-200/80 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+                className={cx(
+                  "flex size-5 cursor-pointer items-center justify-center rounded transition-colors",
+                  selected
+                    ? "text-white/80 hover:bg-white/20 hover:text-white"
+                    : "text-zinc-400 hover:bg-zinc-200/80 hover:text-zinc-700 dark:hover:bg-zinc-700 dark:hover:text-zinc-200"
+                )}
               >
                 <RiMoreFill className="size-3.5" aria-hidden />
               </button>

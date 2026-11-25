@@ -271,7 +271,7 @@ export const AiChatComposer = memo(function AiChatComposer({
             "relative grid grid-cols-[auto_minmax(0,1fr)_auto] items-center transition-[border-color,box-shadow,border-radius,padding] duration-150 ease-out",
             "border border-zinc-200/80 bg-white/95 dark:border-zinc-800 dark:bg-zinc-900/95",
             "shadow-[0_2px_8px_rgba(0,0,0,0.04),0_12px_24px_-8px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)]",
-            "focus-within:border-zinc-300 dark:focus-within:border-zinc-700",
+            "focus-within:border-accent-500/50 focus-within:ring-2 focus-within:ring-accent-500/15 dark:focus-within:border-accent-400/50 dark:focus-within:ring-accent-400/15",
             isMultiline
               ? "gap-y-1 rounded-2xl p-2 sm:p-2.5"
               : "gap-x-1.5 rounded-[28px] p-1.5"
@@ -351,7 +351,7 @@ export const AiChatComposer = memo(function AiChatComposer({
                   type="button"
                   onClick={onBranchClick}
                   disabled={disabled}
-                  className="flex cursor-pointer items-center gap-1.5 rounded-md transition-colors hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/70 disabled:opacity-50 dark:hover:text-zinc-100"
+                  className="flex cursor-pointer items-center gap-1.5 rounded-md transition-colors hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500/60 disabled:opacity-50 dark:hover:text-zinc-100"
                 >
                   <GitBranch className="size-3.5 text-zinc-400" />
                   <span>{branch.name}</span>
@@ -363,7 +363,7 @@ export const AiChatComposer = memo(function AiChatComposer({
                   type="button"
                   onClick={onProjectClick}
                   disabled={disabled}
-                  className="flex cursor-pointer items-center gap-1.5 rounded-md transition-colors hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/70 disabled:opacity-50 dark:hover:text-zinc-100"
+                  className="flex cursor-pointer items-center gap-1.5 rounded-md transition-colors hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500/60 disabled:opacity-50 dark:hover:text-zinc-100"
                 >
                   <Folder className="size-3.5 text-zinc-400" />
                   <span>{project.name}</span>
@@ -385,7 +385,7 @@ export const AiChatComposer = memo(function AiChatComposer({
                       <button
                         type="button"
                         disabled={isModeDisabled}
-                        className="flex cursor-pointer items-center gap-1.5 rounded-md transition-colors hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/70 disabled:opacity-50 dark:hover:text-zinc-100"
+                        className="flex cursor-pointer items-center gap-1.5 rounded-md transition-colors hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500/60 disabled:opacity-50 dark:hover:text-zinc-100"
                       />
                     }
                   >

@@ -43,7 +43,7 @@ export function DashboardPreview() {
                 className={cn(
                   "w-full justify-start gap-2 px-2 py-1.5 text-xs font-medium h-auto",
                   item.active
-                    ? "bg-zinc-100 text-zinc-900 font-semibold hover:bg-zinc-100 hover:text-zinc-900"
+                    ? "bg-linear-to-b from-accent-500 to-accent-600 text-white font-semibold shadow-nav-selected hover:bg-accent-600 hover:text-white"
                     : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900"
                 )}
               >

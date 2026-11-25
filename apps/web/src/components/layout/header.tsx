@@ -30,7 +30,7 @@ export function Header({
       <Button
         size="sm"
         variant="outline"
-        className="h-8 rounded-lg border-zinc-200 bg-white px-3.5 text-xs font-medium text-zinc-900 shadow-xs hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+        className="h-8 rounded-lg border-zinc-200 bg-white px-3.5 text-xs font-medium text-zinc-900 shadow-xs hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
         render={<Link href="/login" />}
         nativeButton={false}
       >
@@ -38,7 +38,7 @@ export function Header({
       </Button>
       <Button
         size="sm"
-        className="h-8 rounded-lg bg-zinc-900 px-3.5 text-xs font-medium text-white shadow-xs hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
+        className="h-8 rounded-lg px-3.5 text-xs font-medium"
         render={<Link href="/register" />}
         nativeButton={false}
       >
@@ -52,7 +52,7 @@ export function Header({
       className={cn(
         "sticky top-0 z-50 w-full border-b border-transparent transition-colors",
         scrolled &&
-          "border-border bg-zinc-50/90 backdrop-blur-sm supports-backdrop-filter:bg-zinc-50/75",
+          "border-border bg-white/90 backdrop-blur-sm supports-backdrop-filter:bg-white/75 dark:bg-zinc-950/90 dark:supports-backdrop-filter:bg-zinc-950/75",
         className
       )}
       {...props}

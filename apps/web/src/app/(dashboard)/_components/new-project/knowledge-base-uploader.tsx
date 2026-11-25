@@ -104,19 +104,19 @@ export function KnowledgeBaseUploader({
         }}
         className={cx(
           "group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-4 text-center outline-none transition-all",
-          "focus-visible:ring-2 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-500",
+          "focus-visible:ring-2 focus-visible:ring-accent-500/60 dark:focus-visible:ring-accent-400/60",
           dragOver
-            ? "border-zinc-500 bg-zinc-100/80 dark:border-zinc-400 dark:bg-zinc-800/80"
+            ? "border-accent-500 bg-accent-50/70 dark:border-accent-400 dark:bg-accent-950/40"
             : "border-zinc-200/90 bg-zinc-50/60 hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/40 dark:hover:border-zinc-700 dark:hover:bg-zinc-800/40"
         )}
       >
-        <div className="flex size-8 items-center justify-center rounded-full bg-zinc-100 text-zinc-500 transition-colors group-hover:bg-zinc-200/80 group-hover:text-zinc-700 dark:bg-zinc-800 dark:text-zinc-400 dark:group-hover:bg-zinc-700 dark:group-hover:text-zinc-200">
+        <div className="flex size-8 items-center justify-center rounded-full bg-zinc-100 text-zinc-500 transition-colors group-hover:bg-accent-50 group-hover:text-accent-600 dark:bg-zinc-800 dark:text-zinc-400 dark:group-hover:bg-accent-950/60 dark:group-hover:text-accent-400">
           <RiUploadCloud2Line className="size-4" aria-hidden />
         </div>
         <div className="flex flex-col gap-0.5">
           <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
             Drop PDFs here or{" "}
-            <span className="text-zinc-900 underline underline-offset-2 dark:text-zinc-100">
+            <span className="font-semibold text-accent-600 underline underline-offset-2 dark:text-accent-400">
               click to browse
             </span>
           </p>

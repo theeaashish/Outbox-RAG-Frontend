@@ -119,18 +119,18 @@ const styles = sortCx({
 
   variant: {
     primary: [
-      "bg-zinc-900 text-white hover:bg-zinc-800 active:bg-black dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200 shadow-xs",
-      "disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none",
-      "aria-disabled:opacity-50 aria-disabled:cursor-not-allowed aria-disabled:shadow-none",
+      "bg-button-primary text-white shadow-[0_1px_2px_0_rgb(21_93_252/0.22),0_0_0_1px_var(--color-accent-600),inset_0_1px_0_0_rgb(255_255_255/0.25)]",
+      "disabled:text-button-primary-disabled-foreground disabled:cursor-not-allowed disabled:shadow-none",
+      "aria-disabled:text-button-primary-disabled-foreground aria-disabled:cursor-not-allowed aria-disabled:shadow-none",
     ].join(" "),
     danger: [
-      "bg-red-600 text-white hover:bg-red-700 active:bg-red-800 shadow-xs",
+      "bg-button-danger text-white shadow-[0_1px_2px_0_rgb(220_38_38/0.22),0_0_0_1px_var(--color-red-600),inset_0_1px_0_0_rgb(255_255_255/0.25)]",
       "disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none",
       "aria-disabled:opacity-50 aria-disabled:cursor-not-allowed aria-disabled:shadow-none",
     ].join(" "),
     secondary: [
       "bg-white text-zinc-900 border border-zinc-200 shadow-xs dark:bg-zinc-900 dark:text-zinc-100 dark:border-zinc-800",
-      "hover:bg-zinc-100 dark:hover:bg-zinc-800 active:bg-zinc-200 dark:active:bg-zinc-700",
+      "hover:bg-zinc-50 hover:border-zinc-300 dark:hover:bg-zinc-800 dark:hover:border-zinc-700 active:bg-zinc-100 dark:active:bg-zinc-700",
       "disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none",
       "aria-disabled:opacity-50 aria-disabled:cursor-not-allowed aria-disabled:shadow-none",
     ].join(" "),

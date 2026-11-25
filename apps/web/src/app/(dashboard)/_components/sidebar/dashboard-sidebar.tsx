@@ -151,7 +151,7 @@ export function DashboardSidebar({
           >
             <DashboardUserMenu
               collapsed={collapsed}
-              avatarClassName="bg-zinc-200 font-semibold text-zinc-800"
+              avatarClassName="bg-accent-100 font-semibold text-accent-700 dark:bg-accent-950 dark:text-accent-300"
             />
           </div>
 
@@ -242,7 +242,7 @@ export function DashboardSidebar({
                 <button
                   type="button"
                   onClick={retryProjects}
-                  className="shrink-0 text-xs font-medium text-zinc-600 underline underline-offset-2 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white"
+                  className="shrink-0 text-xs font-medium text-accent-600 underline underline-offset-2 hover:text-accent-700 dark:text-accent-400 dark:hover:text-accent-300"
                 >
                   Retry
                 </button>

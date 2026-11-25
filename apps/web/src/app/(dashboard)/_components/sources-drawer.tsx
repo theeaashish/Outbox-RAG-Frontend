@@ -48,7 +48,7 @@ export function SourcesDrawer({
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => onOpenChange(!open)}
-        className="group inline-flex h-6.5 cursor-pointer items-center gap-1.5 rounded-lg border border-zinc-200/80 bg-zinc-50/70 px-2.5 py-1 text-[11px] font-medium text-zinc-600 transition-colors hover:border-zinc-300 hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/80 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:bg-zinc-800/80 dark:hover:text-zinc-200 dark:focus-visible:ring-zinc-500"
+        className="group inline-flex h-6.5 cursor-pointer items-center gap-1.5 rounded-lg border border-zinc-200/80 bg-zinc-50/70 px-2.5 py-1 text-[11px] font-medium text-zinc-600 transition-colors hover:border-zinc-300 hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500/60 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:bg-zinc-800/80 dark:hover:text-zinc-200 dark:focus-visible:ring-accent-400/60"
       >
         <RiFileTextLine
           className="size-3.5 text-zinc-400 transition-colors group-hover:text-zinc-600 dark:text-zinc-500 dark:group-hover:text-zinc-300"
@@ -115,14 +115,14 @@ function SourceRow({
       className={cx(
         "flex items-center gap-2 rounded-lg bg-white/70 px-2.5 py-1.5 text-xs ring-1 ring-zinc-200/60 dark:bg-zinc-900/80 dark:ring-zinc-800 transition-all duration-300",
         isHighlighted &&
-          "ring-2 ring-zinc-900/80 bg-zinc-100/90 dark:ring-zinc-300 dark:bg-zinc-800"
+          "ring-2 ring-accent-500/80 bg-accent-50/70 dark:ring-accent-400 dark:bg-accent-950/40"
       )}
     >
       <span
         className={cx(
           "shrink-0 rounded px-1.5 py-0.5 font-mono text-[10px] font-semibold transition-colors",
           isHighlighted
-            ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
+            ? "bg-accent-600 text-white dark:bg-accent-500 dark:text-white"
             : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
         )}
       >

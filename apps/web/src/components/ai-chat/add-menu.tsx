@@ -72,7 +72,7 @@ export function AddMenu({
             type="button"
             disabled={disabled}
             aria-label={isOpen ? "Close add menu" : "Open add menu"}
-            className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border-0 bg-zinc-100/90 text-zinc-500 shadow-none transition-colors hover:bg-zinc-200/70 hover:text-zinc-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/70 disabled:pointer-events-none disabled:opacity-50 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-zinc-200 dark:focus-visible:ring-zinc-500/70"
+            className="inline-flex size-8 cursor-pointer items-center justify-center rounded-full border-0 bg-zinc-100/90 text-zinc-500 shadow-none transition-colors hover:bg-zinc-200/70 hover:text-zinc-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500/60 disabled:pointer-events-none disabled:opacity-50 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-zinc-200 dark:focus-visible:ring-accent-400/60"
           />
         }
       >
@@ -120,7 +120,7 @@ export function AddMenu({
 
         <MenuRow
           icon={
-            <PluginIcon className="bg-zinc-500">
+            <PluginIcon className="bg-accent-600">
               <FileText className="size-3.5" />
             </PluginIcon>
           }
@@ -131,7 +131,7 @@ export function AddMenu({
         />
         <MenuRow
           icon={
-            <PluginIcon className="bg-blue-500">
+            <PluginIcon className="bg-sky-500">
               <Sheet className="size-3.5" />
             </PluginIcon>
           }

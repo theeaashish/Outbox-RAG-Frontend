@@ -35,7 +35,7 @@ export function ContextMeter({ value }: { value: number }) {
           fill="none"
           strokeWidth="3"
           strokeLinecap="round"
-          className="stroke-zinc-600 dark:stroke-zinc-300"
+          className="stroke-accent-600 dark:stroke-accent-400"
           strokeDasharray={`${(progress / 100) * circumference} ${circumference}`}
         />
       </svg>

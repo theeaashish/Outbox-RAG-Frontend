@@ -27,9 +27,9 @@ export const CitationPill = memo(function CitationPill({
         closeDelay={150}
         className={cx(
           "inline-flex items-center justify-center min-w-4 h-4 px-1 rounded-lg text-[10px] font-mono font-medium leading-none align-baseline mx-0.5 select-none transition-all cursor-pointer",
-          "bg-zinc-200/80 text-zinc-700 hover:bg-zinc-300 hover:text-zinc-900 active:scale-95",
-          "dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:hover:text-zinc-100",
-          "focus-visible:outline-none focus-visible:ring-1.5 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-500"
+          "bg-accent-50 text-accent-700 ring-1 ring-accent-200/70 hover:bg-accent-100 hover:text-accent-800 active:scale-95",
+          "dark:bg-accent-950/60 dark:text-accent-300 dark:ring-accent-800/60 dark:hover:bg-accent-900/80 dark:hover:text-accent-200",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
         )}
         aria-label={`Citation ${citation}${source ? `: ${source.document_name}` : ""}`}
       >
@@ -79,7 +79,7 @@ export const CitationPill = memo(function CitationPill({
                   setOpen(false);
                   onSelectSource(citation);
                 }}
-                className="mt-0.5 flex w-full cursor-pointer items-center justify-between border-t border-zinc-100 pt-2 text-[11px] font-medium text-zinc-500 transition-colors hover:text-zinc-900 dark:border-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-100"
+                className="mt-0.5 flex w-full cursor-pointer items-center justify-between border-t border-zinc-100 pt-2 text-[11px] font-medium text-zinc-500 transition-colors hover:text-accent-600 dark:border-zinc-800 dark:text-zinc-400 dark:hover:text-accent-400"
               >
                 <span>View in sources</span>
                 <RiArrowRightLine className="size-3.5" aria-hidden />

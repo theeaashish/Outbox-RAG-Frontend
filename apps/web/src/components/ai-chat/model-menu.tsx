@@ -95,7 +95,7 @@ export function ModelMenu({
             title={triggerTitle}
             aria-label={`Model: ${selectedModel?.label ?? model}`}
             className={cn(
-              "inline-flex h-8 cursor-pointer items-center rounded-full px-2.5 text-xs font-medium text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/70 disabled:cursor-not-allowed disabled:opacity-50 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 dark:focus-visible:ring-zinc-500/70",
+              "inline-flex h-8 cursor-pointer items-center rounded-full px-2.5 text-xs font-medium text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500/60 disabled:cursor-not-allowed disabled:opacity-50 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 dark:focus-visible:ring-accent-400/60",
               isOpen &&
                 "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
             )}

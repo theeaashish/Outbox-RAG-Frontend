@@ -93,11 +93,11 @@ export function DocumentUploadDropzone({
         <div
           {...getRootProps()}
           className={cx(
-            "group relative flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed py-7 px-4 text-center transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-500",
+            "group relative flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed py-7 px-4 text-center transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500/60 dark:focus-visible:ring-accent-400/60",
             isDragReject
               ? "border-rose-400 bg-rose-50/50 dark:border-rose-800 dark:bg-rose-950/20"
               : isDragActive
-                ? "border-zinc-900 bg-zinc-100/70 ring-2 ring-zinc-900/10 scale-[0.99] dark:border-zinc-100 dark:bg-zinc-800/60 dark:ring-zinc-100/10"
+                ? "border-accent-500 bg-accent-50/70 ring-2 ring-accent-500/15 scale-[0.99] dark:border-accent-400 dark:bg-accent-950/40 dark:ring-accent-400/20"
                 : "border-zinc-200/90 bg-zinc-50/40 hover:border-zinc-400 hover:bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/20 dark:hover:border-zinc-600 dark:hover:bg-zinc-900/50"
           )}
         >
@@ -109,7 +109,7 @@ export function DocumentUploadDropzone({
               isDragReject
                 ? "border-rose-200 bg-rose-100 text-rose-600 dark:border-rose-900/50 dark:bg-rose-950 dark:text-rose-400"
                 : isDragActive
-                  ? "border-zinc-300 bg-zinc-200 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                  ? "border-accent-200 bg-accent-100 text-accent-600 dark:border-accent-800 dark:bg-accent-950 dark:text-accent-400"
                   : "border-zinc-200/80 bg-white text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400"
             )}
           >
@@ -127,7 +127,7 @@ export function DocumentUploadDropzone({
               ) : (
                 <>
                   Drop a PDF here, or{" "}
-                  <span className="font-semibold text-zinc-900 underline underline-offset-2 dark:text-white">
+                  <span className="font-semibold text-accent-600 underline underline-offset-2 dark:text-accent-400">
                     browse
                   </span>
                 </>
@@ -348,7 +348,7 @@ function UploadProgressBar({
       <div className="flex w-full min-w-0 items-center justify-between text-[11px]">
         <div className="flex min-w-0 items-center gap-1.5 font-medium text-zinc-600 dark:text-zinc-400">
           <RiLoader4Line
-            className="size-3 shrink-0 animate-spin text-zinc-500"
+            className="size-3 shrink-0 animate-spin text-accent-600 dark:text-accent-400"
             aria-hidden
           />
           <span className="truncate">{STAGE_LABELS[phase]}</span>
@@ -369,7 +369,7 @@ function UploadProgressBar({
         className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-200/70 dark:bg-zinc-800"
       >
         <div
-          className="h-full bg-zinc-900 transition-all duration-200 ease-out dark:bg-zinc-100"
+          className="h-full bg-linear-to-r from-accent-500 to-accent-600 transition-all duration-200 ease-out dark:from-accent-400 dark:to-accent-500"
           style={{ width: `${width}%` }}
         />
       </div>

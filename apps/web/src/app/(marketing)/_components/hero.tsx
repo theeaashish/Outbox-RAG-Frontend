@@ -11,19 +11,19 @@ export interface HeroProps {
 
 export function Hero({ children }: HeroProps) {
   return (
-    <section className="relative overflow-hidden bg-zinc-50 dark:bg-zinc-950">
+    <section className="relative overflow-hidden bg-white dark:bg-zinc-950">
       <div className="mx-auto max-w-6xl px-6 pt-16 text-center sm:pt-24">
         {/* Badge */}
         <div className="inline-flex items-center justify-center">
           <Link
             href="#features"
-            className="group inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 py-1 pr-3 pl-1 text-sm text-zinc-600 dark:text-zinc-300 shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
+            className="group inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 py-1 pr-3 pl-1 text-sm text-zinc-600 dark:text-zinc-300 shadow-xs hover:border-accent-300 dark:hover:border-accent-700 transition-colors"
           >
-            <Badge className="rounded-full bg-zinc-900 text-white dark:bg-zinc-50 dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 px-2.5 py-0.5 text-xs font-semibold border-none">
+            <Badge className="rounded-full bg-button-primary text-white px-2.5 py-0.5 text-xs font-semibold border-none shadow-[0_0_0_1px_var(--color-accent-600),inset_0_1px_0_0_rgb(255_255_255/0.25)]">
               New
             </Badge>
             <span>Transactional outbox ingestion is live</span>
-            <ArrowRight className="h-3.5 w-3.5 text-zinc-400 dark:text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
+            <ArrowRight className="h-3.5 w-3.5 text-zinc-400 dark:text-zinc-500 group-hover:translate-x-0.5 group-hover:text-accent-600 dark:group-hover:text-accent-400 transition-all" />
           </Link>
         </div>
 
@@ -47,7 +47,6 @@ export function Hero({ children }: HeroProps) {
             variant="primary"
             size="medium"
             trailingIcon={RiArrowRightLine}
-            className="bg-zinc-900! text-white! hover:bg-zinc-800! dark:bg-zinc-50! dark:text-zinc-900! dark:hover:bg-zinc-200! shadow-xs"
           >
             Start building
           </BoardButtonLink>

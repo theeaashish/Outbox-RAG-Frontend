@@ -71,9 +71,9 @@ export function Radio({ checked }: { checked: boolean }) {
   return checked ? (
     <span
       aria-hidden="true"
-      className="flex size-4.5 shrink-0 items-center justify-center rounded-full border-2 border-orange-500 bg-white dark:bg-zinc-900"
+      className="flex size-4.5 shrink-0 items-center justify-center rounded-full border-2 border-accent-600 bg-white dark:border-accent-500 dark:bg-zinc-900"
     >
-      <span className="size-1.5 rounded-full bg-orange-500" />
+      <span className="size-1.5 rounded-full bg-accent-600 dark:bg-accent-500" />
     </span>
   ) : (
     <span
