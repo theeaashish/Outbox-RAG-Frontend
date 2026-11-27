@@ -51,7 +51,10 @@ function SessionRow({
             : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800/40 dark:hover:text-zinc-200"
         )}
       >
-        <span className="block min-w-0 flex-1 truncate pr-1 text-left">
+        <span
+          title={session.title}
+          className="block min-w-0 flex-1 truncate pr-1 text-left"
+        >
           {session.title}
         </span>
         <span

@@ -19,7 +19,11 @@ import {
   type ComposerSubmitData,
   type Model,
 } from "@/components/ai-chat";
-import { conversationKeys, type Message } from "@/features/conversations";
+import {
+  applyConversationTitleToCache,
+  conversationKeys,
+  type Message,
+} from "@/features/conversations";
 import {
   classifyChatFailure,
   createAgUiChatConnection,
@@ -220,9 +224,15 @@ export function useChatComposer({
       const result = observeCustomEvent(run, eventType, data);
       if (result.type === "citations") setSources(result.sources);
       if (result.type === "sources.final") setSources(result.sources);
+      if (result.type === "conversation.title") {
+        applyConversationTitleToCache(queryClient, {
+          conversationId: result.conversationId,
+          title: result.title,
+        });
+      }
       if (result.type === "protocol-error") stopForProtocolFailure(run);
     },
-    [conversationId, stopForProtocolFailure]
+    [conversationId, queryClient, stopForProtocolFailure]
   );
 
   const handleError = useCallback((error: Error) => {

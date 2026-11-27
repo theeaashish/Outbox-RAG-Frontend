@@ -17,6 +17,7 @@ import type { ChatSession, ProjectItem } from "./sidebar-data";
 import { useDeleteProject, useProjects } from "@/features/projects";
 import {
   conversationKeys,
+  formatConversationTitle,
   listConversations,
   useCreateProjectConversation,
   useDeleteConversation,
@@ -122,7 +123,7 @@ export function DashboardProjectsProvider({
       const sessions: ChatSession[] | undefined = queryResult?.map(
         (conversation) => ({
           id: conversation.id,
-          title: "New chat",
+          title: formatConversationTitle(conversation.title),
           time: formatRelativeTime(conversation.created_at),
           href: dashboardConversationPath(project.id, conversation.id),
         })

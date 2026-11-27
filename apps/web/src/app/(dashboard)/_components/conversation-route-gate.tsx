@@ -5,7 +5,10 @@ import { usePathname, useRouter } from "next/navigation";
 import { BoardButton } from "@repo/ui";
 import { toast } from "sonner";
 import { DashboardWorkspace } from "@/app/(dashboard)/_components/dashboard-workspace";
-import { useConversation } from "@/features/conversations";
+import {
+  formatConversationTitle,
+  useConversation,
+} from "@/features/conversations";
 import { useProject } from "@/features/projects";
 import { isApiError } from "@/lib/api";
 
@@ -156,7 +159,7 @@ export function ConversationRouteGate({
         name: project.name,
         knowledgeBaseId: project.knowledge_base_id,
       }}
-      sessionTitle="New chat"
+      sessionTitle={formatConversationTitle(conversation.title)}
     />
   );
 }

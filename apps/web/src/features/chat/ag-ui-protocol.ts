@@ -69,9 +69,19 @@ const sourcesFinalSchema = z
   })
   .strict();
 
+const conversationTitleSchema = z
+  .object({
+    conversationId: z.string().min(1),
+    title: z.string().trim().min(1),
+  })
+  .strict();
+
 export type ChatMetadataEvent = z.infer<typeof metadataSchema>;
 export type ChatCitationsEvent = z.infer<typeof citationsSchema>;
 export type ChatSourcesFinalEvent = z.infer<typeof sourcesFinalSchema>;
+export type ChatConversationTitleEvent = z.infer<
+  typeof conversationTitleSchema
+>;
 export type ChatStreamChunk = Parameters<
   NonNullable<UseChatOptions["onChunk"]>
 >[0];
@@ -102,6 +112,7 @@ export type CustomEventResult =
   | { type: "accepted" }
   | { type: "citations"; sources: ChatCitationsEvent["sources"] }
   | { type: "sources.final"; sources: ChatSource[] }
+  | { type: "conversation.title"; conversationId: string; title: string }
   | { type: "protocol-error" };
 
 export type ChatFailureKind =
@@ -134,6 +145,10 @@ export function parseCitationsEvent(data: unknown) {
 
 export function parseSourcesFinalEvent(data: unknown) {
   return sourcesFinalSchema.safeParse(data);
+}
+
+export function parseConversationTitleEvent(data: unknown) {
+  return conversationTitleSchema.safeParse(data);
 }
 
 export function observeRunEvent(
@@ -234,6 +249,25 @@ export function observeCustomEvent(
     }
 
     return { type: "sources.final", sources: parsed.data.sources };
+  }
+
+  if (eventType === "conversation.title") {
+    const parsed = parseConversationTitleEvent(data);
+    if (
+      !parsed.success ||
+      !run.metadataSeen ||
+      !run.citationsSeen ||
+      parsed.data.conversationId !== run.conversationId
+    ) {
+      // Title updates are non-fatal; ignore malformed or out-of-order payloads.
+      return { type: "accepted" };
+    }
+
+    return {
+      type: "conversation.title",
+      conversationId: parsed.data.conversationId,
+      title: parsed.data.title,
+    };
   }
 
   return { type: "protocol-error" };

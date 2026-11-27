@@ -56,7 +56,7 @@ export function DashboardHeader({
   return (
     <header
       className={cx(
-        "flex h-12 w-full shrink-0 select-none items-center justify-between px-4 text-xs",
+        "flex h-12 w-full shrink-0 select-none items-center justify-between gap-2 px-4 text-xs",
         className
       )}
     >
@@ -98,14 +98,18 @@ export function DashboardHeader({
                     {item.icon}
                   </span>
                 )}
-                <span className="truncate">{item.label}</span>
+                <span className="truncate" title={item.label}>
+                  {item.label}
+                </span>
               </span>
             </Fragment>
           ))}
         </nav>
       </div>
 
-      {actions && <div className="flex items-center gap-1">{actions}</div>}
+      {actions && (
+        <div className="flex shrink-0 items-center gap-1">{actions}</div>
+      )}
     </header>
   );
 }
