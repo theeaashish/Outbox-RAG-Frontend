@@ -1,15 +1,19 @@
 "use client";
 
+import { useEffect, useState, type CSSProperties } from "react";
 import {
+  Activity,
   ArrowUp,
+  Check,
+  ChevronRight,
+  FileCode2,
   FileText,
-  Layers,
-  MessageSquareText,
+  MessageSquare,
   Search,
+  ShieldCheck,
 } from "lucide-react";
-import { useThemeMode } from "@repo/ui";
+import { LogoIcon, useThemeMode } from "@repo/ui";
 import {
-  Bar,
   Collapse,
   Field,
   Stage,
@@ -26,12 +30,19 @@ const A =
   "Uploads write both the Document row and OutboxEvent in one ACID transaction (<25ms). Workers then lock each job with a fencing token before committing 768d pgvector chunks.";
 const WORDS = A.split(" ").length;
 
+const DOCS = [
+  { id: 1, name: "annual-report-2025.pdf", icon: "pdf", score: "0.94" },
+  { id: 2, name: "architecture-spec.md", icon: "md", score: "0.89" },
+  { id: 3, name: "pgvector-schema.sql", icon: "sql", score: null },
+] as const;
+
 const CITATIONS = [
   {
     id: 1,
     file: "annual-report-2025.pdf",
     page: "p.12",
-    score: "0.942 cosine",
+    score: "0.942 cos",
+    provenance: "ACID tx · <25ms commit · chunk #12",
     snippet:
       "POST /documents validates the SHA-256 hash, persists the object, and commits Document + OutboxEvent in a single ACID transaction (<25ms).",
   },
@@ -39,343 +50,488 @@ const CITATIONS = [
     id: 2,
     file: "architecture-spec.md",
     page: "p.4",
-    score: "0.891 cosine",
+    score: "0.891 cos",
+    provenance: "UUID v4 fencing token · FOR UPDATE",
     snippet:
       "Each ingestion worker claims a UUID v4 processing_token and verifies lease ownership via SELECT ... FOR UPDATE before committing chunks.",
   },
 ] as const;
 
+type PressTarget = "send" | "cite-1" | null;
+
 type SceneState = {
   focused: boolean;
   draft: string;
+  pressing: PressTarget;
+  hoveredCite: number | null;
   sent: boolean;
   status: "idle" | "routing" | "retrieved";
   phase: "idle" | "answer";
   words: number;
   sources: boolean;
   inspected: number | null;
+  resetting: boolean;
 };
 
 const INITIAL_STATE: SceneState = {
   focused: false,
   draft: "",
+  pressing: null,
+  hoveredCite: null,
   sent: false,
   status: "idle",
   phase: "idle",
   words: 0,
   sources: false,
   inspected: null,
+  resetting: false,
 };
 
 const POSTER_STATE: SceneState = {
   focused: false,
   draft: "",
+  pressing: null,
+  hoveredCite: null,
   sent: true,
   status: "retrieved",
   phase: "answer",
   words: WORDS,
   sources: true,
   inspected: 1,
+  resetting: false,
 };
 
 const REST = {
-  wide: { x: 740, y: 310 },
-  compact: { x: 276, y: 310 },
+  wide: { x: 874, y: 268 },
+  compact: { x: 308, y: 294 },
 };
 
 async function script(a: Act<SceneState>) {
-  await a.wait(500);
-
-  // 1. Focus composer & type query
-  await a.move({ at: "composer", x: 0.42, y: 0.5 });
-  await a.click();
-  await a.set({ focused: true });
-  await a.type("draft", Q, { interval: 32 });
-  await a.wait(260);
-
-  // 2. Click Send button
-  await a.move({ at: "send", x: 0.5, y: 0.5 });
-  await a.wait(140);
-  await a.click();
-  await a.set({ sent: true, draft: "", focused: false, status: "routing" });
-  await a.wait(720);
-
-  // 3. Retrieval status + word-by-word answer stream
-  await a.set({ status: "retrieved", phase: "answer" });
-  for (let i = 1; i <= WORDS; i++) {
-    a.put({ words: i });
-    await a.wait(36);
-  }
-
-  // 4. Staggered citation chips arrive
-  await a.wait(220);
-  await a.set({ sources: true });
+  // 1. Calm opening beat
   await a.wait(420);
 
-  // 5. Payoff: cursor inspects citation [1] to open origin-aware provenance popover
-  await a.move({ at: "cite-1", x: 0.5, y: 0.5 });
-  await a.wait(180);
+  // 2. Focus composer and type smoothly
+  await a.move({ at: "composer", x: 0.34, y: 0.5 });
   await a.click();
-  await a.set({ inspected: 1 });
-  await a.move("rest");
-  await a.wait(2200);
-
-  // 6. Clean exit back to initial state for a seamless infinite loop
-  await a.set({ inspected: null });
-  await a.wait(200);
-  await a.set({ sources: false });
+  await a.set({ focused: true });
+  await a.wait(120);
+  await a.type("draft", Q, { interval: 26 });
   await a.wait(220);
-  await a.set({ phase: "idle", status: "idle", sent: false });
-  await a.wait(320);
-  a.snap({ words: 0 });
-  await a.wait(450);
+
+  // 3. Tactile send press (0.97 scale -> release -> send)
+  await a.move({ at: "send", x: 0.5, y: 0.5 });
+  await a.wait(110);
+  await a.set({ pressing: "send" });
+  await a.click();
+  await a.wait(90);
+  await a.set({
+    pressing: null,
+    sent: true,
+    draft: "",
+    focused: false,
+    status: "routing",
+  });
+
+  // 4. Retrieval shimmer beat
+  await a.wait(660);
+  await a.set({ status: "retrieved", phase: "answer" });
+  await a.wait(120);
+
+  // 5. Stream grounded answer
+  for (let i = 1; i <= WORDS; i++) {
+    a.put({ words: i });
+    await a.wait(30);
+  }
+
+  // 6. Staggered citation reveal
+  await a.wait(160);
+  await a.set({ sources: true });
+  await a.wait(360);
+
+  // 7. Hover anticipation + tactile click on Citation 1
+  await a.move({ at: "cite-1", x: 0.5, y: 0.5 });
+  await a.set({ hoveredCite: 1 });
+  await a.wait(160);
+  await a.set({ pressing: "cite-1" });
+  await a.click();
+  await a.wait(85);
+  await a.set({ pressing: null, inspected: 1 });
+
+  // 8. Clear cursor to open space for reading
+  await a.move("rest");
+  await a.set({ hoveredCite: null });
+  await a.wait(2600);
+
+  // 9. Crisp popover exit + unified canvas exhale
+  await a.set({ inspected: null });
+  await a.wait(160);
+  await a.set({ resetting: true });
+  await a.wait(270);
+  a.snap(INITIAL_STATE);
+  await a.wait(360);
 }
 
-function Sidebar() {
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setReduced(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  return reduced;
+}
+
+function Sidebar({ state }: { state: SceneState }) {
+  const retrievedIds = state.status === "retrieved" ? [1, 2] : [];
+  const activeIndex = state.inspected ? state.inspected - 1 : -1;
+
   return (
-    <div className="ob-side">
-      <div className="ob-workspace">
-        <span className="ob-workspace__mark" aria-hidden="true">
-          <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
-            <path
-              d="M8 1.5v13M1.5 8h13M3.4 3.4l9.2 9.2M12.6 3.4l-9.2 9.2"
-              stroke="white"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-            />
-          </svg>
-        </span>
-        <Text className="ob-workspace__name">Outbox</Text>
-        <Text className="ob-workspace__tag">v2</Text>
+    <aside className="ob-sidebar" aria-label="Workspace navigation">
+      <div className="ob-brand">
+        <LogoIcon className="size-5 shrink-0" />
+        <Text className="ob-brand-name">Outbox</Text>
       </div>
 
-      <div className="ob-side-group">
-        <div className="ob-nav" data-active>
-          <MessageSquareText
-            size={14}
-            strokeWidth={1.75}
-            className="ob-nav__icon"
-            aria-hidden
-          />
-          <Text className="ob-nav__label">Assistant</Text>
+      <div className="ob-nav-section">
+        <div className="ob-nav-label">Workspace</div>
+        <div className="ob-nav-item" data-active="true">
+          <MessageSquare size={14} strokeWidth={1.75} className="ob-nav-icon" />
+          <Text>Assistant</Text>
         </div>
-
-        <div className="ob-nav">
-          <FileText
-            size={14}
-            strokeWidth={1.75}
-            className="ob-nav__icon"
-            aria-hidden
-          />
-          <Text className="ob-nav__label">Documents</Text>
-          <Text className="ob-nav__count">3</Text>
+        <div className="ob-nav-item">
+          <FileText size={14} strokeWidth={1.75} className="ob-nav-icon" />
+          <Text>Documents</Text>
+          <Text className="ob-nav-count">3</Text>
         </div>
-
-        <div className="ob-nav">
-          <Search
-            size={14}
-            strokeWidth={1.75}
-            className="ob-nav__icon"
-            aria-hidden
-          />
-          <Text className="ob-nav__label">Search</Text>
+        <div className="ob-nav-item">
+          <Search size={14} strokeWidth={1.75} className="ob-nav-icon" />
+          <Text>Search</Text>
         </div>
-
-        <div className="ob-nav">
-          <Layers
-            size={14}
-            strokeWidth={1.75}
-            className="ob-nav__icon"
-            aria-hidden
-          />
-          <Text className="ob-nav__label">Outbox</Text>
+        <div className="ob-nav-item">
+          <Activity size={14} strokeWidth={1.75} className="ob-nav-icon" />
+          <Text>Ops</Text>
         </div>
       </div>
 
-      <div className="ob-side-group">
-        <div className="ob-side-heading">Indexed sources</div>
-        <div className="ob-doc">
-          <span className="ob-doc__dot" aria-hidden />
-          <Text className="ob-doc__name">annual-report-2025.pdf</Text>
-        </div>
-        <div className="ob-doc">
-          <span className="ob-doc__dot" aria-hidden />
-          <Text className="ob-doc__name">architecture-spec.md</Text>
-        </div>
-        <div className="ob-doc ob-doc--fill">
-          <Bar w={6} h={6} r={3} tone={2} />
-          <Bar w={104} h={6} tone={2} />
-        </div>
-        <div className="ob-doc ob-doc--fill">
-          <Bar w={6} h={6} r={3} tone={1} />
-          <Bar w={84} h={6} tone={1} />
-        </div>
-      </div>
-    </div>
-  );
-}
+      <div className="ob-nav-section">
+        <div className="ob-nav-label">Indexed sources</div>
 
-function Scene({ s, layout }: { s: SceneState; layout: Layout }) {
-  const compact = layout === "compact";
-  const activeCitation =
-    CITATIONS.find((c) => c.id === s.inspected) ?? null;
+        <div className="ob-doc-list">
+          <span
+            className="ob-doc-rail"
+            data-visible={activeIndex >= 0}
+            style={{
+              transform: `translateY(${Math.max(0, activeIndex) * 32}px)`,
+            }}
+            aria-hidden="true"
+          />
 
-  const lead = (
-    <div className="ob-crumbs">
-      <Text className="ob-crumbs__muted">project-sea</Text>
-      <span className="ob-crumbs__sep" aria-hidden>
-        /
-      </span>
-      <Text className="ob-crumbs__active">Assistant</Text>
-    </div>
-  );
+          {DOCS.map((doc) => {
+            const isHit = retrievedIds.includes(doc.id);
+            const isInspected = state.inspected === doc.id;
 
-  const toolbar = (
-    <div className="ob-toolbar">
-      <div className="ob-status-chip">
-        <span className="ob-status-chip__dot" aria-hidden />
-        <Text>3 docs indexed</Text>
-      </div>
-    </div>
-  );
-
-  const body = (
-    <div className="ob-chat">
-      <div className="ob-thread">
-        <Collapse open={s.sent} reveal="drop" from="below">
-          <div className="ob-q">
-            <Text>{Q}</Text>
-          </div>
-        </Collapse>
-
-        <Collapse open={s.status !== "idle"}>
-          <div
-            className="ob-stage-status"
-            data-done={s.status === "retrieved" ? "true" : undefined}
-          >
-            <span className="ob-stage-status__dot" aria-hidden />
-            <Text>
-              {s.status === "routing"
-                ? "QueryRouter · KNOWLEDGE (0.4ms)"
-                : "pgvector HNSW · 2 chunks matched (0.94)"}
-            </Text>
-          </div>
-        </Collapse>
-
-        <Collapse open={s.phase === "answer"}>
-          <div className="ob-a">
-            <Stream className="ob-stream" text={A} count={s.words} />
-
-            <div className="ob-sources" data-on={s.sources ? "true" : undefined}>
+            return (
               <div
-                className="ob-popover"
-                data-open={s.sources && activeCitation !== null ? "true" : undefined}
+                key={doc.id}
+                className="ob-doc-item"
+                data-hit={isHit}
+                data-inspected={isInspected}
               >
-                {activeCitation && (
-                  <>
-                    <div className="ob-popover__head">
-                      <span className="ob-popover__file">
-                        [{activeCitation.id}] {activeCitation.file} ·{" "}
-                        {activeCitation.page}
-                      </span>
-                      <span className="ob-popover__score">
-                        {activeCitation.score}
-                      </span>
-                    </div>
-                    <p className="ob-popover__snippet">
-                      {activeCitation.snippet}
-                    </p>
-                  </>
+                <span className="ob-doc-icon" aria-hidden="true">
+                  {doc.icon === "sql" ? (
+                    <FileCode2 size={13} strokeWidth={1.7} />
+                  ) : (
+                    <FileText size={13} strokeWidth={1.7} />
+                  )}
+                </span>
+                <Text className="ob-doc-name">{doc.name}</Text>
+                {doc.score && (
+                  <span
+                    className="ob-doc-score"
+                    data-visible={isHit}
+                    aria-hidden="true"
+                  >
+                    {doc.score}
+                  </span>
                 )}
               </div>
-
-              {CITATIONS.map((cite, idx) => (
-                <div
-                  key={cite.id}
-                  data-target={cite.id === 1 ? "cite-1" : "cite-2"}
-                  data-index={idx}
-                  data-active={s.inspected === cite.id ? "true" : undefined}
-                  className="ob-cite"
-                >
-                  <span className="ob-cite__num">[{cite.id}]</span>
-                  <span>
-                    {cite.file} · {cite.page}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Collapse>
-      </div>
-
-      <div className="ob-composer-row" data-focused={s.focused ? "true" : undefined}>
-        <div className="ob-composer-field" data-target="composer">
-          <Field
-            value={s.draft}
-            placeholder="Ask about your documents…"
-            focused={s.focused}
-          />
-        </div>
-        <div
-          className="ob-send-btn"
-          data-target="send"
-          data-disabled={!s.draft ? "true" : undefined}
-          aria-hidden="true"
-        >
-          <ArrowUp size={14} strokeWidth={2.2} />
+            );
+          })}
         </div>
       </div>
 
-      <span
-        data-target="rest"
-        style={{
-          position: "absolute",
-          left: REST[layout].x,
-          top: REST[layout].y,
-        }}
-      />
-    </div>
+      {/* Quiet engine status footer — anchors sidebar without badge clutter */}
+      <div className="ob-sidebar-footer">
+        <div className="ob-engine-row">
+          <span className="ob-engine-label">Outbox</span>
+          <span className="ob-engine-val">ACID · 0 lag</span>
+        </div>
+        <div className="ob-engine-row">
+          <span className="ob-engine-label">Index</span>
+          <span className="ob-engine-val">pgvector 768d</span>
+        </div>
+      </div>
+    </aside>
   );
+}
+
+function Scene({ state, layout }: { state: SceneState; layout: Layout }) {
+  const isCompact = layout === "compact";
+  const hasDraft = state.draft.length > 0;
+  const isStreaming = state.phase === "answer" && state.words < WORDS;
 
   return (
-    <div className="ob-mask">
-      {compact ? (
-        <Window lead={lead} toolbar={toolbar} className="ob-win">
-          {body}
-        </Window>
-      ) : (
-        <Window
-          lead={lead}
-          toolbar={toolbar}
-          sidebar={<Sidebar />}
-          sidebarWidth={192}
-          className="ob-win"
-        >
-          {body}
-        </Window>
-      )}
-    </div>
+    <Window className="ob-window">
+      <div className="ob-shell" data-compact={isCompact}>
+        {!isCompact && <Sidebar state={state} />}
+
+        <div className="ob-main">
+          <div className="ob-topbar">
+            <div className="ob-topbar-left">
+              <Text className="ob-topbar-muted">project-sea</Text>
+              <ChevronRight
+                size={12}
+                strokeWidth={1.8}
+                className="ob-topbar-sep"
+                aria-hidden="true"
+              />
+              <Text className="ob-topbar-title">Assistant</Text>
+            </div>
+
+            {/* Crossfading topbar status (never hard-snaps) */}
+            <div className="ob-topbar-status">
+              <span className="ob-status-dot" data-state={state.status} />
+              <span className="ob-topbar-status-stack">
+                <span
+                  className="ob-topbar-status-text"
+                  data-active={state.status !== "routing"}
+                >
+                  3 docs ready
+                </span>
+                <span
+                  className="ob-topbar-status-text"
+                  data-active={state.status === "routing"}
+                >
+                  Searching pgvector…
+                </span>
+              </span>
+            </div>
+          </div>
+
+          <div className="ob-viewport ob-mask">
+            {/* Serene opening state — crossfades out on send */}
+            <div
+              className="ob-empty"
+              data-visible={!state.sent && !state.resetting}
+              aria-hidden={state.sent}
+            >
+              <div className="ob-empty-mark">
+                <LogoIcon className="size-4" />
+              </div>
+              <Text className="ob-empty-title">Ask your indexed corpus</Text>
+              <Text className="ob-empty-sub">
+                3 documents · 231 pgvector chunks synced
+              </Text>
+            </div>
+
+            <div className="ob-thread" data-resetting={state.resetting}>
+              <Collapse open={state.sent} reveal="drop" from="below">
+                <div className="ob-turn">
+                  <div className="ob-user-row">
+                    <div className="ob-user-bubble">
+                      <Text>{Q}</Text>
+                    </div>
+                  </div>
+
+                  {/* Assistant response with refined visual hierarchy */}
+                  <div className="ob-assistant">
+                    <div className="ob-telemetry" data-state={state.status}>
+                      <div
+                        className="ob-telemetry-layer"
+                        data-active={state.status === "routing"}
+                      >
+                        <Search
+                          size={13}
+                          strokeWidth={1.8}
+                          className="ob-telemetry-icon"
+                        />
+                        <span className="ob-shimmer-text">
+                          Searching 768d pgvector index…
+                        </span>
+                      </div>
+
+                      <div
+                        className="ob-telemetry-layer"
+                        data-active={state.status === "retrieved"}
+                      >
+                        <span className="ob-check-badge" aria-hidden="true">
+                          <Check size={10} strokeWidth={2.7} />
+                        </span>
+                        <Text className="ob-telemetry-label">
+                          Retrieved 2 grounded chunks
+                        </Text>
+                        <span className="ob-telemetry-meta">
+                          18ms · 0.942 cos
+                        </span>
+                      </div>
+                    </div>
+
+                    <Collapse open={state.phase === "answer"}>
+                      <div className="ob-answer-block">
+                        <p className="ob-answer-text">
+                          <Stream text={A} count={state.words} />
+                          <span
+                            className="ob-caret"
+                            data-visible={isStreaming}
+                            aria-hidden="true"
+                          />
+                        </p>
+
+                        <div
+                          className="ob-citations"
+                          data-visible={state.sources}
+                        >
+                          {CITATIONS.map((cite, idx) => {
+                            const isOpen = state.inspected === cite.id;
+                            const isHovered = state.hoveredCite === cite.id;
+                            const isPressed =
+                              state.pressing === `cite-${cite.id}`;
+
+                            return (
+                              <div
+                                key={cite.id}
+                                className="ob-cite-anchor"
+                                style={
+                                  {
+                                    "--ob-stagger": `${idx * 48}ms`,
+                                  } as CSSProperties
+                                }
+                              >
+                                <div
+                                  data-target={`cite-${cite.id}`}
+                                  className="ob-cite"
+                                  data-visible={state.sources}
+                                  data-hovered={isHovered}
+                                  data-pressed={isPressed}
+                                  data-active={isOpen}
+                                >
+                                  <span className="ob-cite-num">{cite.id}</span>
+                                  <span className="ob-cite-file">
+                                    {cite.file}
+                                  </span>
+                                  <span className="ob-cite-page">
+                                    {cite.page}
+                                  </span>
+                                </div>
+
+                                {/* Origin-aware translucent evidence card: opens below on wide, above on compact */}
+                                <div
+                                  className="ob-popover"
+                                  role="dialog"
+                                  aria-label={`Source ${cite.id}: ${cite.file}`}
+                                  data-open={isOpen}
+                                  data-align={idx === 0 ? "left" : "right"}
+                                  data-placement={isCompact ? "top" : "bottom"}
+                                >
+                                  <div className="ob-popover-head">
+                                    <span className="ob-popover-index">
+                                      {cite.id}
+                                    </span>
+                                    <span className="ob-popover-file">
+                                      {cite.file}
+                                    </span>
+                                    <span className="ob-popover-page">
+                                      {cite.page}
+                                    </span>
+                                    <span className="ob-popover-score">
+                                      {cite.score}
+                                    </span>
+                                  </div>
+                                  <blockquote className="ob-popover-snippet">
+                                    {cite.snippet}
+                                  </blockquote>
+                                  <div className="ob-popover-foot">
+                                    <ShieldCheck
+                                      size={11}
+                                      strokeWidth={2}
+                                      className="ob-popover-shield"
+                                    />
+                                    <span>{cite.provenance}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </Collapse>
+                  </div>
+                </div>
+              </Collapse>
+            </div>
+          </div>
+
+          <div className="ob-composer-wrap">
+            <div
+              data-target="composer"
+              className="ob-composer"
+              data-focused={state.focused}
+            >
+              <Field
+                className="ob-field"
+                value={state.draft}
+                focused={state.focused}
+                placeholder="Ask about ingestion, leases, or embeddings…"
+              />
+              <div
+                data-target="send"
+                aria-hidden="true"
+                className="ob-send-btn"
+                data-ready={hasDraft}
+                data-pressed={state.pressing === "send"}
+              >
+                <ArrowUp size={14} strokeWidth={2.4} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <span
+          data-target="rest"
+          style={{
+            position: "absolute",
+            left: REST[layout].x,
+            top: REST[layout].y,
+          }}
+        />
+      </div>
+    </Window>
   );
 }
 
 export function OutboxStage() {
   const theme = useThemeMode();
+  const reducedMotion = usePrefersReducedMotion();
 
   return (
-    <div className="ob-stage">
-      <Stage
-        width={920}
-        height={464}
+    <div className="ob-stage" data-theme={theme}>
+      <Stage<SceneState>
+        width={1060}
+        height={520}
         compact={{ below: 640, width: 358, height: 420 }}
         theme={theme}
         greys="cool"
-        initial={INITIAL_STATE}
+        initial={reducedMotion ? POSTER_STATE : INITIAL_STATE}
         poster={POSTER_STATE}
         script={script}
         cursor={{ at: REST, style: "real", ripple: true }}
         play="loop"
       >
-        {(s, _rect, layout) => <Scene s={s} layout={layout} />}
+        {(state, _rect, layout) => <Scene state={state} layout={layout} />}
       </Stage>
     </div>
   );

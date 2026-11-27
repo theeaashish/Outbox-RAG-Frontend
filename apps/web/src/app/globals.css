@@ -5,6 +5,10 @@
 @source "../../node_modules/@streamdown/code/dist/*.js";
 
 ::selection {
-  background-color: color-mix(in oklab, var(--color-accent-500) 24%, transparent);
+  background-color: color-mix(
+    in oklab,
+    var(--color-accent-500) 24%,
+    transparent
+  );
   color: inherit;
 }
