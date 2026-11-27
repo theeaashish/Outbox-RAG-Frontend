@@ -10,12 +10,14 @@ import { navLinks, type NavItem } from "./nav-links";
 export interface MobileNavProps {
   links?: NavItem[];
   actions?: ReactNode;
+  overDarkSurface?: boolean;
   className?: string;
 }
 
 export function MobileNav({
   links = navLinks,
   actions,
+  overDarkSurface = false,
   className,
 }: MobileNavProps) {
   const [open, setOpen] = useState(false);
@@ -60,7 +62,11 @@ export function MobileNav({
         aria-controls="mobile-menu"
         aria-expanded={open}
         aria-label="Toggle navigation menu"
-        className="md:hidden"
+        className={cn(
+          "md:hidden",
+          overDarkSurface &&
+            "border-white/25 bg-white/10 text-white hover:border-white/40 hover:bg-white/18 hover:text-white"
+        )}
         onClick={() => setOpen((prev) => !prev)}
         size="icon"
         variant="outline"

@@ -1,76 +1,55 @@
-import type { ReactNode } from "react";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { Badge, BoardButtonLink } from "@repo/ui";
+import { BoardButtonLink } from "@repo/ui";
 import { RiArrowRightLine, RiGithubFill } from "@remixicon/react";
 import { LogoStrip } from "./logo-strip";
+import { OutboxStage } from "./outbox-stage";
 
-export interface HeroProps {
-  children?: ReactNode;
-}
-
-export function Hero({ children }: HeroProps) {
+export function Hero() {
   return (
     <section className="relative overflow-hidden bg-white dark:bg-zinc-950">
-      <div className="mx-auto max-w-6xl px-6 pt-16 text-center sm:pt-24">
-        {/* Badge */}
-        <div className="inline-flex items-center justify-center">
-          <Link
-            href="#features"
-            className="group inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 py-1 pr-3 pl-1 text-sm text-zinc-600 dark:text-zinc-300 shadow-xs hover:border-accent-300 dark:hover:border-accent-700 transition-colors"
-          >
-            <Badge className="rounded-full bg-button-primary text-white px-2.5 py-0.5 text-xs font-semibold border-none shadow-[0_0_0_1px_var(--color-accent-600),inset_0_1px_0_0_rgb(255_255_255/0.25)]">
-              New
-            </Badge>
-            <span>Transactional outbox ingestion is live</span>
-            <ArrowRight className="h-3.5 w-3.5 text-zinc-400 dark:text-zinc-500 group-hover:translate-x-0.5 group-hover:text-accent-600 dark:group-hover:text-accent-400 transition-all" />
-          </Link>
-        </div>
-
-        {/* Headline */}
-        <h1 className="mt-8 text-4xl font-medium tracking-tighter text-zinc-900 dark:text-zinc-50 sm:text-4xl md:text-5xl">
-          AI answers easy to stream.
-          <br />
-          Not easy to lose.
+      <div className="mx-auto flex w-full max-w-6xl flex-col items-center px-4 pt-16 pb-16 text-center sm:px-6 sm:pt-24 sm:pb-20">
+        {/* Balanced medium-weight headline */}
+        <h1 className="mx-auto max-w-3xl text-balance font-medium tracking-[-0.03em] leading-[1.12] text-[clamp(1.5rem,0.95rem+2.75vw,3.25rem)] text-zinc-950 dark:text-zinc-50">
+          <span className="block">Grounded AI over your docs,</span>
+          <span className="block">built to never lose a file.</span>
         </h1>
 
-        {/* Subhead */}
-        <p className="mx-auto mt-6 max-w-[50ch] text-base text-zinc-700 dark:text-zinc-300 font-normal leading-relaxed">
-          Outbox RAG is the production-grade foundation for retrieval systems
-          that must never lose a document.
+        {/* Concise subtitle */}
+        <p className="mx-auto mt-5 max-w-[50ch] text-pretty text-[15px] leading-relaxed font-normal text-zinc-600 dark:text-zinc-400 sm:text-base">
+          Outbox RAG pairs transactional document ingestion with pgvector
+          retrieval so every uploaded file is indexed and cited.
         </p>
 
-        {/* CTAs */}
-        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        {/* Compact non-pill CTAs with identical outer box geometry */}
+        <div className="mt-7 flex flex-wrap items-center justify-center gap-2.5">
           <BoardButtonLink
-            href="#start"
+            href="/register"
             variant="primary"
-            size="medium"
+            size="small"
             trailingIcon={RiArrowRightLine}
+            className="h-8 px-2.5 transition-[filter,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.97]"
           >
             Start building
           </BoardButtonLink>
           <BoardButtonLink
-            href="https://github.com"
+            href="https://github.com/theeaashish/Outbox-RAG"
             target="_blank"
             rel="noopener noreferrer"
             variant="secondary"
-            size="medium"
+            size="small"
             leadingIcon={RiGithubFill}
+            className="h-8 border-0 px-2.5 shadow-[0_1px_2px_0_rgb(0_0_0/0.05),0_0_0_1px_var(--color-border-button-default)] transition-[background-color,box-shadow,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] hover:shadow-[0_1px_2px_0_rgb(0_0_0/0.06),0_0_0_1px_var(--color-border-button-hover)] active:scale-[0.97]"
           >
             Star on GitHub
           </BoardButtonLink>
         </div>
 
-        {/* Chat Composer in Hero */}
-        {children ? (
-          <div className="relative z-10 mx-auto mt-10 max-w-2xl text-left">
-            {children}
-          </div>
-        ) : null}
+        {/* Stageshow product showcase */}
+        <div className="mt-12 w-full sm:mt-14">
+          <OutboxStage />
+        </div>
 
-        {/* Logo strip */}
-        <div className="mt-16 pb-20">
+        {/* Architectural stack strip */}
+        <div className="mt-10 w-full max-w-4xl sm:mt-12">
           <LogoStrip />
         </div>
       </div>
